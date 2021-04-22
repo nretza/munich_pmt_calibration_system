@@ -41,8 +41,8 @@ class Picoamp:
             time.sleep(.1)
         line = self.serial.readline()
         # print(line)
+        val = np.array([])
         try:
-            val = np.array([])
             for x in line.decode('utf8').split(',')[::2]:
                 val = np.append(val, [float(x)])
         except:
@@ -74,8 +74,8 @@ class Picoamp:
             time.sleep(.1)
         line = self.serial.readline()
         # print(line)
+        val = np.array([])
         try:
-            val = np.array([])
             for x in line.decode('utf8').split(',')[::2]:
                 val = np.append(val, [float(x)])
         except:
