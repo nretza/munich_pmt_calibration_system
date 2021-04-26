@@ -16,7 +16,7 @@ class Powermeter:
                                     )
 
         self.echo(0)  # Echo OFF
-        self.serial.write(str.encode('PM:L 405'))  # the Picosecond Laser has a wavelength of 405 nm
+        self.serial.write(b'PM:L 405\r\n')  # the Picosecond Laser has a wavelength of 405 nm
 
     def echo(self, state):
         """
@@ -29,12 +29,8 @@ class Powermeter:
         :return: echo status
         """
         self.serial.write(str.encode('ECHO %s\n' % state))  # 0 Echo OFF, 1 Echo ON
-        time.sleep(.1)
-        line = self.serial.readline()
-        print(line.decode())
-        self.serial.write(str.encode('ECHO?'))  # returns the status of the echo
-        time.sleep(.1)
+        time.sleep(.5)
+        self.serial.write(str.encode('ECHO?\n'))  # returns the status of the echo
+        time.sleep(.5)
         line = self.serial.readline()
         print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
-
-
