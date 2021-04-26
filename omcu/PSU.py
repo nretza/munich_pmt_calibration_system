@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import gpd3303s
 import time
 
