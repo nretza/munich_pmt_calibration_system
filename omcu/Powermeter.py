@@ -114,6 +114,90 @@ class Powermeter:
         self.serial.write(b'PM:DS:CL\r\n')  # resets the data store to be empty with no values
         time.sleep(.5)
 
+    def get_count(self):
+        """
+        This is a function to get information about the number of measurements that have been collected
+        in the Data Store.
+        :return: int (The number of measurements that have been collected)
+        """
+        self.serial.write(b'PM:DS:C?\r\n')  # returns the number of measurements collected
+        time.sleep(.5)
+        line = self.serial.readline()
+        print("The number of measurements that have been collected is:", line.decode())
+
+    def set_data_collection(self, en):
+        """
+        This is a function to enable or disable the collection of measurements in the Data Store
+        Data will be collected after the PM:DS:ENable command has been called with a parameter of 1.
+        Data collection will stop when the PM:DS:ENable command has been called with a parameter of 0
+        or when a fixed size data buffer is full.
+        :param en: 0 = disable, 1 = enable
+        :return: status of the Data Store (0 = disabled, 1 = enabled)
+        """
+        self.serial.write(str.encode('PM:DS:EN %s\r\n' % en))
+        time.sleep(.5)
+        self.get_collection_status()
+
+    def get_collection_status(self):
+        """
+        This is a function to get the enabled status of the Data Store
+        :return: status of the Data Store (0 = disable, 1 = enable)
+        """
+        self.serial.write(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
+        time.sleep(.5)
+        line = self.serial.readline()
+        print("The collection of measurements in the Data Store is:", line.decode(),
+              "(0 = disabled or buffer full, 1 = enabled)")
+
+    def get_data(self, num):
+        """
+        This is a function to get a number of measurements that have been collected in the Data Store.
+        :param num: 1, 1-10, -5, +5
+        :return: “1”–returns the single value specified
+                 “1-10”–returns values in the range from 1-10
+                 “-5”–returns the oldest 5 values (same as 1-5)
+                 “+5”–returns the newest 5 values
+        """
+        self.serial.write(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
+        time.sleep(.5)
+        s = ''
+        while self.serial.inWaiting():
+            try:
+                s += self.serial.read().decode()
+            except:
+                pass
+        print(s)
+
+    def set_interval(self, intv):
+        """
+        This is a function to select the Data Store Interval.
+        An interval value of 1 causes the power meter to put all measurements taken in the data store buffer;
+        a value of 2 causes every other measurement to be put in the data buffer and so on.
+        If the measurement mode is “CW Continuous”, an interval setting of 1 translates to putting measurements
+        at the rate of 0.1ms in the data buffer.
+        If the measurement mode is “Peak-Peak Continuous”, an interval setting of 1 translates to putting measurements
+        at a rate dictated by measurement timeout duration.
+        If the measurement mode is “Pulse Continuous”,an interval setting of 1 translates to putting every pulse
+        measurement in the data buffer.  Here, the rate of data storage depends upon the pulse repetition rate.
+        The total time taken to fill up the data buffer depends upon various factors such as the interval,
+        data store size and measurement mode.
+        :param intv: int (represents the rate at which measurements are put in the data buffer)
+        :return: selected Data Store Interval
+        """
+        self.serial.write(str.encode('PM:DS:INT %s\r\n' % intv))  # selects the Data Store Interval
+        time.sleep(.5)
+        self.get_interval()
+
+    def get_interval(self):
+        """
+        This is a function to get information about the selected Data Store Interval
+        :return: selected Data Store Interval
+        """
+        self.serial.write(b'PM:DS:INT?\r\n')  # returns the selected Data Store Interval
+        time.sleep(.5)
+        line = self.serial.readline()
+        print("The selected Data Store Interval is:", line.decode())
+
     def set_mode(self, mode):
         """
         This is a function to select the acquisition mode for acquiring subsequent readings
@@ -150,55 +234,28 @@ class Powermeter:
               "(0 = DC Continuous, 1 = DC Single, 2 = Integrate, 3 = Peak-to-peak Continuous,"
               "4 = Peak-to-peak Single, 5 = Pulse Continuous, 6 = Pulse Single, 7 = RMS)")
 
-    def get_count(self):
+    def get_power(self):
         """
-        This is a function to get information about the number of measurements that have been collected
-        in the Data Store.
-        :return: int (The number of measurements that have been collected)
+        This is a function to get the measured (and corrected) power in the selected units
+        :return: exp (i.e. 9.4689E-04)
         """
-        self.serial.write(b'PM:DS:C?\r\n')  # returns the number of measurements collected
+        self.serial.write(b'PM:P?\r\n')  # returns the power in the selected units
         time.sleep(.5)
         line = self.serial.readline()
-        print("The number of measurements that have been collected is:", line.decode())
+        print("The power is:", line.decode())
 
-    def set_data_collection(self, en):
+    def set_run(self, runner):
         """
-        This is a function to enable or disable the collection of measurements in the Data Store
-        Data will be collected after the PM:DS:ENable command has been called with a parameter of 1.
-        Data collection will stop when the PM:DS:ENable command has been called with a parameter of 0
-        or when a fixed size data buffer is full.
-        :param en: 0 = disable, 1 = enable
-        :return: status of the Data Store (0 = disable, 1 = enable)
+        This is a function to disable or enable the acquistion of data
+        :param runner: 0 = stopped, 1 = running
+        :return: int (0 = stopped, 1 = running)
         """
-        self.serial.write(str.encode('PM:DS:EN %s\r\n' % en))
+        self.serial.write(str.encode('PM:RUN %s\r\n' % runner))  # disables or enables the acquisition of data
         time.sleep(.5)
-        self.get_collection_status()
+        self.get_run()
 
-    def get_collection_status(self):
-        """
-        This is a function to get the enabled status of the Data Store
-        :return: status of the Data Store (0 = disable, 1 = enable)
-        """
-        self.serial.write(b'PM:DS:EN?\r\n')  # returns the enabled status of the Data Store
+    def get_run(self):
+        self.serial.write(b'PM:RUN?\r\n')  # returns an int indicating the present run mode
         time.sleep(.5)
         line = self.serial.readline()
-        print("The enabled status of the Data Store is:", line.decode(), "(0 = disabled or buffer full, 1 = enabled)")
-
-    def get_data(self, num):
-        """
-        This is a function to get a number of measurements that have been collected in the Data Store.
-        :param num: 1, 1-10, -5, +5
-        :return: “1”–returns the single value specified
-                 “1-10”–returns values in the range from 1-10
-                 “-5”–returns the oldest 5 values (same as 1-5)
-                 “+5”–returns the newest 5 values
-        """
-        self.serial.write(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
-        time.sleep(.5)
-        s = ''
-        while self.serial.inWaiting():
-            try:
-                s += self.serial.read().decode()
-            except:
-                pass
-        print(s)
+        print("The run mode is:", line.decode(), "(0 = stopped, 1 = running)")
