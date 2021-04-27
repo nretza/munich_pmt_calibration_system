@@ -13,7 +13,8 @@ class SimSerial:
 
     @staticmethod
     def readline():
-        return 'test str /n'.encode()
+        return_bytes = 'test str /n'
+        return return_bytes.encode()
 
     @staticmethod
     def read():
@@ -61,6 +62,14 @@ class Laser:
         self.OFF_CW()  # CW laser emission OFF
 
     def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):
+        """
+
+        PARAMETERS
+        ----------
+        cmd: Str, bytes, optional
+        delay: float or None, optional
+        line_ending: bytes, optional
+        """
         if delay is None:
             delay = self.delay
 
@@ -72,7 +81,11 @@ class Laser:
 
         self.serial.write(cmd)
         time.sleep(delay)
-        return self.serial.readline().decode()
+
+        return_str = self.serial.readline().decode()
+
+        self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
+        return return_str
 
     def get_state(self):
         """
