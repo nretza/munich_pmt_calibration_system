@@ -89,6 +89,3 @@ class Picoamp:
         return val
 
 
-P = Picoamp()
-P.read_ch1(10)
-P.read_ch2(10)

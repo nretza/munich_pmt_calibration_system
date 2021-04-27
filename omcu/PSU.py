@@ -19,6 +19,8 @@ class PSU(gpd3303s.GPD3303S):
         self.enableOutput(False)
         self.setCurrent(1, .1)
         self.setCurrent(2, .1)
+        self.setVoltage(1, 5.0)
+        self.setVoltage(2, 5.0)
 
     def ON(self):
         self.enableOutput(True)
