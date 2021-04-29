@@ -141,7 +141,7 @@ def setup_logging(log_level=logging.DEBUG, to_console=False, file_name=None, msg
         logger.addHandler(fh)
 
     if to_console:
-        # Create console handler, with a different formater
+        # Create console handler, with a different formatter
         ch = logging.StreamHandler()
         ch.setLevel(log_level)
         ch.setFormatter(logging.Formatter('%(asctime)s;%(levelname)7s; %(name)20s - %(message)s'))  # formatter)

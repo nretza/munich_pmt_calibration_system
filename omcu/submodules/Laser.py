@@ -11,7 +11,7 @@ class SimSerial:
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f'Initalised with - args: {args}; kwargs: {kwargs}')
 
-    @staticmethod
+    @staticmethod  # function does not need self
     def readline():
         return_bytes = 'test str /n'
         return return_bytes.encode()
@@ -33,7 +33,7 @@ class Laser:
     This is a class for the Picosecond Laser System Controller EIG2000DX
     """
 
-    def __init__(self, dev="/dev/Laser_control", simulating=False):  # run sudo udevadm trigger before
+    def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.5):  # run sudo udevadm trigger before
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial
@@ -42,7 +42,7 @@ class Laser:
             self.delay = .01  # set default delay
         else:
             serial_connection = serial.Serial
-            self.delay = .5  # set default delay
+            self.delay = delay  # set default delay
 
         # initialise Serial or SimSerial
         self.serial = serial_connection(dev,
@@ -53,7 +53,7 @@ class Laser:
                                         timeout=2
                                         )
 
-        self.OFF_pulsed()  # pulsed laser emission OFF
+        self.off_pulsed()  # pulsed laser emission OFF
         self.set_trig_edge(1)  # trigger edge: rising
         self.set_trig_source(0)  # trigger source: internal
         self.set_trig_level(0)  # trigger level: 0 mV
@@ -61,7 +61,7 @@ class Laser:
         self.set_freq(1000)  # frequency = 1 kHZ
         self.OFF_CW()  # CW laser emission OFF
 
-    def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):
+    def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
         """
 
         PARAMETERS
@@ -87,9 +87,21 @@ class Laser:
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
         return return_str
 
-    def get_state(self):
+    def print_state(self):
         """
-        This function returns system state information
+        This function prints system state information in the format:
+        --------------------
+        interlock:			disabled
+        laser emission:		off
+        CW emission:		off
+        trigger source:		internal
+        trigger edge:		rising
+        tune mode:			auto
+        tune value: 	     71.00 %
+        laser head temp.:      25.43 C
+        int. frequency:	      1000 Hz
+        ext. frequency:	         0 Hz
+        trigger level:	     +0.00 V
         """
         self.__write_serial('state?')
         s = ''
@@ -98,9 +110,9 @@ class Laser:
                 s += self.serial.read().decode()
             except:
                 pass
-        return s
+        print(s)
 
-    def ON_pulsed(self):
+    def on_pulsed(self):
         """
         This function enables the pulsed laser emission (laser ON)
         :return: first: information whether command was successfully executed
@@ -109,7 +121,7 @@ class Laser:
         self.__write_serial('ld=1')  # enables pulsed laser emission
         return self.get_ld()
 
-    def OFF_pulsed(self):
+    def off_pulsed(self):
         """
         This function disables the pulsed laser emission (laser OFF)
         :return: first: information whether command was successfully executed

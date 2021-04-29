@@ -25,7 +25,7 @@ simulating = True
 # TODO: this is just a basic implementation to show the syntax
 def main(args):
     laser = Laser(simulating=args.simulating)
-    print(f'Laser is at state: {laser.get_state()}')
+    print(f'Laser is at state: {laser.print_state()}')
 
 
 # do things when this script is executed. Don't do it if imported.
