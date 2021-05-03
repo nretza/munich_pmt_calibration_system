@@ -187,7 +187,11 @@ class Laser:
         This is a function to get information about the set trigger level
         :return: trigger level (-4800...+4800 mV)
         """
-        return self.__write_serial('tl?')  # returns set trigger level
+        tl_string = self.__write_serial('tl?')  # returns string 'trigger level: +0.00 V'
+        print(tl_string)
+        tl = float(tl_string[16:25])
+        return tl
+        # return self.__write_serial('tl?')
 
     def set_tune_mode(self, tm):
         """
@@ -243,7 +247,11 @@ class Laser:
         This is a function to get information about the set frequency
         :return: frequency (25...125000000)
         """
-        return self.__write_serial('f?')  # returns set frequency
+        freq_string = self.__write_serial('f?')  # returns string 'int. frequency:\t       100 Hz'
+        print(freq_string)
+        freq = float(freq_string[17:27])
+        return freq
+        # return self.__write_serial('f?')  # returns set frequency
 
     def ON_CW(self, cwl):
         """
