@@ -9,7 +9,7 @@ import numpy as np
 class SimSerial:
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(type(self).__name__)
-        self.logger.debug(f'Initalised with - args: {args}; kwargs: {kwargs}')
+        self.logger.debug(f'Initialised with - args: {args}; kwargs: {kwargs}')
 
     @staticmethod  # function does not need self
     def readline():
@@ -187,7 +187,11 @@ class Laser:
         This is a function to get information about the set trigger level
         :return: trigger level (-4800...+4800 mV)
         """
-        return self.__write_serial('tl?')  # returns set trigger level
+        tl_string = self.__write_serial('tl?')  # returns string 'trigger level:\t     +0.00 V\r\n'
+        print(tl_string)
+        tl = float(tl_string[16:25])
+        return tl
+        # return self.__write_serial('tl?')
 
     def set_tune_mode(self, tm):
         """
@@ -243,7 +247,11 @@ class Laser:
         This is a function to get information about the set frequency
         :return: frequency (25...125000000)
         """
-        return self.__write_serial('f?')  # returns set frequency
+        freq_string = self.__write_serial('f?')  # returns string 'int. frequency:\t       100 Hz'
+        print(freq_string)
+        freq = float(freq_string[17:27])
+        return freq
+        # return self.__write_serial('f?')  # returns set frequency
 
     def ON_CW(self, cwl):
         """
