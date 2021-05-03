@@ -128,7 +128,7 @@ class Laser:
         self.__write_serial('ld=0')  # disables pulsed laser emission
         return self.get_ld()
 
-    def get_ld(self):
+    def get_ld(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the pulsed laser emission state
         :return: str: 'pulsed laser emission: on/off'
@@ -145,7 +145,7 @@ class Laser:
         self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (rising 1, falling 0)
         return self.get_trig_edge()
 
-    def get_trig_edge(self):
+    def get_trig_edge(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set trigger edge
         :return: str: 'trigger edge rising/falling'
@@ -163,7 +163,7 @@ class Laser:
         # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
-    def get_trig_source(self):
+    def get_trig_source(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set trigger source
         :return: str: 'trigger source: internal/ext. adj./ext. TTL'
@@ -199,7 +199,7 @@ class Laser:
         self.__write_serial(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (auto 1, manual 0)
         return self.get_tune_mode()
 
-    def get_tune_mode(self):
+    def get_tune_mode(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set tune mode
         :return: str: 'tune mode: auto/manual'
@@ -284,12 +284,10 @@ class Laser:
         self.__write_serial('cw=0')  # disables CW laser emission
         return self.get_cw()
 
-    def get_cw(self):
+    def get_cw(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the CW laser emission state
         :return: str: 'CW laser emission: on/off'
         """
         cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: on/off'
         return cw_string
-
-
