@@ -59,7 +59,7 @@ class Laser:
         self.set_trig_level(0)  # trigger level: 0 mV
         self.set_tune_mode(1)  # tune mode: auto
         self.set_freq(1000)  # frequency = 1 kHZ
-        self.OFF_CW()  # CW laser emission OFF
+        self.off_cw()  # CW laser emission OFF
 
     def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
         """
@@ -114,18 +114,16 @@ class Laser:
 
     def on_pulsed(self):
         """
-        This function enables the pulsed laser emission (laser ON)
-        :return: first: information whether command was successfully executed
-                second: information about emission state
+        This function enables the pulsed laser emission (laser on)
+        :return: str: 'pulsed laser emission: on/off'
         """
         self.__write_serial('ld=1')  # enables pulsed laser emission
         return self.get_ld()
 
     def off_pulsed(self):
         """
-        This function disables the pulsed laser emission (laser OFF)
-        :return: first: information whether command was successfully executed
-                second: information about emission state
+        This function disables the pulsed laser emission (laser off)
+        :return: str: 'pulsed laser emission: on/off'
         """
         self.__write_serial('ld=0')  # disables pulsed laser emission
         return self.get_ld()
@@ -133,16 +131,16 @@ class Laser:
     def get_ld(self):
         """
         This is a function to get information about the pulsed laser emission state
-        :return: pulsed laser emission state (on/off)
+        :return: str: 'pulsed laser emission: on/off'
         """
-        return self.__write_serial('ld?')  # returns pulsed laser emission state (on/off)
+        ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
+        return ld_string
 
     def set_trig_edge(self, te):
         """
         This is a function to set the trigger edge
         :param te: trigger edge (rising 1, falling 0)
-        :return: first: information whether command was successfully executed
-                second: information about set trigger edge
+        :return: str: 'trigger edge rising/falling'
         """
         self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (rising 1, falling 0)
         return self.get_trig_edge()
@@ -150,34 +148,34 @@ class Laser:
     def get_trig_edge(self):
         """
         This is a function to get information about the set trigger edge
-        :return: trigger edge (rising/falling)
+        :return: str: 'trigger edge rising/falling'
         """
-        return self.__write_serial('te?')  # returns set trigger edge
+        te_string = self.__write_serial('te?')  # returns string 'trigger edge: rising/falling'
+        return te_string
 
     def set_trig_source(self, ts):
         """
         This is a function to set the trigger source
         :param ts: trigger source (internal 0, ext. adj. 1, ext. TTL 2)
-        :return: first: information whether command was successfully executed
-                second: information about set trigger source
+        :return: str: 'trigger source: internal/ext. adj./ext. TTL'
         """
-        # sets trigger source to ts (internal 0, ext. adj. 1, ext. TTL 2)
-        self.__write_serial(f'ts={ts}', line_ending=b'\n')
+        self.__write_serial(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
+        # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
     def get_trig_source(self):
         """
         This is a function to get information about the set trigger source
-        :return: trigger source (internal/ext. adj./ext. TTL)
+        :return: str: 'trigger source: internal/ext. adj./ext. TTL'
         """
-        self.__write_serial('ts?')  # returns set trigger source
+        ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adj./ext. TTL'
+        return ts_string
 
     def set_trig_level(self, tl):
         """
         This is a function to set the trigger level
         :param tl: trigger level (-4800...+4800 mV)
-        :return: first: information whether command was successfully executed
-                second: information about set trigger level
+        :return: float: trigger level (-4.80...+4.80 V)
         """
         self.__write_serial(f'tl={tl}', line_ending=b'\n')  # sets trigger level to tl (-4800...+4800 mV)
         return self.get_trig_level()
@@ -185,20 +183,18 @@ class Laser:
     def get_trig_level(self):
         """
         This is a function to get information about the set trigger level
-        :return: trigger level (-4800...+4800 mV)
+        :return: float: trigger level (-4.80...+4.80 V)
         """
-        tl_string = self.__write_serial('tl?')  # returns string 'trigger level:\t     +0.00 V\r\n'
+        tl_string = self.__write_serial('tl?')  # returns string 'trigger level: +0.00 V'
         print(tl_string)
-        tl = float(tl_string[16:25])
+        tl = float(tl_string[16:25])  # makes float from string of trigger level value
         return tl
-        # return self.__write_serial('tl?')
 
     def set_tune_mode(self, tm):
         """
         This is a function to set the tune mode
         :param tm: tune mode (auto 1, manual 0)
-        :return: first: information whether command was successfully executed
-                second: information about set tune mode
+        :return: str: 'tune mode: auto/manual'
         """
         self.__write_serial(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (auto 1, manual 0)
         return self.get_tune_mode()
@@ -206,38 +202,39 @@ class Laser:
     def get_tune_mode(self):
         """
         This is a function to get information about the set tune mode
-        :return: tune mode (auto/manual)
+        :return: str: 'tune mode: auto/manual'
         """
-        return self.__write_serial('tm?')  # returns set tune mode (on/off)
+        tm_string = self.__write_serial('tm?')  # returns string 'tune mode: auto/manual'
+        return tm_string
 
     def set_tune_value(self, tune):
         """
         This is a function to set a tune value
         It sets first the tune mode to manual
-        :param tune: tune value (0...1000)
-        :return: first: information whether command was successfully executed (tune mode)
-                second: information about set tune mode
-                third: information whether command was successfully executed (tune value)
-                fourth: information about set tune value
+        :param tune: tune value (0...1000, where 1000=100 %)
+        :return: float: tune value (0...100.0 %)
         """
         self.__write_serial('tm=0')  # sets tune mode to manual
         tune_mode_0 = self.get_tune_mode()
-        self.__write_serial(f'tune={tune}', line_ending=b'\n')  # sets tune value to tune (0...1000)
-        return tune_mode_0, self.get_tune_value()
+        print(tune_mode_0)
+        self.__write_serial(f'tune={tune}', line_ending=b'\n')  # sets tune value to tune (0...1000, where 1000=100 %)
+        return self.get_tune_value()
 
     def get_tune_value(self):
         """
         This is a function to get information about the set tune value
-        :return: tune value (0...1000)
+        :return: float: tune value (0...100.0 %)
         """
-        return self.__write_serial('tune?')  # returns set tune value
+        tune_val_string = self.__write_serial('tune?')  # returns string 'tune value: 70.00 %'
+        print(tune_val_string)
+        tune_val = float(tune_val_string[15:24])
+        return tune_val
 
     def set_freq(self, f):
         """
         This is a function to set the internal oscillator frequency
         :param f: frequency (25...125000000 Hz)
-        :return: first: information whether command was successfully executed
-                second: information about set frequency
+        :return: str: 'int. frequency: 100 Hz'
         """
         self.__write_serial(f'f={f}', line_ending=b'\n')  # sets frequency to f (25...125000000)
         return self.get_freq()
@@ -245,33 +242,44 @@ class Laser:
     def get_freq(self):
         """
         This is a function to get information about the set frequency
-        :return: frequency (25...125000000)
+        :return: float: frequency (25...125000000 Hz)
         """
-        freq_string = self.__write_serial('f?')  # returns string 'int. frequency:\t       100 Hz'
+        freq_string = self.__write_serial('f?')  # returns string 'int. frequency: 100 Hz'
         print(freq_string)
         freq = float(freq_string[17:27])
         return freq
-        # return self.__write_serial('f?')  # returns set frequency
 
-    def ON_CW(self, cwl):
+    def set_cwl(self, cwl):
         """
-        This is a function to set the CW laser output power and enable the emission
-        :param cwl: CW laser output power (0...100)
-        :return: first: information whether command was successfully executed (cwl)
-                second: information about set CW laser output power
-                third: information whether command was successfully executed (cw)
-                fourth: information about set CW laser emission state
+        This is a function to set the CW laser output power value
+        :param cwl: CW laser output power (0...100 %)
+        :return: float: CW laser output power (0...100 %)
         """
         self.__write_serial(f'cwl={cwl}', line_ending=b'\n')  # sets CW laser output power (0...100)
-        cw_0 = self.get_cwl()
-        self.__write_serial('cw=1')  # enables CW laser emission
-        return cw_0, self.get_cw()
+        return self.get_cwl()
 
-    def OFF_CW(self):
+    def get_cwl(self):
+        """
+        This is a function to get information about the CW laser output power value
+        :return: float: CW laser output power (0...100 %)
+        """
+        cwl_val_string = self.__write_serial('cwl?')  # returns string 'CW output power: 0 %'
+        print(cwl_val_string)
+        cwl_val = float(cwl_val_string[16:19])
+        return cwl_val
+
+    def on_cw(self):
+        """
+        This is a function to enable the CW laser emission
+        :return: str: 'CW laser emission: on/off'
+        """
+        self.__write_serial('cw=1')  # enables CW laser emission
+        return self.get_cw()
+
+    def off_cw(self):
         """
         This is a function to disable the CW laser emission
-        :return: first: information whether command was successfully executed (cw)
-                second: information about set CW laser emission state
+        :return: str: 'CW laser emission: on/off'
         """
         self.__write_serial('cw=0')  # disables CW laser emission
         return self.get_cw()
@@ -279,13 +287,9 @@ class Laser:
     def get_cw(self):
         """
         This is a function to get information about the CW laser emission state
-        :return: CW laser emission state (on/off)
+        :return: str: 'CW laser emission: on/off'
         """
-        return self.__write_serial('cw?')  # returns set CW laser emission state (on/off)
+        cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: on/off'
+        return cw_string
 
-    def get_cwl(self):
-        """
-        This is a function to get information about the CW laser output power
-        :return: CW laser output power (0...100)
-        """
-        return self.__write_serial('cwl?')  # returns set CW laser output power
+
