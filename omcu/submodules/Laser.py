@@ -172,8 +172,8 @@ class Laser:
     def set_trig_source(self, ts):
         """
         This is a function to set the trigger source
-        :param ts: trigger source (internal 0, ext. adj. 1, ext. TTL 2)
-        :return: str: 'trigger source: internal/ext. adj./ext. TTL'
+        :param ts: trigger source (internal 0, ext. adjustable 1, ext. TTL 2)
+        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL
         """
         self.__write_serial(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
         # (internal 0, ext. adj. 1, ext. TTL 2)
@@ -182,10 +182,20 @@ class Laser:
     def get_trig_source(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set trigger source
-        :return: str: 'trigger source: internal/ext. adj./ext. TTL'
+        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL
         """
-        ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adj./ext. TTL'
-        return ts_string
+        ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
+        print(ts_string)
+        ts_val = 3  # global variable, place holder value
+        if 'internal' in ts_string[-8:]:
+            ts_val = 0  # variable is redefined as a local
+        if 'adjustable' in ts_string[-10:]:
+            ts_val = 1  # variable is redefined as a local
+        if 'TTL' in ts_string[-3:]:
+            ts_val = 2  # variable is redefined as a local
+        if not 'internal' or 'adjustable' or 'TTL' in ts_string[-10:]:
+            print('Error: trigger source could not be determined. Try again!')
+        return ts_val
 
     def set_trig_level(self, tl):
         """
