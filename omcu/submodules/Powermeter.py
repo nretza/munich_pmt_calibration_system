@@ -29,7 +29,7 @@ class Powermeter:
                                         parity=serial.PARITY_NONE,
                                         timeout=2
                                         )
-        self.set_echo(0)  # Echo OFF
+        self.set_echo(1)  # Echo on
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
 
@@ -69,9 +69,9 @@ class Powermeter:
         :param state: echo set (0 Echo OFF, 1 Echo ON)
         :return: echo status
         """
-        # self.__write_serial(f'echo {state}', line_ending=b'\n')
-        self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
-        time.sleep(.5)
+        self.__write_serial(f'echo {state}', line_ending=b'\n')
+        #self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
+        #time.sleep(.5)
         return self.get_echo()
 
     def get_echo(self):
@@ -83,7 +83,8 @@ class Powermeter:
         # time.sleep(.5)
         # line = self.serial.readline()
         # print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
-        return self.__write_serial(f'echo?', line_ending=b'\n')
+        echo = self.__write_serial(f'echo?', line_ending=b'\n')
+        return echo
 
     def set_lambda(self, lamb):
         """
