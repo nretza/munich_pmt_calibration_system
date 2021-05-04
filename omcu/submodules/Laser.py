@@ -135,6 +135,7 @@ class Laser:
         """
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
         print(ld_string)
+        ld_val = 2
         if 'off' in ld_string[-3:]:
             ld_val = 0
         if 'on' in ld_string[-3:]:
@@ -159,6 +160,7 @@ class Laser:
         """
         te_string = self.__write_serial('te?')  # returns string 'trigger edge: rising/falling'
         print(te_string)
+        te_val = 2
         if 'rising' in te_string:
             te_val = 1
         if 'falling' in te_string:
