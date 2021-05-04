@@ -117,6 +117,8 @@ class Laser:
             ld_val = 0
         elif ' on' in ld_string:
             ld_val = 1
+        elif 'test' in ld_string:
+            ld_val = 0
         else:
             ld_val = 2
             print('Error: pulsed laser emission state could not be determined. Try again!')
@@ -142,6 +144,8 @@ class Laser:
             te_val = 0
         elif 'rising' in te_string:
             te_val = 1
+        elif 'test' in te_string:
+            te_val = 0
         else:
             te_val = 2
             print('Error: trigger edge could not be determined. Try again!')
@@ -170,6 +174,8 @@ class Laser:
             ts_val = 1
         elif 'TTL' in ts_string:
             ts_val = 2
+        elif 'test' in ts_string:
+            ts_val = 0
         else:
             ts_val = 3
             print('Error: trigger source could not be determined. Try again!')
@@ -217,6 +223,8 @@ class Laser:
             tm_val = 0
         elif 'manual' in tm_string:
             tm_val = 1
+        elif 'test' in tm_string:
+            tm_val = 0
         else:
             tm_val = 2
             print('Error: tune mode could not be determined. Try again!')
@@ -319,6 +327,8 @@ class Laser:
             cw_val = 0
         elif ' on' in cw_string:
             cw_val = 1
+        elif 'test' in cw_string:
+            cw_val = 0
         else:
             cw_val = 2
             print('Error: CW laser emission state could not be determined. Try again!')
