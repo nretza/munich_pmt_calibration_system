@@ -161,11 +161,11 @@ class Laser:
         te_string = self.__write_serial('te?')  # returns string 'trigger edge: falling/rising'
         print(te_string)
         te_val = 2  # global variable, place holder value
-        if 'falling' in te_string:
+        if 'falling' in te_string[-7:]:
             te_val = 0  # variable is redefined as a local
-        if 'rising' in te_string:
+        if 'rising' in te_string[-7:]:
             te_val = 1  # variable is redefined as a local
-        if not 'falling' or 'rising' in te_string:
+        if not 'falling' or 'rising' in te_string[-7:]:
             print('Error: trigger edge could not be determined. Try again!')
         return te_val
 
