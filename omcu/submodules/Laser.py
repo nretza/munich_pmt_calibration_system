@@ -135,9 +135,9 @@ class Laser:
         """
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: off/on'
         print(ld_string)
-        if 'off' in ld_string[-3:]:
+        if 'off' in ld_string:
             ld_val = 0
-        elif 'on' in ld_string[-3:]:
+        elif ' on' in ld_string:
             ld_val = 1
         else:
             ld_val = 2
