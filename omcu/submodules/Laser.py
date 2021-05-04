@@ -136,9 +136,9 @@ class Laser:
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: off/on'
         print(ld_string)
         if 'off' in ld_string[-3:]:
-            ld_val = 0  # global variable is redefined
+            ld_val = 0
         elif 'on' in ld_string[-3:]:
-            ld_val = 1  # global variable is redefined
+            ld_val = 1
         else:
             ld_val = 2
             print('Error: pulsed laser emission state could not be determined. Try again!')
