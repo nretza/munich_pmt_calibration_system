@@ -1,6 +1,9 @@
 #!/usr/bin/python3
+import logging
 import serial
 import time
+
+from ..SimSerial import SimSerial
 
 
 class Powermeter:
@@ -8,13 +11,24 @@ class Powermeter:
     This is a class for the Newport Optical Powermeter Model 2936-R
     """
 
-    def __init__(self, dev="/dev/Powermeter"):
-        self.serial = serial.Serial(dev,
-                                    baudrate=38400,
-                                    bytesize=serial.EIGHTBITS,
-                                    parity=serial.PARITY_NONE,
-                                    timeout=2
-                                    )
+    def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.5):
+        self.logger = logging.getLogger(type(self).__name__)
+
+        # select if Serial or SimSerial
+        if simulating:
+            serial_connection = SimSerial
+            self.delay = .01  # set default delay
+        else:
+            serial_connection = serial.Serial
+            self.delay = delay  # set default delay
+
+        # initialise Serial or SimSerial
+        self.serial = serial_connection(dev,
+                                        baudrate=38400,
+                                        bytesize=serial.EIGHTBITS,
+                                        parity=serial.PARITY_NONE,
+                                        timeout=2
+                                        )
         self.set_echo(0)  # Echo OFF
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
