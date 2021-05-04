@@ -115,7 +115,7 @@ class Laser:
     def on_pulsed(self):
         """
         This function enables the pulsed laser emission (laser on)
-        :return: str: 'pulsed laser emission: on/off'
+        :return: int: 0 = emission off, 1 = emission on
         """
         self.__write_serial('ld=1')  # enables pulsed laser emission
         return self.get_ld()
@@ -123,29 +123,31 @@ class Laser:
     def off_pulsed(self):
         """
         This function disables the pulsed laser emission (laser off)
-        :return: str: 'pulsed laser emission: on/off'
+        :return: int: 0 = emission off, 1 = emission on
         """
         self.__write_serial('ld=0')  # disables pulsed laser emission
         return self.get_ld()
 
-    def get_ld(self):  # TODO: wie soll diese Fkt returnen?
+    def get_ld(self):
         """
         This is a function to get information about the pulsed laser emission state
-        :return: int: 1 = emission on, 0 = emission off
+        :return: int: 0 = emission off, 1 = emission on
         """
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
         print(ld_string)
-        if 'off' in ld_string:
+        if 'off' in ld_string[-3:]:
             ld = 0
-        else:
+        if 'on' in ld_string[-3:]:
             ld = 1
+        else:
+            print('Error: pulsed laser emission state could not be determined. Try again!')
         return ld
 
     def set_trig_edge(self, te):
         """
         This is a function to set the trigger edge
         :param te: trigger edge (rising 1, falling 0)
-        :return: str: 'trigger edge rising/falling'
+        :return: int: 1 = rising, 0 = falling
         """
         self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (rising 1, falling 0)
         return self.get_trig_edge()
@@ -153,10 +155,17 @@ class Laser:
     def get_trig_edge(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set trigger edge
-        :return: str: 'trigger edge rising/falling'
+        :return: int: 1 = rising, 0 = falling
         """
         te_string = self.__write_serial('te?')  # returns string 'trigger edge: rising/falling'
-        return te_string
+        print(te_string)
+        if 'rising' in te_string:
+            te = 1
+        if 'falling' in te_string:
+            te = 0
+        else:
+            print('Error: trigger edge could not be determined. Try again!')
+        return te
 
     def set_trig_source(self, ts):
         """
