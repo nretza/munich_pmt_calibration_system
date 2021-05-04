@@ -133,14 +133,14 @@ class Laser:
         This is a function to get information about the pulsed laser emission state
         :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
-        ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
+        ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: off/on'
         print(ld_string)
         ld_val = 2  # global variable, place holder value
         if 'off' in ld_string[-3:]:
             ld_val = 0  # variable is redefined as a local
-        if 'on' in ld_string[-3:]:
+        elif 'on' in ld_string[-3:]:
             ld_val = 1  # variable is redefined as a local
-        if not 'off' or 'on' in ld_string[-3:]:
+        else:
             print('Error: pulsed laser emission state could not be determined. Try again!')
         return ld_val
 
@@ -153,7 +153,7 @@ class Laser:
         self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (falling 0, rising 1)
         return self.get_trig_edge()
 
-    def get_trig_edge(self):  # TODO: wie soll diese Fkt returnen?
+    def get_trig_edge(self):
         """
         This is a function to get information about the set trigger edge
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
@@ -163,9 +163,9 @@ class Laser:
         te_val = 2  # global variable, place holder value
         if 'falling' in te_string[-7:]:
             te_val = 0  # variable is redefined as a local
-        if 'rising' in te_string[-7:]:
+        elif 'rising' in te_string[-7:]:
             te_val = 1  # variable is redefined as a local
-        if not 'falling' or 'rising' in te_string[-7:]:
+        else:
             print('Error: trigger edge could not be determined. Try again!')
         return te_val
 
@@ -173,27 +173,27 @@ class Laser:
         """
         This is a function to set the trigger source
         :param ts: trigger source (internal 0, ext. adjustable 1, ext. TTL 2)
-        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL
+        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
         self.__write_serial(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
         # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
-    def get_trig_source(self):  # TODO: wie soll diese Fkt returnen?
+    def get_trig_source(self):
         """
         This is a function to get information about the set trigger source
-        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL
+        :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
         ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
         print(ts_string)
         ts_val = 3  # global variable, place holder value
         if 'internal' in ts_string[-8:]:
             ts_val = 0  # variable is redefined as a local
-        if 'adjustable' in ts_string[-10:]:
+        elif 'adjustable' in ts_string[-10:]:
             ts_val = 1  # variable is redefined as a local
-        if 'TTL' in ts_string[-3:]:
+        elif 'TTL' in ts_string[-3:]:
             ts_val = 2  # variable is redefined as a local
-        if not 'internal' or 'adjustable' or 'TTL' in ts_string[-10:]:
+        else:
             print('Error: trigger source could not be determined. Try again!')
         return ts_val
 
@@ -219,19 +219,27 @@ class Laser:
     def set_tune_mode(self, tm):
         """
         This is a function to set the tune mode
-        :param tm: tune mode (auto 1, manual 0)
-        :return: str: 'tune mode: auto/manual'
+        :param tm: tune mode (manual 0, auto 1)
+        :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
-        self.__write_serial(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (auto 1, manual 0)
+        self.__write_serial(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (manual 0, auto 1)
         return self.get_tune_mode()
 
-    def get_tune_mode(self):  # TODO: wie soll diese Fkt returnen?
+    def get_tune_mode(self):
         """
         This is a function to get information about the set tune mode
-        :return: str: 'tune mode: auto/manual'
+        :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
-        tm_string = self.__write_serial('tm?')  # returns string 'tune mode: auto/manual'
-        return tm_string
+        tm_string = self.__write_serial('tm?')  # returns string 'tune mode: manual/auto'
+        print(tm_string)
+        tm_val = 2  # global variable, place holder value
+        if 'auto' in tm_string[-4:]:
+            tm_val = 0  # variable is redefined as a local
+        elif 'manual' in tm_string[-6:]:
+            tm_val = 1  # variable is redefined as a local
+        else:
+            print('Error: tune mode could not be determined. Try again!')
+        return tm_val
 
     def set_tune_value(self, tune):
         """
@@ -297,7 +305,7 @@ class Laser:
     def on_cw(self):
         """
         This is a function to enable the CW laser emission
-        :return: str: 'CW laser emission: on/off'
+        :return: int: 1 = on, (2 = something went wrong)
         """
         self.__write_serial('cw=1')  # enables CW laser emission
         return self.get_cw()
@@ -305,15 +313,23 @@ class Laser:
     def off_cw(self):
         """
         This is a function to disable the CW laser emission
-        :return: str: 'CW laser emission: on/off'
+        :return: int: 0 = off, (2 = something went wrong)
         """
         self.__write_serial('cw=0')  # disables CW laser emission
         return self.get_cw()
 
-    def get_cw(self):  # TODO: wie soll diese Fkt returnen?
+    def get_cw(self):
         """
         This is a function to get information about the CW laser emission state
-        :return: str: 'CW laser emission: on/off'
+        :return: int: 0 = off, 1 = on, (2 = something went wrong)
         """
-        cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: on/off'
-        return cw_string
+        cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: off/on'
+        print(cw_string)
+        cw_val = 2  # global variable, place holder value
+        if 'off' in cw_string[-3:]:
+            cw_val = 0  # variable is redefined as a local
+        elif 'on' in cw_string[-3:]:
+            cw_val = 1  # variable is redefined as a local
+        else:
+            print('Error: CW laser emission state could not be determined. Try again!')
+        return cw_val
