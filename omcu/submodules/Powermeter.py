@@ -33,6 +33,32 @@ class Powermeter:
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
 
+    def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
+        """
+
+        PARAMETERS
+        ----------
+        cmd: Str, bytes, optional
+        delay: float or None, optional
+        line_ending: bytes, optional
+        """
+        if delay is None:
+            delay = self.delay
+
+        if type(cmd) is str:
+            cmd = cmd.encode()
+
+        if not cmd.endswith(line_ending):
+            cmd += line_ending
+
+        self.serial.write(cmd)
+        time.sleep(delay)
+
+        return_str = self.serial.readline().decode()
+
+        self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
+        return return_str
+
     def set_echo(self, state):
         """
         This is a function to turn on or off the echoing of commands sent to the power meter.
@@ -43,6 +69,7 @@ class Powermeter:
         :param state: echo set (0 Echo OFF, 1 Echo ON)
         :return: echo status
         """
+        # self.__write_serial(f'echo {state}', line_ending=b'\n')
         self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
         time.sleep(.5)
         self.get_echo()
@@ -52,10 +79,11 @@ class Powermeter:
         This is a function to get information about the echo set
         :return: 0 Echo OFF, 1 Echo ON
         """
-        self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
+        # self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
+        # time.sleep(.5)
+        # line = self.serial.readline()
+        # print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
+        self.__write_serial(f'echo?', line_ending=b'\n')
 
     def set_lambda(self, lamb):
         """
