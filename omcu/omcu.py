@@ -17,8 +17,8 @@ from logging_config import setup_logging
 from config import Config
 
 # set up the logging module with format, assign Handler, ...
-setup_logging(to_console=False,
-              file_name=Config.omcu_log_file
+setup_logging(to_console=True,
+              # file_name=Config.omcu_log_file
               )
 
 simulating = True

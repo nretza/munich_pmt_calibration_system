@@ -131,10 +131,15 @@ class Laser:
     def get_ld(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the pulsed laser emission state
-        :return: str: 'pulsed laser emission: on/off'
+        :return: int: 1 = emission on, 0 = emission off
         """
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
-        return ld_string
+        print(ld_string)
+        if 'off' in ld_string:
+            ld = 0
+        else:
+            ld = 1
+        return ld
 
     def set_trig_edge(self, te):
         """
