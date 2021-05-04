@@ -160,12 +160,12 @@ class Laser:
         """
         te_string = self.__write_serial('te?')  # returns string 'trigger edge: falling/rising'
         print(te_string)
-        te_val = 2  # global variable, place holder value
-        if 'falling' in te_string[-7:]:
-            te_val = 0  # variable is redefined as a local
-        elif 'rising' in te_string[-7:]:
-            te_val = 1  # variable is redefined as a local
+        if 'falling' in te_string:
+            te_val = 0
+        elif 'rising' in te_string:
+            te_val = 1
         else:
+            te_val = 2
             print('Error: trigger edge could not be determined. Try again!')
         return te_val
 
@@ -186,14 +186,14 @@ class Laser:
         """
         ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
         print(ts_string)
-        ts_val = 3  # global variable, place holder value
-        if 'internal' in ts_string[-8:]:
-            ts_val = 0  # variable is redefined as a local
-        elif 'adjustable' in ts_string[-10:]:
-            ts_val = 1  # variable is redefined as a local
-        elif 'TTL' in ts_string[-3:]:
-            ts_val = 2  # variable is redefined as a local
+        if 'internal' in ts_string:
+            ts_val = 0
+        elif 'adjustable' in ts_string:
+            ts_val = 1
+        elif 'TTL' in ts_string:
+            ts_val = 2
         else:
+            ts_val = 3
             print('Error: trigger source could not be determined. Try again!')
         return ts_val
 
@@ -232,12 +232,12 @@ class Laser:
         """
         tm_string = self.__write_serial('tm?')  # returns string 'tune mode: manual/auto'
         print(tm_string)
-        tm_val = 2  # global variable, place holder value
-        if 'auto' in tm_string[-4:]:
-            tm_val = 0  # variable is redefined as a local
-        elif 'manual' in tm_string[-6:]:
-            tm_val = 1  # variable is redefined as a local
+        if 'auto' in tm_string:
+            tm_val = 0
+        elif 'manual' in tm_string:
+            tm_val = 1
         else:
+            tm_val = 2
             print('Error: tune mode could not be determined. Try again!')
         return tm_val
 
@@ -325,11 +325,11 @@ class Laser:
         """
         cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: off/on'
         print(cw_string)
-        cw_val = 2  # global variable, place holder value
-        if 'off' in cw_string[-3:]:
-            cw_val = 0  # variable is redefined as a local
-        elif 'on' in cw_string[-3:]:
-            cw_val = 1  # variable is redefined as a local
+        if 'off' in cw_string:
+            cw_val = 0
+        elif ' on' in cw_string:
+            cw_val = 1
         else:
+            cw_val = 2
             print('Error: CW laser emission state could not be determined. Try again!')
         return cw_val
