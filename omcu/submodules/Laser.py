@@ -136,12 +136,12 @@ class Laser:
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
         print(ld_string)
         if 'off' in ld_string[-3:]:
-            ld = 0
+            ld_val = 0
         if 'on' in ld_string[-3:]:
-            ld = 1
+            ld_val = 1
         else:
             print('Error: pulsed laser emission state could not be determined. Try again!')
-        return ld
+        return ld_val
 
     def set_trig_edge(self, te):
         """
@@ -160,12 +160,12 @@ class Laser:
         te_string = self.__write_serial('te?')  # returns string 'trigger edge: rising/falling'
         print(te_string)
         if 'rising' in te_string:
-            te = 1
+            te_val = 1
         if 'falling' in te_string:
-            te = 0
+            te_val = 0
         else:
             print('Error: trigger edge could not be determined. Try again!')
-        return te
+        return te_val
 
     def set_trig_source(self, ts):
         """
@@ -201,8 +201,8 @@ class Laser:
         """
         tl_string = self.__write_serial('tl?')  # returns string 'trigger level: +0.00 V'
         print(tl_string)
-        tl = float(tl_string[16:25])  # makes float from string of trigger level value
-        return tl
+        tl_val = float(tl_string[16:25])  # makes float from string of trigger level value
+        return tl_val
 
     def set_tune_mode(self, tm):
         """
@@ -239,9 +239,9 @@ class Laser:
         This is a function to get information about the set tune value
         :return: float: tune value (0...100.0 %)
         """
-        tune_val_string = self.__write_serial('tune?')  # returns string 'tune value: 70.00 %'
-        print(tune_val_string)
-        tune_val = float(tune_val_string[15:24])
+        tune_string = self.__write_serial('tune?')  # returns string 'tune value: 70.00 %'
+        print(tune_string)
+        tune_val = float(tune_string[15:24])
         return tune_val
 
     def set_freq(self, f):
@@ -277,9 +277,9 @@ class Laser:
         This is a function to get information about the CW laser output power value
         :return: float: CW laser output power (0...100 %)
         """
-        cwl_val_string = self.__write_serial('cwl?')  # returns string 'CW output power: 0 %'
-        print(cwl_val_string)
-        cwl_val = float(cwl_val_string[16:19])
+        cwl_string = self.__write_serial('cwl?')  # returns string 'CW output power: 0 %'
+        print(cwl_string)
+        cwl_val = float(cwl_string[16:19])
         return cwl_val
 
     def on_cw(self):
