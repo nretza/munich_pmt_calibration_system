@@ -115,7 +115,7 @@ class Laser:
     def on_pulsed(self):
         """
         This function enables the pulsed laser emission (laser on)
-        :return: int: 0 = emission off, 1 = emission on
+        :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
         self.__write_serial('ld=1')  # enables pulsed laser emission
         return self.get_ld()
@@ -123,7 +123,7 @@ class Laser:
     def off_pulsed(self):
         """
         This function disables the pulsed laser emission (laser off)
-        :return: int: 0 = emission off, 1 = emission on
+        :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
         self.__write_serial('ld=0')  # disables pulsed laser emission
         return self.get_ld()
@@ -131,41 +131,41 @@ class Laser:
     def get_ld(self):
         """
         This is a function to get information about the pulsed laser emission state
-        :return: int: 0 = emission off, 1 = emission on
+        :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
         ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: on/off'
         print(ld_string)
-        ld_val = 2
+        ld_val = 2  # global variable, place holder value
         if 'off' in ld_string[-3:]:
-            ld_val = 0
+            ld_val = 0  # variable is redefined as a local
         if 'on' in ld_string[-3:]:
-            ld_val = 1
-        else:
+            ld_val = 1  # variable is redefined as a local
+        if not 'off' or 'on' in ld_string[-3:]:
             print('Error: pulsed laser emission state could not be determined. Try again!')
         return ld_val
 
     def set_trig_edge(self, te):
         """
         This is a function to set the trigger edge
-        :param te: trigger edge (rising 1, falling 0)
-        :return: int: 1 = rising, 0 = falling
+        :param te: trigger edge (falling 0, rising 1)
+        :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
-        self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (rising 1, falling 0)
+        self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (falling 0, rising 1)
         return self.get_trig_edge()
 
     def get_trig_edge(self):  # TODO: wie soll diese Fkt returnen?
         """
         This is a function to get information about the set trigger edge
-        :return: int: 1 = rising, 0 = falling
+        :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
-        te_string = self.__write_serial('te?')  # returns string 'trigger edge: rising/falling'
+        te_string = self.__write_serial('te?')  # returns string 'trigger edge: falling/rising'
         print(te_string)
-        te_val = 2
-        if 'rising' in te_string:
-            te_val = 1
+        te_val = 2  # global variable, place holder value
         if 'falling' in te_string:
-            te_val = 0
-        else:
+            te_val = 0  # variable is redefined as a local
+        if 'rising' in te_string:
+            te_val = 1  # variable is redefined as a local
+        if not 'falling' or 'rising' in te_string:
             print('Error: trigger edge could not be determined. Try again!')
         return te_val
 
