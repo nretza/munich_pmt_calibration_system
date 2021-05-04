@@ -191,7 +191,10 @@ class Laser:
         """
         tl_string = self.__write_serial('tl?')  # returns string 'trigger level: +0.00 V'
         print(tl_string)
-        tl_val = float(tl_string[16:25])  # makes float from string of trigger level value
+        if 'test' in tl_string:
+            tl_val = 0
+        else:
+            tl_val = float(tl_string[16:25])  # makes float from string of trigger level value
         return tl_val
 
     def set_tune_mode(self, tm):
@@ -239,7 +242,10 @@ class Laser:
         """
         tune_string = self.__write_serial('tune?')  # returns string 'tune value: 70.00 %'
         print(tune_string)
-        tune_val = float(tune_string[15:24])
+        if 'test' in tune_string:
+            tune_val = 0
+        else:
+            tune_val = float(tune_string[15:24])  # makes float from string of tune level value
         return tune_val
 
     def set_freq(self, f):
@@ -258,7 +264,10 @@ class Laser:
         """
         freq_string = self.__write_serial('f?')  # returns string 'int. frequency: 100 Hz'
         print(freq_string)
-        freq = float(freq_string[17:27])
+        if 'test' in freq_string:
+            freq = 0
+        else:
+            freq = float(freq_string[17:27])  # makes float from string of frequency value
         return freq
 
     def set_cwl(self, cwl):
@@ -277,7 +286,10 @@ class Laser:
         """
         cwl_string = self.__write_serial('cwl?')  # returns string 'CW output power: 0 %'
         print(cwl_string)
-        cwl_val = float(cwl_string[16:19])
+        if 'test' in cwl_string:
+            cwl_val = 0
+        else:
+            cwl_val = float(cwl_string[16:19])  # makes float from string of frequency value
         return cwl_val
 
     def on_cw(self):
