@@ -72,7 +72,7 @@ class Powermeter:
         # self.__write_serial(f'echo {state}', line_ending=b'\n')
         self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
         time.sleep(.5)
-        self.get_echo()
+        return self.get_echo()
 
     def get_echo(self):
         """
@@ -83,7 +83,7 @@ class Powermeter:
         # time.sleep(.5)
         # line = self.serial.readline()
         # print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
-        self.__write_serial(f'echo?', line_ending=b'\n')
+        return self.__write_serial(f'echo?', line_ending=b'\n')
 
     def set_lambda(self, lamb):
         """
