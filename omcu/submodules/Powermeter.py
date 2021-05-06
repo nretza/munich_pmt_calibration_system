@@ -54,14 +54,11 @@ class Powermeter:
         self.serial.write(cmd)
         time.sleep(delay)
 
-        return_str = self.serial.readline().decode()
-        if len(return_str):
-            pass
-        else:
-            return_str = 'No echo'
+        while True:
+            return_str = self.serial.readline().decode()
 
-        self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-        return return_str
+            self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
+            return return_str
 
     def set_echo(self, state):  #TODO: use __write_serial()
         """
@@ -73,22 +70,22 @@ class Powermeter:
         :param state: echo set (0 Echo OFF, 1 Echo ON)
         :return: echo status
         """
-        #self.__write_serial(f'echo {state}', line_ending=b'\n')
-        self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
-        time.sleep(.5)
-        self.get_echo()
+        self.__write_serial(f'echo {state}', line_ending=b'\n')
+        #self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
+        #time.sleep(.5)
+        return self.get_echo()
 
     def get_echo(self):  #TODO: use __write_serial()
         """
         This is a function to get information about the echo set
         :return: 0 Echo OFF, 1 Echo ON
         """
-        self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The Echo status is:", line.decode(), "(0 = Echo OFF, 1 = Echo ON)")
-        #echo = self.__write_serial(f'echo?', line_ending=b'\n')
-        #return echo
+        #self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
+        #time.sleep(.5)
+        #line = self.serial.readline()
+        echo = self.__write_serial(f'echo?', line_ending=b'\n')
+        print("The Echo status is:", echo, "(0 = Echo OFF, 1 = Echo ON)")
+        return echo
 
     def set_lambda(self, lamb):
         """
