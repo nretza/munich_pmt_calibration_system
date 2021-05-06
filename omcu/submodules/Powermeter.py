@@ -90,7 +90,7 @@ class Powermeter:
         :param lamb: int (wavelength in nm)
         :return: int: selected wavelength in nm
         """
-        self.__write_serial(str.encode('pm:l %lamb' % lamb))
+        self.__write_serial(str.encode('pm:l %s' % lamb))
         return self.get_lambda()
 
     def get_lambda(self):
@@ -109,7 +109,7 @@ class Powermeter:
         :param ch: int (power meter channel)
         :return: int: selected power meter channel
         """
-        self.__write_serial(str.encode('pm:chan %ch') % ch) # power meter channel
+        self.__write_serial(str.encode('pm:chan %s') % ch) # power meter channel
         return self.get_channel()
 
     def get_channel(self):
