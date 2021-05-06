@@ -106,16 +106,16 @@ class Powermeter:
     def set_channel(self, ch):
         """
         This is a function to select the power meter channel.
-        :param ch: int (power meter channel)
-        :return: int: selected power meter channel
+        :param ch: 1/2 (power meter channel)
+        :return: int: 1/2 (selected power meter channel)
         """
-        self.__write_serial(str.encode('PM:CHAN %s\r\n' % ch)) # power meter channel
+        self.__write_serial(str.encode('PM:CHAN %s\r\n' % ch))  # power meter channel
         return self.get_channel()
 
     def get_channel(self):
         """
         This is a function to get information about the selected power meter channel
-        :return: int: selected power meter channel
+        :return: int: 1/2 (selected power meter channel)
         """
         chan_string = self.__write_serial(b'PM:CHAN?\r\n')  # returns the selected power meter channel
         print("The selected power meter channel is:", chan_string)
@@ -127,30 +127,28 @@ class Powermeter:
         This is a function to select the behavior mode for control of the Data Store buffer.
         The behavior of the ring buffer is to allow continual data collection after the buffer is full
         where the oldest values will be overwritten when new measurements are taken.
-        :param buf: 0 = fixed size, 1 = ring buffer
-        :return:
+        :param buf: int (0 = fixed size, 1 = ring buffer)
+        :return: int: 0 = fixed size, 1 = ring buffer
         """
-        self.serial.write(str.encode('PM:DS:BUF %s\r\n' % buf))  # buffer behavior
-        time.sleep(.5)
-        self.get_buffer()
+        self.__write_serial(str.encode('PM:DS:BUF %s\r\n' % buf))  # buffer behavior
+        return self.get_buffer()
 
     def get_buffer(self):
         """
         This is a function to get information about the selected buffer behavior
-        :return: 0 = fixed size, 1 = ring buffer
+        :return: int: 0 = fixed size, 1 = ring buffer
         """
-        self.serial.write(b'PM:DS:BUF?\r\n')  # returns the selected buffer behavior
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The selected buffer behavior is:", line.decode(), "(0 = fixed size, 1 = ring buffer)")
+        buff_string = self.__write_serial(b'PM:DS:BUF?\r\n')  # returns the selected buffer behavior
+        print("The selected buffer behavior is:", buff_string, "(0 = fixed size, 1 = ring buffer)")
+        buff = int(buff_string)
+        return buff
 
-    def clear(self):
+    def clear(self):  #TODO: return?
         """
         This is a function to clear the Data Store of all data
         :return: -
         """
-        self.serial.write(b'PM:DS:CL\r\n')  # resets the data store to be empty with no values
-        time.sleep(.5)
+        self.__write_serial(b'PM:DS:CL\r\n')  # resets the data store to be empty with no values
 
     def get_count(self):
         """
@@ -158,10 +156,10 @@ class Powermeter:
         in the Data Store.
         :return: int (The number of measurements that have been collected)
         """
-        self.serial.write(b'PM:DS:C?\r\n')  # returns the number of measurements collected
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The number of measurements that have been collected is:", line.decode())
+        count_string = self.__write_serial(b'PM:DS:C?\r\n')  # returns the number of measurements collected
+        print("The number of measurements that have been collected is:", count_string)
+        count = int(count_string)
+        return count
 
     def set_data_collection(self, en):
         """
@@ -172,22 +170,21 @@ class Powermeter:
         :param en: 0 = disable, 1 = enable
         :return: status of the Data Store (0 = disabled, 1 = enabled)
         """
-        self.serial.write(str.encode('PM:DS:EN %s\r\n' % en))
-        time.sleep(.5)
-        self.get_collection_status()
+        self.__write_serial(str.encode('PM:DS:EN %s\r\n' % en))
+        return self.get_collection_status()
 
     def get_collection_status(self):
         """
         This is a function to get the enabled status of the Data Store
         :return: status of the Data Store (0 = disable, 1 = enable)
         """
-        self.serial.write(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The collection of measurements in the Data Store is:", line.decode(),
+        collect_string = self.__write_serial(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
+        print("The collection of measurements in the Data Store is:", collect_string,
               "(0 = disabled or buffer full, 1 = enabled)")
+        collect = int(collect_string)
+        return collect
 
-    def get_data(self, num):
+    def get_data(self, num):  #TODO: __write_serial
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: 1, 1-10, -5, +5
@@ -206,7 +203,7 @@ class Powermeter:
                 pass
         print(s)
 
-    def set_interval(self, intv):
+    def set_interval(self, intv):  #TODO: __write_serial
         """
         This is a function to select the Data Store Interval.
         An interval value of 1 causes the power meter to put all measurements taken in the data store buffer;
@@ -226,7 +223,7 @@ class Powermeter:
         time.sleep(.5)
         self.get_interval()
 
-    def get_interval(self):
+    def get_interval(self):  #TODO: __write_serial
         """
         This is a function to get information about the selected Data Store Interval
         :return: selected Data Store Interval
@@ -236,7 +233,7 @@ class Powermeter:
         line = self.serial.readline()
         print("The selected Data Store Interval is:", line.decode())
 
-    def set_mode(self, mode):
+    def set_mode(self, mode):  #TODO: __write_serial
         """
         This is a function to select the acquisition mode for acquiring subsequent readings
         :param mode: 0 = DC Continuous,
@@ -253,7 +250,7 @@ class Powermeter:
         time.sleep(.5)
         self.get_mode()
 
-    def get_mode(self):
+    def get_mode(self):  #TODO: __write_serial
         """
         This is a function to get the present acquisition mode
         :return: 0 = DC Continuous,
@@ -272,7 +269,7 @@ class Powermeter:
               "(0 = DC Continuous, 1 = DC Single, 2 = Integrate, 3 = Peak-to-peak Continuous,"
               "4 = Peak-to-peak Single, 5 = Pulse Continuous, 6 = Pulse Single, 7 = RMS)")
 
-    def get_power(self):
+    def get_power(self):  #TODO: __write_serial
         """
         This is a function to get the measured (and corrected) power in the selected units
         :return: exp (i.e. 9.4689E-04)
@@ -282,7 +279,7 @@ class Powermeter:
         line = self.serial.readline()
         print("The power is:", line.decode())
 
-    def set_run(self, runner):
+    def set_run(self, runner):  #TODO: __write_serial
         """
         This is a function to disable or enable the acquistion of data
         :param runner: 0 = stopped, 1 = running
@@ -292,7 +289,7 @@ class Powermeter:
         time.sleep(.5)
         self.get_run()
 
-    def get_run(self):
+    def get_run(self):  #TODO: __write_serial
         self.serial.write(b'PM:RUN?\r\n')  # returns an int indicating the present run mode
         time.sleep(.5)
         line = self.serial.readline()
