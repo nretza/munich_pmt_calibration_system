@@ -69,7 +69,7 @@ class Powermeter:
         :param state: int (0 = echo off, 1 = echo on)
         :return: int: 0 = echo off, 1 = echo on
         """
-        self.__write_serial(str.encode('echo %s' % state))
+        self.__write_serial(str.encode('ECHO %s\r\n' % state))
         return self.get_echo()
 
     def get_echo(self):  #TODO: use __write_serial()
@@ -77,7 +77,7 @@ class Powermeter:
         This is a function to get information about the echo set
         :return: int: 0 = echo off, 1 = echo on
         """
-        echo_string = self.__write_serial(b'echo?', line_ending=b'\r\n')  # returns the set echo (0,1)
+        echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
         print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
         echo = int(echo_string)
         return echo
@@ -90,7 +90,7 @@ class Powermeter:
         :param lamb: int (wavelength in nm)
         :return: int: selected wavelength in nm
         """
-        self.__write_serial(str.encode('pm:l %s' % lamb))
+        self.__write_serial(str.encode('PM:L %s\r\n' % lamb))
         return self.get_lambda()
 
     def get_lambda(self):
@@ -98,7 +98,7 @@ class Powermeter:
         This is a function to get information about the selected wavelength
         :return: int: selected wavelength in nm
         """
-        lamb_string = self.__write_serial(b'pm:l?', line_ending=b'\r\n')  # returns the selected wavelength in nm
+        lamb_string = self.__write_serial(b'PM:L?\r\n')  # returns the selected wavelength in nm
         print("The selected wavelength in nm is:", lamb_string)
         lamb = int(lamb_string)
         return lamb
@@ -109,7 +109,7 @@ class Powermeter:
         :param ch: int (power meter channel)
         :return: int: selected power meter channel
         """
-        self.__write_serial(str.encode('pm:chan %s') % ch) # power meter channel
+        self.__write_serial(str.encode('PM:CHAN %s\r\n' % ch)) # power meter channel
         return self.get_channel()
 
     def get_channel(self):
@@ -117,7 +117,7 @@ class Powermeter:
         This is a function to get information about the selected power meter channel
         :return: int: selected power meter channel
         """
-        chan_string = self.__write_serial(b'pm:chan?', line_ending=b'\r\n')  # returns the selected power meter channel
+        chan_string = self.__write_serial(b'PM:CHAN?\r\n')  # returns the selected power meter channel
         print("The selected power meter channel is:", chan_string)
         chan = int(chan_string)
         return chan
