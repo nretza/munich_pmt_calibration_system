@@ -66,8 +66,8 @@ class Powermeter:
         sent to the power meter are echoed back over the interface.
         When the echo mode is disabled (normal mode) the power meter does not generate a prompt or echo character
         back over the interface.
-        :param state: echo set (0 Echo OFF, 1 Echo ON)
-        :return: echo status
+        :param state: int (0 = echo off, 1 = echo on)
+        :return: int: 0 = echo off, 1 = echo on
         """
         self.__write_serial(b'echo {state}', line_ending=b'\r\n')
         return self.get_echo()
@@ -75,11 +75,11 @@ class Powermeter:
     def get_echo(self):  #TODO: use __write_serial()
         """
         This is a function to get information about the echo set
-        :return: float: 0 = Echo off, 1 = Echo on
+        :return: int: 0 = echo off, 1 = echo on
         """
-        echo_string = self.__write_serial(b'echo?', line_ending=b'\r\n')
-        print("The Echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
-        echo = (echo_string)
+        echo_string = self.__write_serial(b'echo?', line_ending=b'\r\n')  # returns the set echo (0,1)
+        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
+        echo = int(echo_string)
         return echo
 
     def set_lambda(self, lamb):
@@ -90,19 +90,25 @@ class Powermeter:
         :param lamb: wavelength in nm
         :return: wavelength
         """
-        self.serial.write(str.encode('PM:L %s\r\n' % lamb))  # wavelength set command
-        time.sleep(.5)
-        self.get_lambda()
+        self.__write_serial(b'pm:l {lamb}', line_ending=b'\r\n')
+        return self.get_lambda()
+        #self.serial.write(str.encode('PM:L %s\r\n' % lamb))  # wavelength set command
+        #time.sleep(.5)
+        #self.get_lambda()
 
     def get_lambda(self):
         """
         This is a function to get information about the selected wavelength
         :return: selected wavelength in nm
         """
-        self.serial.write(b'PM:L?\r\n')  # returns the selected wavelength in nm
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The selected wavelength in nm is:", line.decode())
+        lamb_string = self.__write_serial(b'pm:l?', line_ending=b'\r\n')  # returns the selected wavelength in nm
+        print("The selected wavelength in nm is:", lamb_string)
+        lamb = int(lamb_string)
+        return lamb
+        #self.serial.write(b'PM:L?\r\n')
+        #time.sleep(.5)
+        #line = self.serial.readline()
+        #print("The selected wavelength in nm is:", line.decode())
 
     def set_channel(self, ch):
         """
