@@ -70,20 +70,16 @@ class Powermeter:
         :return: echo status
         """
         self.__write_serial(b'echo {state}', line_ending=b'\r\n')
-        #self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
-        #time.sleep(.5)
         return self.get_echo()
 
     def get_echo(self):  #TODO: use __write_serial()
         """
         This is a function to get information about the echo set
-        :return: 0 Echo OFF, 1 Echo ON
+        :return: float: 0 = Echo off, 1 = Echo on
         """
-        #self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
-        #time.sleep(.5)
-        #line = self.serial.readline()
-        echo = self.__write_serial(b'echo?', line_ending=b'\r\n')
-        print("The Echo status is:", echo, "(0 = Echo OFF, 1 = Echo ON)")
+        echo_string = self.__write_serial(b'echo?', line_ending=b'\r\n')
+        print("The Echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
+        echo = (echo_string)
         return echo
 
     def set_lambda(self, lamb):
