@@ -56,7 +56,6 @@ class Powermeter:
 
         while True:
             return_str = self.serial.readline().decode()
-
             self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
             return return_str
 
@@ -70,7 +69,7 @@ class Powermeter:
         :param state: echo set (0 Echo OFF, 1 Echo ON)
         :return: echo status
         """
-        self.__write_serial(f'echo {state}', line_ending=b'\n')
+        self.__write_serial(b'echo {state}', line_ending=b'\r\n')
         #self.serial.write(str.encode('ECHO %s\r\n' % state))  # 0 Echo OFF, 1 Echo ON
         #time.sleep(.5)
         return self.get_echo()
@@ -83,7 +82,7 @@ class Powermeter:
         #self.serial.write(b'ECHO?\r\n')  # returns the status of the echo
         #time.sleep(.5)
         #line = self.serial.readline()
-        echo = self.__write_serial(f'echo?', line_ending=b'\n')
+        echo = self.__write_serial(b'echo?', line_ending=b'\r\n')
         print("The Echo status is:", echo, "(0 = Echo OFF, 1 = Echo ON)")
         return echo
 
