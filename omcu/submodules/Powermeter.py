@@ -69,7 +69,7 @@ class Powermeter:
         :param state: int (0 = echo off, 1 = echo on)
         :return: int: 0 = echo off, 1 = echo on
         """
-        self.__write_serial(b'echo {state}', line_ending=b'\r\n')
+        self.__write_serial(str.encode('echo %s' % state))
         return self.get_echo()
 
     def get_echo(self):  #TODO: use __write_serial()
@@ -87,48 +87,40 @@ class Powermeter:
         This is a function to select the wavelength to use when calculating power.
         The value must fall within the calibrated wavelength of the detector.
         The Picosecond Laser has a wavelength of 405 nm.
-        :param lamb: wavelength in nm
-        :return: wavelength
+        :param lamb: int (wavelength in nm)
+        :return: int: selected wavelength in nm
         """
-        self.__write_serial(b'pm:l {lamb}', line_ending=b'\r\n')
+        self.__write_serial(str.encode('pm:l %lamb' % lamb))
         return self.get_lambda()
-        #self.serial.write(str.encode('PM:L %s\r\n' % lamb))  # wavelength set command
-        #time.sleep(.5)
-        #self.get_lambda()
 
     def get_lambda(self):
         """
         This is a function to get information about the selected wavelength
-        :return: selected wavelength in nm
+        :return: int: selected wavelength in nm
         """
         lamb_string = self.__write_serial(b'pm:l?', line_ending=b'\r\n')  # returns the selected wavelength in nm
         print("The selected wavelength in nm is:", lamb_string)
         lamb = int(lamb_string)
         return lamb
-        #self.serial.write(b'PM:L?\r\n')
-        #time.sleep(.5)
-        #line = self.serial.readline()
-        #print("The selected wavelength in nm is:", line.decode())
 
     def set_channel(self, ch):
         """
         This is a function to select the power meter channel.
         :param ch: int (power meter channel)
-        :return: currently selected power meter channel
+        :return: int: selected power meter channel
         """
-        self.serial.write(str.encode('PM:CHAN %s\r\n' % ch))  # power meter channel
-        time.sleep(.5)
-        self.get_channel()
+        self.__write_serial(str.encode('pm:chan %ch') % ch) # power meter channel
+        return self.get_channel()
 
     def get_channel(self):
         """
         This is a function to get information about the selected power meter channel
-        :return: selected power meter channel
+        :return: int: selected power meter channel
         """
-        self.serial.write(b'PM:CHAN?\r\n')  # returns the selected power meter channel
-        time.sleep(.5)
-        line = self.serial.readline()
-        print("The selected power meter channel is:", line.decode())
+        chan_string = self.__write_serial(b'pm:chan?', line_ending=b'\r\n')  # returns the selected power meter channel
+        print("The selected power meter channel is:", chan_string)
+        chan = int(chan_string)
+        return chan
 
     def set_buffer(self, buf):
         """
