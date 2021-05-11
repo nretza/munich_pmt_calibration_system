@@ -200,7 +200,6 @@ class Powermeter:
 
         """
         self.__write_serial(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
-        data_info_list = []
         s = ''
         while self.serial.inWaiting():
             try:
@@ -226,7 +225,7 @@ class Powermeter:
                     # -1.295623E-011
                     # End of Data
         data_info_string = s
-        data_info_list.append(data_info_string.split('\r\n'))
+        data_info_list = data_info_string.split('\r\n')
         data_list = []
         for index, i in enumerate(data_info_list):
             if index >= 12:
@@ -236,7 +235,7 @@ class Powermeter:
                     pass
             else:
                 pass
-        return data_info_string, data_info_list, data_list
+        return data_info_list, data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
         """
