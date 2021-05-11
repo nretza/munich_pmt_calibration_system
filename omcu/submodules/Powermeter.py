@@ -79,7 +79,7 @@ class Powermeter:
         :return: int: 0 = echo off, 1 = echo on
         """
         echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
-        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
+        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on which should not be used here!")
         echo = int(echo_string)
         return echo
 
@@ -228,7 +228,7 @@ class Powermeter:
         data_info_list = data_info_string.split('\r\n')
         data_list = []
         for index, i in enumerate(data_info_list):
-            if index >= 12:  # entry 11 = 'End of Header'
+            if index > 11:  # entry 11 = 'End of Header'
                 if index < (len(data_info_list)-2):
                     data_list.append(i)  # actual measured data
                 if index >= (len(data_info_list)-2):  # don't need last two entries that are 'End of Data' and ''
