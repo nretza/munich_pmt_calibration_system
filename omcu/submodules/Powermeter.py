@@ -191,10 +191,10 @@ class Powermeter:
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: int/range
-                    “1”–returns the single value specified
-                    “1-10”–returns values in the range from 1-10
-                    “-5”–returns the oldest 5 values (same as 1-5)
-                    “+5”–returns the newest 5 values
+                    “0”–returns the single value specified by index 0
+                    “0-10”–returns values in the range from the indices 0-10
+                    “-5”–returns the oldest 5 values (same as 0-5)
+                    “+1”–returns the newest value
         :return: list of data with the length that was indicated with num
                 looks something like this: ['-1.295755E-011', '-1.295711E-011', '-1.295667E-011', '-1.295623E-011']
 
@@ -206,7 +206,7 @@ class Powermeter:
                 s += self.serial.read().decode()
             except:
                 pass
-        print(s)    # prints something like this:
+        # print(s)    # prints something like this:
                     # Detector SN: 2003
                     # IDN: NEWPORT 2936-R v1.2.3 08/04/15 SN24777
                     # Wavelength: 405
@@ -228,14 +228,14 @@ class Powermeter:
         data_info_list = data_info_string.split('\r\n')
         data_list = []
         for index, i in enumerate(data_info_list):
-            if index >= 12:
+            if index >= 12:  # entry 11 = 'End of Header'
                 if index < (len(data_info_list)-2):
-                    data_list.append(i)
-                if index >= (len(data_info_list)-2):
+                    data_list.append(i)  # actual measured data
+                if index >= (len(data_info_list)-2):  # don't need last two entries that are 'End of Data' and ''
                     pass
             else:
-                pass
-        return data_info_list, data_list
+                pass  # don't need header
+        return data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
         """
