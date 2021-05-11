@@ -187,7 +187,7 @@ class Powermeter:
         collect = int(collect_string)
         return collect
 
-    def get_data(self, num):  #TODO: return
+    def get_data(self, num):
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: int/range
@@ -195,17 +195,18 @@ class Powermeter:
                     “1-10”–returns values in the range from 1-10
                     “-5”–returns the oldest 5 values (same as 1-5)
                     “+5”–returns the newest 5 values
-        :return:
+        :return: list of data with the length that was indicated with num
+                looks something like this: ['-1.295755E-011', '-1.295711E-011', '-1.295667E-011', '-1.295623E-011']
+
         """
         self.__write_serial(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
-        data_list = []
+        data_info_list = []
         s = ''
         while self.serial.inWaiting():
             try:
                 s += self.serial.read().decode()
             except:
                 pass
-        data_list.append(s)
         print(s)    # prints something like this:
                     # Detector SN: 2003
                     # IDN: NEWPORT 2936-R v1.2.3 08/04/15 SN24777
@@ -224,6 +225,17 @@ class Powermeter:
                     # -1.295667E-011
                     # -1.295623E-011
                     # End of Data
+        data_info_string = s
+        data_info_list.append(data_info_string.split('\r\n'))
+        data_list = []
+        for index, i in enumerate(data_info_list):
+            if index >= 12:
+                if index < (len(data_info_list)-2):
+                    data_list.append(i)
+                if index >= (len(data_info_list)-2):
+                    pass
+            else:
+                pass
         return data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
