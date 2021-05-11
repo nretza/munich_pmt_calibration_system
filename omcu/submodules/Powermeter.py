@@ -55,7 +55,7 @@ class Powermeter:
         time.sleep(delay)
 
         while True:
-            return_str = self.serial.readline().decode()
+            return_str = self.serial.readline(eol=b'\n').decode()
             self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
             return return_str
 
@@ -79,10 +79,7 @@ class Powermeter:
         """
         echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
         print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
-        if '1' in echo_string:
-            echo = 1
-        else:
-            echo = 0
+        echo = int(echo_string)
         return echo
 
     def set_lambda(self, lamb):
