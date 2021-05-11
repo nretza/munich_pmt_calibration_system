@@ -203,9 +203,9 @@ class Powermeter:
         while self.serial.inWaiting():
             try:
                 s += self.serial.read().decode()
-                data_list.append(s)
             except:
                 pass
+        data_list.append(s)
         print(s)    # prints something like this:
                     # Detector SN: 2003
                     # IDN: NEWPORT 2936-R v1.2.3 08/04/15 SN24777
