@@ -236,7 +236,7 @@ class Powermeter:
                     pass
             else:
                 pass
-        return data_list
+        return data_info_list, data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
         """
