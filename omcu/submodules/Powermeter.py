@@ -59,7 +59,7 @@ class Powermeter:
             self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
             return return_str
 
-    def set_echo(self, state):  #TODO: use __write_serial()
+    def set_echo(self, state):
         """
         This is a function to turn on or off the echoing of commands sent to the power meter.
         When the echo mode is enabled, the power meter generates a '>' prompt for every new line and all characters
@@ -72,14 +72,17 @@ class Powermeter:
         self.__write_serial(str.encode('ECHO %s\r\n' % state))
         return self.get_echo()
 
-    def get_echo(self):  #TODO: use __write_serial()
+    def get_echo(self):
         """
         This is a function to get information about the echo set
         :return: int: 0 = echo off, 1 = echo on
         """
         echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
         print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on)")
-        echo = int(echo_string)
+        if '1' in echo_string:
+            echo = 1
+        else:
+            echo = 0
         return echo
 
     def set_lambda(self, lamb):
