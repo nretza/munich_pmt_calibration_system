@@ -182,28 +182,49 @@ class Powermeter:
         """
         collect_string = self.__write_serial(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
         print("The collection of measurements in the Data Store is:", collect_string,
-              "(0 = disabled or buffer full, 1 = enabled)")
+              "(0 = disabled or buffer full (after 1000 measurements), 1 = enabled)")
         self.get_count()
         collect = int(collect_string)
         return collect
 
-    def get_data(self, num):  #TODO: __write_serial
+    def get_data(self, num):  #TODO: return
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
-        :param num: 1, 1-10, -5, +5
-        :return: “1”–returns the single value specified
-                 “1-10”–returns values in the range from 1-10
-                 “-5”–returns the oldest 5 values (same as 1-5)
-                 “+5”–returns the newest 5 values
+        :param num: int/range
+                    “1”–returns the single value specified
+                    “1-10”–returns values in the range from 1-10
+                    “-5”–returns the oldest 5 values (same as 1-5)
+                    “+5”–returns the newest 5 values
+        :return:
         """
         self.__write_serial(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
+        data_list = []
         s = ''
         while self.serial.inWaiting():
             try:
                 s += self.serial.read().decode()
+                data_list.append(s)
             except:
                 pass
-        print(s)
+        print(s)    # prints something like this:
+                    # Detector SN: 2003
+                    # IDN: NEWPORT 2936-R v1.2.3 08/04/15 SN24777
+                    # Wavelength: 405
+                    # Attenuator Status: Off
+                    # Range Mode: Auto
+                    # Store Interval: 1
+                    # Analog Filter: 12.5kHz
+                    # Digital Filter: 1000
+                    # Mode: CW Continuous
+                    # Responsivity: 1.737366E-001
+                    # Units: W
+                    # End of Header
+                    # -1.295755E-011
+                    # -1.295711E-011
+                    # -1.295667E-011
+                    # -1.295623E-011
+                    # End of Data
+        return data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
         """
