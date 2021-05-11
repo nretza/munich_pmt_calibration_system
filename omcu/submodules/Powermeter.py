@@ -29,7 +29,7 @@ class Powermeter:
                                         parity=serial.PARITY_NONE,
                                         timeout=2
                                         )
-        self.set_echo(0)  # Echo off
+        self.set_echo(0)  # Echo off !!!
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
 
@@ -66,6 +66,7 @@ class Powermeter:
         sent to the power meter are echoed back over the interface.
         When the echo mode is disabled (normal mode) the power meter does not generate a prompt or echo character
         back over the interface.
+        !!! Do not use state = 1 (echo on) !!! The __write_serial function cannot handle this
         :param state: int (0 = echo off, 1 = echo on)
         :return: int: 0 = echo off, 1 = echo on
         """
@@ -143,12 +144,13 @@ class Powermeter:
         buff = int(buff_string)
         return buff
 
-    def clear(self):  #TODO: return?
+    def clear(self):
         """
         This is a function to clear the Data Store of all data
         :return: -
         """
         self.__write_serial(b'PM:DS:CL\r\n')  # resets the data store to be empty with no values
+        print("The Data Store has been cleared of all data")
 
     def get_count(self):
         """
@@ -181,6 +183,7 @@ class Powermeter:
         collect_string = self.__write_serial(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
         print("The collection of measurements in the Data Store is:", collect_string,
               "(0 = disabled or buffer full, 1 = enabled)")
+        self.get_count()
         collect = int(collect_string)
         return collect
 
@@ -193,8 +196,7 @@ class Powermeter:
                  “-5”–returns the oldest 5 values (same as 1-5)
                  “+5”–returns the newest 5 values
         """
-        self.serial.write(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
-        time.sleep(.5)
+        self.__write_serial(str.encode('PM:DS:GET? %s\r\n' % num))  # returns a number of measurements collected
         s = ''
         while self.serial.inWaiting():
             try:
