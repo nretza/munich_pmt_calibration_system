@@ -55,7 +55,7 @@ class Powermeter:
         time.sleep(delay)
 
         while True:
-            return_str = self.serial.readline(eol=b'\n').decode()
+            return_str = self.serial.readline().decode()
             self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
             return return_str
 
