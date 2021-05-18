@@ -79,7 +79,7 @@ class Powermeter:
         :return: int: 0 = echo off, 1 = echo on
         """
         echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
-        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on which should not be used here!")
+        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on, which should not be used here!")
         echo = int(echo_string)
         return echo
 
