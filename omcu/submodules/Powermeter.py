@@ -187,7 +187,7 @@ class Powermeter:
         collect = int(collect_string)
         return collect
 
-    def get_data(self, num):
+    def get_data(self, num):  # TODO: use 'End of Data' as stopping point
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: int/range
@@ -227,14 +227,22 @@ class Powermeter:
         data_info_string = s
         data_info_list = data_info_string.split('\r\n')
         data_list = []
+        # for index, i in enumerate(data_info_list):
+        #     if index > 11:  # entry 11 = 'End of Header'
+        #         if index < (len(data_info_list)-2):
+        #             data_list.append(i)  # actual measured data
+        #         if index >= (len(data_info_list)-2):  # don't need last two entries that are 'End of Data' and ''
+        #             pass
+        #     else:
+        #         pass  # don't need header
         for index, i in enumerate(data_info_list):
-            if index > 11:  # entry 11 = 'End of Header'
-                if index < (len(data_info_list)-2):
-                    data_list.append(i)  # actual measured data
-                if index >= (len(data_info_list)-2):  # don't need last two entries that are 'End of Data' and ''
+            if index > 11:
+                if 'End of Data' in i:
                     pass
+                else:
+                    data_list.append(i)
             else:
-                pass  # don't need header
+                pass
         return data_list
 
     def set_interval(self, intv):  #TODO: __write_serial
