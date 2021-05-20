@@ -187,7 +187,7 @@ class Powermeter:
         collect = int(collect_string)
         return collect
 
-    def get_data(self, num):  # TODO: use 'End of Data' as stopping point
+    def get_data(self, num):  # TODO: use 'End of Data' as stopping point, no timeout
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: int/range
