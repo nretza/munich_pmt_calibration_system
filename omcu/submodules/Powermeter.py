@@ -35,6 +35,7 @@ class Powermeter:
         self.set_buffer(0)  # buffer with fixed size
         self.clear()  # Data Store cleared of all data
         self.set_mode(0)  # DC Contonuous
+        self.set_interval(1)  # all measurements taken are put in the data store buffer
         self.set_run(1)  # enable data acquisition
 
     def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
