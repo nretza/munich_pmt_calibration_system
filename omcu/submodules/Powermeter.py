@@ -11,7 +11,7 @@ class Powermeter:
     This is a class for the Newport Optical Powermeter Model 2936-R
     """
 
-    def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.5):
+    def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.1):
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial
@@ -32,6 +32,10 @@ class Powermeter:
         self.set_echo(0)  # Echo off !!!
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
+        self.set_buffer(0)  # buffer with fixed size
+        self.clear()  # Data Store cleared of all data
+        self.set_mode(0)  # DC Contonuous
+        self.set_run(1)  # enable data acquisition
 
     def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
         """

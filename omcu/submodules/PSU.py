@@ -22,14 +22,27 @@ class PSU(gpd3303s.GPD3303S):
         self.setVoltage(1, 5.0)
         self.setVoltage(2, 5.0)
 
-    def ON(self):
+    def on(self):
         self.enableOutput(True)
         self.state = True
         time.sleep(1)
 
-    def OFF(self):
+    def off(self):
         self.enableOutput(False)
         self.state = False
+
+    def start(self, channel, voltage, current):
+        """
+        This is a function set voltage and current for the desired channel and start the output
+        :param channel: int (1/2)
+        :param voltage: float
+        :param current: float
+        :return: boolean (state)
+        """
+        self.setVoltage(channel, voltage)
+        self.setCurrent(channel, current)
+        self.on()
+        return self.state
 
 
 if __name__ == "__main__":
