@@ -64,7 +64,7 @@ class Scope:
 
         # CHANNEL SETUP
         self.enable = [1, 1, 1, 1]
-        self.vrange = [5, 0.05, 0.05, 0.05]
+        self.vrange = [5, 5, 5, 5]
         self.coupling = ['50', '50', '50', '50']
 
     def channel_setup(self, channel, enable, vrange, coupling):
