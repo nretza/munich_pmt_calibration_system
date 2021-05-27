@@ -18,7 +18,7 @@ status = {}
 
 # Open 6000 A series PicoScope
 # returns handle to chandle for use in future API functions
-resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]  # 12bit works for 2 channels, "PICO_DR_8BIT" for all 4
 status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(chandle), None, resolution)
 assert_pico_ok(status["openunit"])
 
@@ -26,7 +26,7 @@ assert_pico_ok(status["openunit"])
 # handle = chandle
 channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
 coupling = enums.PICO_COUPLING["PICO_DC"]
-channelRange = 7
+channelRange = 7  # defines the voltage range possibly displayed, 0-1000mV
 # analogueOffset = 0 V
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChannelA"] = ps.ps6000aSetChannelOn(chandle, channelA, coupling, channelRange, 0, bandwidth)
