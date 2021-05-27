@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# from picoscope import ps6000
+# from picoscope import ps6000a
 # from scipy.stats import invweibull
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,8 +10,9 @@ import serial
 import sys
 
 import ctypes
-from picosdk.ps6000 import ps6000 as ps
-
+from picosdk.ps6000a import ps6000a as ps
+from picosdk.PicoDeviceEnums import picoEnum as enums
+resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_8BIT"]
 
 # colored prints
 def print_r(text):
@@ -47,7 +48,7 @@ class Scope:
 
     def __init__(self):
         self.chandle = ctypes.c_int16()
-        ps.ps6000OpenUnit(ctypes.byref(self.chandle), None)
+        ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, resolution)
         self.timebase = 2
 
         self.trglvl = 3000  # ADC units
@@ -78,15 +79,15 @@ class Scope:
             if coupling == '1m':
                 coupling = 1
 
-            ps.ps6000SetChannel(self.chandle, channel, 1, coupling, vrange, 0, 0)
+            ps.ps6000aSetChannel(self.chandle, channel, 1, coupling, vrange, 0, 0)
         else:
-            ps.ps6000SetChannel(self.chandle, channel, 0, 2, 8, 0, 0)
+            ps.ps6000aSetChannel(self.chandle, channel, 0, 2, 8, 0, 0)
 
     def data_setup(self, channel):
         self.maxsamples = self.preTriggerSamples + self.postTriggerSamples
         data = ((ctypes.c_int16 * self.maxsamples) * self.n_captures)()
         for n in range(self.n_captures):
-            ps.ps6000SetDataBufferBulk(self.chandle, channel, ctypes.byref(data[n]), self.maxsamples, n, 0)
+            ps.ps6000aSetDataBufferBulk(self.chandle, channel, ctypes.byref(data[n]), self.maxsamples, n, 0)
         return np.array(data)
 
     def measurement(self, n_captures=None):
@@ -94,21 +95,21 @@ class Scope:
         for ch in [0, 1, 2, 3]:
             self.channel_setup(ch, self.enable[ch], self.vrange[ch], self.coupling[ch])
         # Trigger on channel A, trigger level dependant on voltage range
-        ps.ps6000SetSimpleTrigger(self.chandle, 1, self.trgchannel, self.trglvl, 2, 0, self.autotrig)
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, self.trgchannel, self.trglvl, 2, 0, self.autotrig)
 
         # Setting up the time resolution of the scope
         timeIntervalns = ctypes.c_float()
         returnedMaxSamples = ctypes.c_int16()
-        ps.ps6000GetTimebase2(self.chandle, self.timebase, self.maxsamples, ctypes.byref(timeIntervalns), 1,
+        ps.ps6000aGetTimebase2(self.chandle, self.timebase, self.maxsamples, ctypes.byref(timeIntervalns), 1,
                               ctypes.byref(returnedMaxSamples), 0)
 
         # Splitting the internal memory into segments
         cmaxSamples = ctypes.c_int32(self.maxsamples)
-        ps.ps6000MemorySegments(self.chandle, self.n_captures, ctypes.byref(cmaxSamples))
-        ps.ps6000SetNoOfCaptures(self.chandle, self.n_captures)
+        ps.ps6000aMemorySegments(self.chandle, self.n_captures, ctypes.byref(cmaxSamples))
+        ps.ps6000aSetNoOfCaptures(self.chandle, self.n_captures)
 
         # Starting the measurement run
-        ps.ps6000RunBlock(self.chandle, self.preTriggerSamples, self.postTriggerSamples, self.timebase,
+        ps.ps6000aRunBlock(self.chandle, self.preTriggerSamples, self.postTriggerSamples, self.timebase,
                           1, None, 0, None, None)
 
         # Data Setup
@@ -119,7 +120,7 @@ class Scope:
         for i, ch in enumerate([ch0, ch1, ch2, ch3]):
             if self.enable[i] == 1 or self.enable[i] == True:
                 for n in range(self.n_captures):
-                    ps.ps6000SetDataBufferBulk(self.chandle, i, ctypes.byref(ch[n]), self.maxsamples, n, 0)
+                    ps.ps6000aSetDataBufferBulk(self.chandle, i, ctypes.byref(ch[n]), self.maxsamples, n, 0)
                 ch = np.array(ch)
 
         overflow = (ctypes.c_int16 * self.n_captures)()
@@ -129,10 +130,10 @@ class Scope:
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
         while ready.value == check.value:
-            ps.ps6000IsReady(self.chandle, ctypes.byref(ready))
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
 
         # Copying data from scope memory into local buffers
-        ps.ps6000GetValuesBulk(self.chandle, ctypes.byref(cmaxSamples), 0, self.n_captures - 1, 0, 0,
+        ps.ps6000aGetValuesBulk(self.chandle, ctypes.byref(cmaxSamples), 0, self.n_captures - 1, 0, 0,
                                ctypes.byref(overflow))
         return ch0, ch1, ch2, ch3
 
@@ -144,8 +145,8 @@ class Scope:
         return data
 
     def close(self):
-        ps.ps6000Stop(self.chandle)
-        ps.ps6000CloseUnit(self.chandle)
+        ps.ps6000aStop(self.chandle)
+        ps.ps6000aCloseUnit(self.chandle)
 
     def pmt_gaincal(self):
         n_captures = 1000  # 100000
@@ -155,32 +156,32 @@ class Scope:
         preTriggerSamples = 10
         postTriggerSamples = 80
         maxsamples = preTriggerSamples + postTriggerSamples
-        ps.ps6000SetChannel(self.chandle, 2, 1, 2, vrange, 0, 0)
-        ps.ps6000SetChannel(self.chandle, 0, 0, 2, vrange, 0, 0)
-        ps.ps6000SetChannel(self.chandle, 1, 0, 2, vrange, 0, 0)
-        ps.ps6000SetChannel(self.chandle, 3, 0, 2, vrange, 0, 0)
+        ps.ps6000aSetChannel(self.chandle, 2, 1, 2, vrange, 0, 0)
+        ps.ps6000aSetChannel(self.chandle, 0, 0, 2, vrange, 0, 0)
+        ps.ps6000aSetChannel(self.chandle, 1, 0, 2, vrange, 0, 0)
+        ps.ps6000aSetChannel(self.chandle, 3, 0, 2, vrange, 0, 0)
         # Trigger on channel A, trigger level dependant on voltage range
-        ps.ps6000SetSimpleTrigger(self.chandle, 1, 2, trglvl, 3, 0, 1000)
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, 2, trglvl, 3, 0, 1000)
 
         # Setting up the time resolution of the scope
         timeIntervalns = ctypes.c_float()
         returnedMaxSamples = ctypes.c_int16()
-        ps.ps6000GetTimebase2(self.chandle, timebase, maxsamples, ctypes.byref(timeIntervalns),
+        ps.ps6000aGetTimebase2(self.chandle, timebase, maxsamples, ctypes.byref(timeIntervalns),
                               1, ctypes.byref(returnedMaxSamples), 0)
         print(timeIntervalns, returnedMaxSamples)
         # Splitting the internal memory into segments
         cmaxSamples = ctypes.c_int32(maxsamples)
-        ps.ps6000MemorySegments(self.chandle, n_captures, ctypes.byref(cmaxSamples))
-        ps.ps6000SetNoOfCaptures(self.chandle, n_captures)
+        ps.ps6000aMemorySegments(self.chandle, n_captures, ctypes.byref(cmaxSamples))
+        ps.ps6000aSetNoOfCaptures(self.chandle, n_captures)
 
         start = time.time()
         # Starting the measurement run
-        ps.ps6000RunBlock(self.chandle, preTriggerSamples, postTriggerSamples, timebase,
+        ps.ps6000aRunBlock(self.chandle, preTriggerSamples, postTriggerSamples, timebase,
                           1, None, 0, None, None)
         # Create a 2-dimensional buffer for every used scope channel on local machine
         pmt = ((ctypes.c_int16 * maxsamples) * n_captures)()
         for n in range(n_captures):
-            ps.ps6000SetDataBufferBulk(self.chandle, 2, ctypes.byref(pmt[n]), maxsamples, n, 0)
+            ps.ps6000aSetDataBufferBulk(self.chandle, 2, ctypes.byref(pmt[n]), maxsamples, n, 0)
 
         overflow = (ctypes.c_int16 * n_captures)()
         cmaxSamples = ctypes.c_int32(maxsamples)
@@ -189,11 +190,11 @@ class Scope:
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
         while ready.value == check.value:
-            ps.ps6000IsReady(self.chandle, ctypes.byref(ready))
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
 
         print("Run time: %.2f" % (time.time() - start))
         # Copying data from scope memory into local buffers
-        ps.ps6000GetValuesBulk(self.chandle, ctypes.byref(cmaxSamples), 0, n_captures - 1, 0, 0,
+        ps.ps6000aGetValuesBulk(self.chandle, ctypes.byref(cmaxSamples), 0, n_captures - 1, 0, 0,
                                ctypes.byref(overflow))
         return pmt
 
