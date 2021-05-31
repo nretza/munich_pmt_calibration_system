@@ -132,8 +132,4 @@ class Picoscope:
         plt.ylabel('Voltage (mV)')
         plt.show()
 
-        # Close the scope
-        status["closeunit"] = ps.ps6000aCloseUnit(self.chandle)
-        assert_pico_ok(status["closeunit"])
-
         print(status)
