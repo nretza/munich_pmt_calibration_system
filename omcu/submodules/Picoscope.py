@@ -28,3 +28,4 @@ class Picoscope:
         bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
         status["setChannelA"] = ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
         assert_pico_ok(status["setChannelA"])
+        print(status)
