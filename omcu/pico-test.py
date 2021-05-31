@@ -26,7 +26,7 @@ assert_pico_ok(status["openunit"])
 # handle = chandle
 channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
 coupling = enums.PICO_COUPLING["PICO_DC"]
-channelRange = 7  # defines the voltage range possibly displayed, 0-1000mV
+channelRange = 7  # defines the voltage range that can be displayed, 0-1000mV
 # analogueOffset = 0 V
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChannelA"] = ps.ps6000aSetChannelOn(chandle, channelA, coupling, channelRange, 0, bandwidth)
