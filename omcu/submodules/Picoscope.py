@@ -60,8 +60,8 @@ class Picoscope:
         print("sample interval =", timeInterval.value, "s")
 
         # Set number of samples to be collected
-        noOfPreTriggerSamples = 500000
-        noOfPostTriggerSamples = 1000000
+        noOfPreTriggerSamples = 2000
+        noOfPostTriggerSamples = 4000
         nSamples = noOfPostTriggerSamples + noOfPreTriggerSamples
 
         # Create buffers
