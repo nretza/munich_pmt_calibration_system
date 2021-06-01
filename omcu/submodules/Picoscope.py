@@ -18,7 +18,7 @@ class Picoscope:
         status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)
         assert_pico_ok(status["openunit"])
 
-    def measurement(self):
+    def single_measurement(self):
         # Set channel A on
         # handle = chandle
         channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
