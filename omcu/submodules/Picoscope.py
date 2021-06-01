@@ -29,7 +29,7 @@ class Picoscope:
         ---
         This example opens a 6000a driver device, sets up channel A and a trigger then collects a block of data.
         This data is then plotted as mV against time in ns.
-        :param trig: float [V] trigger value
+        :param trig: int [mV] trigger value
         :return:
         """
         # Set channel A on
@@ -49,16 +49,15 @@ class Picoscope:
             status["setChannel", x] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(status["setChannel", x])
 
-        # Set simple trigger on channel A, [trig] V rising with 1 s autotrigger
+        # Set simple trigger on channel A, [trig] mV rising with 1 s autotrigger
         # handle = chandle
         # enable = 1
         source = channelA
-        # threshold = 1000 mV
+        trigger = trig
         direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
         # delay = 0 s
         # autoTriggerMicroSeconds = 1000000 us
-        trigger = trig
-        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, trigger, source, 1000, direction, 0, 1000000)
+        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, trigger, direction, 0, 1000000)
         assert_pico_ok(status["setSimpleTrigger"])
 
         # Get fastest available timebase
