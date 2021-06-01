@@ -23,7 +23,7 @@ class Picoscope:
         status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
         assert_pico_ok(status["openunit"])  # entry to dictionary status
 
-    def single_measurement(self, trig):
+    def single_measurement(self, thresh = 1000):
         """
         PS6000 A BLOCK MODE EXAMPLE
         ---
@@ -53,11 +53,11 @@ class Picoscope:
         # handle = chandle
         # enable = 1
         source = channelA
-        trigger = trig
+        threshold = thresh  # default value: 1000 mV
         direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
         # delay = 0 s
         # autoTriggerMicroSeconds = 1000000 us
-        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, trigger, direction, 0, 1000000)
+        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0, 1000000)
         assert_pico_ok(status["setSimpleTrigger"])
 
         # Get fastest available timebase
