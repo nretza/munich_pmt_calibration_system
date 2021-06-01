@@ -22,8 +22,8 @@ class Picoscope:
         # Set channel A on
         # handle = chandle
         channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
-        coupling = enums.PICO_COUPLING["PICO_DC"]
-        channelRange = 10
+        coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # PICO_DC / PICO_AC / PICO_DC_50OHM
+        channelRange = 8  # 7: +-2V, 8: +-5V, 9: +-10V, 10: +-20V, 1-6 like in PicoScope 6
         # analogueOffset = 0 V
         bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
         status["setChannelA"] = ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
