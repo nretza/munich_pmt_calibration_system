@@ -142,13 +142,13 @@ class Picoscope:
         channelRange = 7
         # analogueOffset = 0 V
         bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
-        status["setChannelA"] = ps.ps6000aSetChannelOn(chandle, channelA, coupling, channelRange, 0, bandwidth)
+        status["setChannelA"] = ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
         assert_pico_ok(status["setChannelA"])
 
-        # set channel B-H off
+        # set channel B,C,D off
         for x in range(1, 3, 1):
             channel = x
-            status["setChannel", x] = ps.ps6000aSetChannelOff(chandle, channel)
+            status["setChannel", x] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(status["setChannel", x])
 
         # Set simple trigger on channel A, 1 V rising with 1 s autotrigger
@@ -159,7 +159,7 @@ class Picoscope:
         direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
         # delay = 0 s
         # autoTriggerMicroSeconds = 1000000 us
-        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(chandle, 1, source, 1000, direction, 0, 1000000)
+        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, 1000, direction, 0, 1000000)
         assert_pico_ok(status["setSimpleTrigger"])
 
         # Get fastest available timebase
@@ -168,7 +168,7 @@ class Picoscope:
         timebase = ctypes.c_uint32(0)
         timeInterval = ctypes.c_double(0)
         # resolution = resolution
-        status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(chandle, enabledChannelFlags,
+        status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags,
                                                                                       ctypes.byref(timebase),
                                                                                       ctypes.byref(timeInterval),
                                                                                       resolution)
@@ -184,11 +184,11 @@ class Picoscope:
         # Set number of memory segments
         noOfCaptures = 10
         maxSegments = ctypes.c_uint64(10)
-        status["memorySegments"] = ps.ps6000aMemorySegments(chandle, noOfCaptures, ctypes.byref(maxSegments))
+        status["memorySegments"] = ps.ps6000aMemorySegments(self.chandle, noOfCaptures, ctypes.byref(maxSegments))
         assert_pico_ok(status["memorySegments"])
 
         # Set number of captures
-        status["setNoOfCaptures"] = ps.ps6000aSetNoOfCaptures(chandle, noOfCaptures)
+        status["setNoOfCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, noOfCaptures)
         assert_pico_ok(status["setNoOfCaptures"])
 
         # Create buffers
@@ -225,52 +225,52 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        status["setDataBuffers"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax),
+        status["setDataBuffers"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax),
                                                             ctypes.byref(bufferAMin), nSamples, dataType, waveform,
                                                             downSampleMode, action)
         assert_pico_ok(status["setDataBuffers"])
         waveform1 = 1
-        status["setDataBuffers1"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax1),
+        status["setDataBuffers1"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax1),
                                                              ctypes.byref(bufferAMin1), nSamples, dataType, waveform1,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers1"])
         waveform2 = 2
-        status["setDataBuffers2"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax2),
+        status["setDataBuffers2"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax2),
                                                              ctypes.byref(bufferAMin2), nSamples, dataType, waveform2,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers2"])
         waveform3 = 3
-        status["setDataBuffers3"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax3),
+        status["setDataBuffers3"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax3),
                                                              ctypes.byref(bufferAMin3), nSamples, dataType, waveform3,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers3"])
         waveform4 = 4
-        status["setDataBuffers4"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax4),
+        status["setDataBuffers4"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax4),
                                                              ctypes.byref(bufferAMin4), nSamples, dataType, waveform4,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers4"])
         waveform5 = 5
-        status["setDataBuffers5"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax5),
+        status["setDataBuffers5"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax5),
                                                              ctypes.byref(bufferAMin5), nSamples, dataType, waveform5,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers5"])
         waveform6 = 6
-        status["setDataBuffers6"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax6),
+        status["setDataBuffers6"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax6),
                                                              ctypes.byref(bufferAMin6), nSamples, dataType, waveform6,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers6"])
         waveform7 = 7
-        status["setDataBuffers7"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax7),
+        status["setDataBuffers7"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax7),
                                                              ctypes.byref(bufferAMin7), nSamples, dataType, waveform7,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers7"])
         waveform8 = 8
-        status["setDataBuffers8"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax8),
+        status["setDataBuffers8"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax8),
                                                              ctypes.byref(bufferAMin8), nSamples, dataType, waveform8,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers8"])
         waveform9 = 9
-        status["setDataBuffers9"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax9),
+        status["setDataBuffers9"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax9),
                                                              ctypes.byref(bufferAMin9), nSamples, dataType, waveform9,
                                                              downSampleMode, add)
         assert_pico_ok(status["setDataBuffers9"])
@@ -282,7 +282,7 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        status["runBlock"] = ps.ps6000aRunBlock(chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
+        status["runBlock"] = ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
                                                 ctypes.byref(timeIndisposedMs), 0, None, None)
         assert_pico_ok(status["runBlock"])
 
@@ -290,7 +290,7 @@ class Picoscope:
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
         while ready.value == check.value:
-            status["isReady"] = ps.ps6000aIsReady(chandle, ctypes.byref(ready))
+            status["isReady"] = ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
 
         # Get data from scope
         # handle = chandle
@@ -300,7 +300,7 @@ class Picoscope:
         # segmentIndex = 0
         # Creates a overflow location for each segment
         overflow = (ctypes.c_int16 * 10)()
-        status["getValues"] = ps.ps6000aGetValuesBulk(chandle, 0, ctypes.byref(noOfSamples), 0, 9, 1, downSampleMode,
+        status["getValues"] = ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, 9, 1, downSampleMode,
                                                       ctypes.byref(overflow))
         assert_pico_ok(status["getValues"])
 
@@ -308,7 +308,7 @@ class Picoscope:
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
-        status["getAdcLimits"] = ps.ps6000aGetAdcLimits(chandle, resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        status["getAdcLimits"] = ps.ps6000aGetAdcLimits(self.chandle, resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         assert_pico_ok(status["getAdcLimits"])
 
         # convert ADC counts data to mV
