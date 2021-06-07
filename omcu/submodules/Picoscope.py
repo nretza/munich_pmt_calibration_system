@@ -138,18 +138,17 @@ class Picoscope:
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
-        print(len(adc2mVChAMax))
 
         # Create time data
         time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
 
         # create array of data
-        # data = np.zeros((nSamples, 2))
-        # for i, values in enumerate(adc2mVChAMax):
-        #     timevals = time
-        #     mV = values
-        #     data[i] = [timevals, mV]
-        # np.savetxt('data.txt', data)
+        data = np.zeros((nSamples, 2))
+        for i, values in enumerate(adc2mVChAMax):
+            timeval = time[i]
+            mV = values
+            data[i] = [timeval, mV]
+        np.savetxt('data.txt', data)
 
         # plot data from channel A and B
         plt.plot(time, adc2mVChAMax[:])
