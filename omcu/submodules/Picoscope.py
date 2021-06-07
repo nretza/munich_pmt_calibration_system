@@ -49,7 +49,7 @@ class Picoscope:
             status["setChannel", x] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(status["setChannel", x])
 
-        # Set simple trigger on channel A, [trig] mV rising with 1 s autotrigger
+        # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
         # enable = 1
         source = channelA
@@ -138,10 +138,13 @@ class Picoscope:
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
-        np.savetxt('data.txt', adc2mVChAMax)
 
         # Create time data
         time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
+
+        # create array of data
+        data = np.array
+        np.savetxt('data.txt', data)
 
         # plot data from channel A and B
         plt.plot(time, adc2mVChAMax[:])
