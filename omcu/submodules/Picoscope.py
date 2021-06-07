@@ -143,8 +143,12 @@ class Picoscope:
         time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
 
         # create array of data
-        # data = np.array
-        # np.savetxt('data.txt', data)
+        data = np.zeros((nSamples), 2)
+        for i, values in enumerate(adc2mVChAMax):
+            timevals = time
+            mV = values
+            data[i] = [timevals, mV]
+        np.savetxt('data.txt', data)
 
         # plot data from channel A and B
         plt.plot(time, adc2mVChAMax[:])
