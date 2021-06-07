@@ -138,7 +138,7 @@ class Picoscope:
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
-        print(adc2mVChAMax)
+        print(len(adc2mVChAMax))
 
         # Create time data
         time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
