@@ -23,13 +23,13 @@ class Picoscope:
         status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
         assert_pico_ok(status["openunit"])  # entry to dictionary status
 
-    def single_measurement(self, thresh = 1000):
+    def single_measurement(self, thresh=1000):
         """
         PS6000 A BLOCK MODE EXAMPLE
         ---
         This example opens a 6000a driver device, sets up channel A and a trigger then collects a block of data.
         This data is then plotted as mV against time in ns.
-        :param trig: int [mV] trigger value
+        :param thresh: int [mV] trigger value
         :return:
         """
         # Set channel A on
@@ -53,11 +53,12 @@ class Picoscope:
         # handle = chandle
         # enable = 1
         source = channelA
-        threshold = thresh  # default value: 1000 mV
+        threshold = thresh  # [mV], default value: 1000 mV
         direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
         # delay = 0 s
         # autoTriggerMicroSeconds = 1000000 us
-        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0, 1000000)
+        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0,
+                                                                1000000)
         assert_pico_ok(status["setSimpleTrigger"])
 
         # Get fastest available timebase
@@ -137,6 +138,7 @@ class Picoscope:
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
+        np.savetxt('data.txt', adc2mVChAMax)
 
         # Create time data
         time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
