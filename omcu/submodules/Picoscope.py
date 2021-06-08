@@ -148,7 +148,7 @@ class Picoscope:
             timeval = time[i]
             mV = values
             data[i] = [timeval, mV]
-        np.savetxt('data.txt', data, delimiter=' ', newline='\n', header='time data [mV]')
+        np.savetxt('./data/data.txt', data, delimiter=' ', newline='\n', header='time data [mV]')
 
         # plot data from channel A and B
         plt.plot(time, adc2mVChAMax[:])
