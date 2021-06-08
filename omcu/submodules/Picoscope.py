@@ -14,23 +14,35 @@ class Picoscope:
 
     def __init__(self):
         self.chandle = ctypes.c_int16()
-        self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
-        # resolution: "PICO_DR_12BIT" works for 1 or 2 channels, "PICO_DR_8BIT" when 3 or 4 channels are used
+        self.resolution = 1 # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+        # PICO_DR_8BIT = 0
+        # PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
-        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # 0/PICO_AC, 1/PICO_DC, 50/PICO_DC_50OHM
+        self.coupling = 50 # /enums.PICO_COUPLING["PICO_DC_50OHM"]
+        # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 8
-        #self.voltrange = enums.PICO_CONNECT_PROBE_RANGE["PICO_5V"]
-        # 0/PICO_10MV: ±10 mV, 1/PICO_20MV: ±20 mV, 2/PICO_50MV: ±50 mV, 3/PICO_100MV: ±100 mV, 4/PICO_200MV: ±200 mV,
-        # 5/PICO_500MV: ±500 mV, 6/PICO_1V: ±1 V, 7/PICO_2V: ±2 V, 8/PICO_5V: ±5 V, 9/PICO_10V: ±10 V,
-        # 10/PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
-        self.bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
+        # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
+        # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
+        # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
+        self.bandwidth = 0  # /enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
+        # PICO_BW_FULL = 0, PICO_BW_100KHZ = 100000, PICO_BW_20KHZ = 20000, PICO_BW_1MHZ = 1000000,
+        # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
+        # PICO_BW_500MHZ = 500000000
 
-        self.channelA = 0 #enums.PICO_CHANNEL["PICO_CHANNEL_A"]
-        self.channelB = enums.PICO_CHANNEL["PICO_CHANNEL_B"]
-        self.channelC = enums.PICO_CHANNEL["PICO_CHANNEL_C"]
-        self.channelD = enums.PICO_CHANNEL["PICO_CHANNEL_D"]
+        self.channelA = 0  # enums.PICO_CHANNEL["PICO_CHANNEL_A"]
+        self.channelB = 1  # enums.PICO_CHANNEL["PICO_CHANNEL_B"]
+        self.channelC = 2  # enums.PICO_CHANNEL["PICO_CHANNEL_C"]
+        self.channelD = 3  # enums.PICO_CHANNEL["PICO_CHANNEL_D"]
 
-        self.trigger_direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
+        self.trigger_direction = 2  # /enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
+        # PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
+        # PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
+        self.autotrigger = 1000  # [us]
+
+        # Set number of samples to be collected
+        self.noOfPreTriggerSamples = 2000
+        self.noOfPostTriggerSamples = 5000
+        self.nSamples = self.noOfPostTriggerSamples + self.noOfPreTriggerSamples
 
     def channel_setup(self):
         """
@@ -54,8 +66,7 @@ class Picoscope:
     def trigger_setup(self, thresh=1000):
         """
         This is a function to set the trigger on channel A. The threshold can be given in [mV].
-        The autotrigger is set to 1 s.
-        :param thresh: int [mV] trigger value
+        :param thresh: int [mV] trigger value, default value: 1000 mV
         :return:
         """
         # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
@@ -65,8 +76,21 @@ class Picoscope:
         # threshold = thresh [mV], default value: 1000 mV
         direction = self.trigger_direction
         # delay = 0 s
-        # autoTriggerMicroSeconds = 1000000 us
-        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, thresh, direction, 0, 1000000)
+        # autoTriggerMicroSeconds = self.autotrigger
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, thresh, direction, 0, self.autotrigger)
+
+    def timebase_setup(self):
+        # Get fastest available timebase
+        # handle = chandle
+        enabledChannelFlags = 1  # enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
+        # PICO_CHANNEL_A_FLAGS = 1, PICO_CHANNEL_B_FLAGS = 2, PICO_CHANNEL_C_FLAGS = 4, PICO_CHANNEL_D_FLAGS = 8
+        timebase = ctypes.c_uint32(0)
+        timeInterval = ctypes.c_double(0)
+        # resolution = resolution
+        ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags, ctypes.byref(timebase),
+                                              ctypes.byref(timeInterval), self.resolution)
+        print("timebase = ", timebase.value)
+        print("sample interval =", timeInterval.value, "s")
 
     def close_scope(self):
         """
@@ -98,7 +122,7 @@ class Picoscope:
         # set channel B,C,D off
         for x in range(1, 3, 1):
             channel = x
-            s.ps6000aSetChannelOff(self.chandle, channel)
+            ps.ps6000aSetChannelOff(self.chandle, channel)
 
         # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
