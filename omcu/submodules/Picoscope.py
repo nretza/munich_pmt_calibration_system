@@ -17,15 +17,15 @@ class Picoscope:
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # resolution: "PICO_DR_12BIT" works for 1 or 2 channels, "PICO_DR_8BIT" when 3 or 4 channels are used
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
-        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # PICO_AC/PICO_DC/PICO_DC_50OHM
-        # self.voltrange = 8
-        self.voltrange = enums.PICO_CONNECT_PROBE_RANGE["PICO_5V"]
+        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # 0/PICO_AC, 1/PICO_DC, 50/PICO_DC_50OHM
+        self.voltrange = 8
+        #self.voltrange = enums.PICO_CONNECT_PROBE_RANGE["PICO_5V"]
         # 0/PICO_10MV: ±10 mV, 1/PICO_20MV: ±20 mV, 2/PICO_50MV: ±50 mV, 3/PICO_100MV: ±100 mV, 4/PICO_200MV: ±200 mV,
         # 5/PICO_500MV: ±500 mV, 6/PICO_1V: ±1 V, 7/PICO_2V: ±2 V, 8/PICO_5V: ±5 V, 9/PICO_10V: ±10 V,
         # 10/PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
         self.bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 
-        self.channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
+        self.channelA = 0 #enums.PICO_CHANNEL["PICO_CHANNEL_A"]
         self.channelB = enums.PICO_CHANNEL["PICO_CHANNEL_B"]
         self.channelC = enums.PICO_CHANNEL["PICO_CHANNEL_C"]
         self.channelD = enums.PICO_CHANNEL["PICO_CHANNEL_D"]
