@@ -6,11 +6,6 @@ from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV, assert_pico_ok
 
-chandle = ctypes.c_int16()
-resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
-# "PICO_DR_12BIT" works for 1 or 2 channels, "PICO_DR_8BIT" when 3 or 4 channels are used
-status = {}  # dictionary with status reports
-
 
 class Picoscope:
     """
@@ -18,10 +13,68 @@ class Picoscope:
     """
 
     def __init__(self):
-        self.chandle = chandle
-        self.resolution = resolution
-        status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
-        assert_pico_ok(status["openunit"])  # entry to dictionary status
+        self.chandle = ctypes.c_int16()
+        self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+        # resolution: "PICO_DR_12BIT" works for 1 or 2 channels, "PICO_DR_8BIT" when 3 or 4 channels are used
+        ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
+        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # PICO_AC/PICO_DC/PICO_DC_50OHM
+        # self.voltrange = 8
+        self.voltrange = enums.PICO_CONNECT_PROBE_RANGE["PICO_5V"]
+        # 0/PICO_10MV: ±10 mV, 1/PICO_20MV: ±20 mV, 2/PICO_50MV: ±50 mV, 3/PICO_100MV: ±100 mV, 4/PICO_200MV: ±200 mV,
+        # 5/PICO_500MV: ±500 mV, 6/PICO_1V: ±1 V, 7/PICO_2V: ±2 V, 8/PICO_5V: ±5 V, 9/PICO_10V: ±10 V,
+        # 10/PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
+        self.bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
+
+        self.channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
+        self.channelB = enums.PICO_CHANNEL["PICO_CHANNEL_B"]
+        self.channelC = enums.PICO_CHANNEL["PICO_CHANNEL_C"]
+        self.channelD = enums.PICO_CHANNEL["PICO_CHANNEL_D"]
+
+        self.trigger_direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
+
+    def channel_setup(self):
+        """
+        This is a function to set channel A on and B,C,D off.
+        :return:
+        """
+        # Set channel A on
+        # handle = chandle
+        # channel = self.channelA
+        # coupling = self.coupling
+        # channelRange = self.voltagerange
+        # analogueOffset = 0 V
+        # bandwidth = self.bandwidth
+        ps.ps6000aSetChannelOn(self.chandle, self.channelA, self.coupling, self.voltrange, 0, self.bandwidth)
+
+        # set channel B,C,D off
+        for x in range(1, 3, 1):
+            channel = x
+            ps.ps6000aSetChannelOff(self.chandle, channel)
+
+    def trigger_setup(self, thresh=1000):
+        """
+        This is a function to set the trigger on channel A. The threshold can be given in [mV].
+        The autotrigger is set to 1 s.
+        :param thresh: int [mV] trigger value
+        :return:
+        """
+        # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
+        # handle = chandle
+        # enable = 1
+        source = self.channelA
+        # threshold = thresh [mV], default value: 1000 mV
+        direction = self.trigger_direction
+        # delay = 0 s
+        # autoTriggerMicroSeconds = 1000000 us
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, thresh, direction, 0, 1000000)
+
+    def close_scope(self):
+        """
+        This is a function to stop whatever the picoscope is doing and close the connection to it.
+        :return:
+        """
+        ps.ps6000aStop(self.chandle)
+        ps.ps6000aCloseUnit(self.chandle)
 
     def single_measurement(self, thresh=1000):
         """
@@ -40,14 +93,12 @@ class Picoscope:
                           # 9: +-10V, 10: +-20V (not for DC_50OHM)
         # analogueOffset = 0 V
         bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
-        status["setChannelA"] = ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
-        assert_pico_ok(status["setChannelA"])
+        ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
 
         # set channel B,C,D off
         for x in range(1, 3, 1):
             channel = x
-            status["setChannel", x] = ps.ps6000aSetChannelOff(self.chandle, channel)
-            assert_pico_ok(status["setChannel", x])
+            s.ps6000aSetChannelOff(self.chandle, channel)
 
         # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
@@ -57,9 +108,7 @@ class Picoscope:
         direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
         # delay = 0 s
         # autoTriggerMicroSeconds = 1000000 us
-        status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0,
-                                                                1000000)
-        assert_pico_ok(status["setSimpleTrigger"])
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0, 1000000)
 
         # Get fastest available timebase
         # handle = chandle
@@ -67,10 +116,8 @@ class Picoscope:
         timebase = ctypes.c_uint32(0)
         timeInterval = ctypes.c_double(0)
         # resolution = resolution
-        status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags,
-                                                                                      ctypes.byref(timebase),
-                                                                                      ctypes.byref(timeInterval),
-                                                                                      resolution)
+        ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags,ctypes.byref(timebase),
+                                              ctypes.byref(timeInterval), self.resolution)
         print("timebase = ", timebase.value)
         print("sample interval =", timeInterval.value, "s")
 
@@ -95,10 +142,9 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        status["setDataBuffers"] = ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax),
+        ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax),
                                                             ctypes.byref(bufferAMin), nSamples, dataType, waveform,
                                                             downSampleMode, action)
-        assert_pico_ok(status["setDataBuffers"])
 
         # Run block capture
         # handle = chandle
@@ -107,15 +153,14 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        status["runBlock"] = ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
+        ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
                                                 ctypes.byref(timeIndisposedMs), 0, None, None)
-        assert_pico_ok(status["runBlock"])
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
         while ready.value == check.value:
-            status["isReady"] = ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
 
         # Get data from scope
         # handle = chandle
@@ -124,17 +169,15 @@ class Picoscope:
         # downSampleRatio = 1
         # segmentIndex = 0
         overflow = ctypes.c_int16(0)
-        status["getValues"] = ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
+        ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
                                                   ctypes.byref(overflow))
-        assert_pico_ok(status["getValues"])
 
         # get max ADC value
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
-        status["getAdcLimits"] = ps.ps6000aGetAdcLimits(self.chandle, resolution, ctypes.byref(minADC),
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC),
                                                         ctypes.byref(maxADC))
-        assert_pico_ok(status["getAdcLimits"])
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
@@ -155,8 +198,6 @@ class Picoscope:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
-
-        print(status)
 
     def block_measurement(self):
         # Set channel A on
@@ -367,5 +408,3 @@ class Picoscope:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
-
-        print(status)
