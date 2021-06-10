@@ -44,6 +44,10 @@ class Picoscope:
         self.noOfPostTriggerSamples = 5000
         self.nSamples = self.noOfPostTriggerSamples + self.noOfPreTriggerSamples
 
+        # Create buffers
+        self.bufferAMax = (ctypes.c_int16 * self.nSamples)()
+        self.bufferAMin = (ctypes.c_int16 * self.nSamples)()
+
     def channel_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
@@ -80,6 +84,11 @@ class Picoscope:
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, thresh, direction, 0, self.autotrigger)
 
     def timebase_setup(self):
+        """
+        This is a function to get the fastest available timebase.
+        The timebases allow slow enough sampling in block mode to overlap the streaming sample intervals.
+        :return: timebase
+        """
         # Get fastest available timebase
         # handle = chandle
         enabledChannelFlags = 1  # enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
@@ -91,6 +100,46 @@ class Picoscope:
                                               ctypes.byref(timeInterval), self.resolution)
         print("timebase = ", timebase.value)
         print("sample interval =", timeInterval.value, "s")
+        return timebase.value
+
+    def buffer_setup(self):
+        """
+        This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        :return:
+        """
+        # Set data buffers
+        # handle = chandle
+        # channel = channelA
+        # bufferMax = bufferAMax
+        # bufferMin = bufferAMin
+        # nSamples = nSamples
+        dataType = enums.PICO_DATA_TYPE["PICO_INT16_T"]  # 16-bit signed integer
+        waveform = 0  # segment index
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]  # No downsampling. Returns raw data values.
+        clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
+        add = enums.PICO_ACTION["PICO_ADD"]
+        action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
+        ps.ps6000aSetDataBuffers(self.chandle, self.channelA, ctypes.byref(self.bufferAMax),
+                                 ctypes.byref(self.bufferAMin), self.nSamples, dataType, waveform,
+                                 downSampleMode, action)
+
+    def single_measurement(self):
+        # Run block capture
+        # handle = chandle
+        timebase = self.timebase_setup()
+        timeIndisposedMs = ctypes.c_double(0)
+        # segmentIndex = 0
+        # lpReady = None   Using IsReady rather than a callback
+        # pParameter = None
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                           ctypes.byref(timeIndisposedMs), 0, None, None)
+
+        # Check for data collection to finish using ps6000aIsReady
+        ready = ctypes.c_int16(0)
+        check = ctypes.c_int16(0)
+        while ready.value == check.value:
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+
 
     def close_scope(self):
         """
@@ -100,7 +149,7 @@ class Picoscope:
         ps.ps6000aStop(self.chandle)
         ps.ps6000aCloseUnit(self.chandle)
 
-    def single_measurement(self, thresh=1000):
+    def single_measurement_with_setup(self, thresh=1000):
         """
         PS6000 A BLOCK MODE EXAMPLE
         ---
@@ -160,9 +209,9 @@ class Picoscope:
         # bufferMax = bufferAMax
         # bufferMin = bufferAMin
         # nSamples = nSamples
-        dataType = enums.PICO_DATA_TYPE["PICO_INT16_T"]
+        dataType = enums.PICO_DATA_TYPE["PICO_INT16_T"]  # 16-bit signed integer
         waveform = 0
-        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]  # No downsampling. Returns raw data values.
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
@@ -224,6 +273,7 @@ class Picoscope:
         plt.show()
 
     def block_measurement(self):
+        status = {}
         # Set channel A on
         # handle = chandle
         channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
@@ -261,7 +311,7 @@ class Picoscope:
         status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags,
                                                                                       ctypes.byref(timebase),
                                                                                       ctypes.byref(timeInterval),
-                                                                                      resolution)
+                                                                                      self.resolution)
         assert_pico_ok(status["getMinimumTimebaseStateless"])
         print("timebase = ", timebase.value)
         print("sample interval =", timeInterval.value, "s")
@@ -399,7 +449,7 @@ class Picoscope:
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
-        status["getAdcLimits"] = ps.ps6000aGetAdcLimits(self.chandle, resolution, ctypes.byref(minADC),
+        status["getAdcLimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC),
                                                         ctypes.byref(maxADC))
         assert_pico_ok(status["getAdcLimits"])
 
