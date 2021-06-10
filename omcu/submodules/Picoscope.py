@@ -87,7 +87,7 @@ class Picoscope:
         """
         This is a function to get the fastest available timebase.
         The timebases allow slow enough sampling in block mode to overlap the streaming sample intervals.
-        :return: timebase
+        :return: timebase: int
         """
         # Get fastest available timebase
         # handle = chandle
@@ -140,6 +140,17 @@ class Picoscope:
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
 
+        # Get data from scope
+        # handle = chandle
+        # startIndex = 0
+        noOfSamples = ctypes.c_uint64(self.nSamples)
+        # downSampleRatio = 1
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]  # # No downsampling. Returns raw data values.
+        # segmentIndex = 0
+        overflow = ctypes.c_int16(0)
+        data = ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
+                            ctypes.byref(overflow))
+        return data
 
     def close_scope(self):
         """
