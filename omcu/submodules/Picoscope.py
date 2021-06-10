@@ -48,6 +48,14 @@ class Picoscope:
         self.bufferAMax = (ctypes.c_int16 * self.nSamples)()
         self.bufferAMin = (ctypes.c_int16 * self.nSamples)()
 
+        # get max ADC value
+        # handle = chandle
+        self.minADC = ctypes.c_int16()
+        self.maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
+        # convert ADC counts data to mV
+        self.adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, self.maxADC)
+
     def channel_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
@@ -57,7 +65,7 @@ class Picoscope:
         # handle = chandle
         # channel = self.channelA
         # coupling = self.coupling
-        # channelRange = self.voltagerange
+        # channelRange = self.voltrange
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
         ps.ps6000aSetChannelOn(self.chandle, self.channelA, self.coupling, self.voltrange, 0, self.bandwidth)
@@ -100,7 +108,7 @@ class Picoscope:
                                               ctypes.byref(timeInterval), self.resolution)
         print("timebase = ", timebase.value)
         print("sample interval =", timeInterval.value, "s")
-        return timebase.value
+        return timebase.value, timeInterval.value
 
     def buffer_setup(self):
         """
@@ -126,7 +134,7 @@ class Picoscope:
     def single_measurement(self):
         # Run block capture
         # handle = chandle
-        timebase = self.timebase_setup()
+        timebase, timeInterval = self.timebase_setup()
         timeIndisposedMs = ctypes.c_double(0)
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
@@ -148,9 +156,19 @@ class Picoscope:
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]  # # No downsampling. Returns raw data values.
         # segmentIndex = 0
         overflow = ctypes.c_int16(0)
-        data = ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
+        ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
                             ctypes.byref(overflow))
-        return data
+
+        # Create time data
+        time = np.linspace(0, self.nSamples * timeInterval * 1000000000, self.nSamples)
+
+        # create array of data and save as txt file
+        data = np.zeros((self.nSamples, 2))
+        for i, values in enumerate(self.adc2mVChAMax):
+            timeval = time[i]
+            mV = values
+            data[i] = [timeval, mV]
+        np.savetxt('./data/measurement.txt', data, delimiter=' ', newline='\n', header='time data [mV]')
 
     def close_scope(self):
         """
