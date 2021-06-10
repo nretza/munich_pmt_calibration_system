@@ -132,6 +132,11 @@ class Picoscope:
                                  downSampleMode, action)
 
     def single_measurement(self):
+        self.channel_setup()
+        self.trigger_setup(1000)
+        self.timebase_setup()
+        self.buffer_setup()
+
         # Run block capture
         # handle = chandle
         timebase, timeInterval = self.timebase_setup()
