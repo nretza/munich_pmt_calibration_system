@@ -48,14 +48,6 @@ class Picoscope:
         self.bufferAMax = (ctypes.c_int16 * self.nSamples)()
         self.bufferAMin = (ctypes.c_int16 * self.nSamples)()
 
-        # get max ADC value
-        # handle = chandle
-        self.minADC = ctypes.c_int16()
-        self.maxADC = ctypes.c_int16()
-        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
-        # convert ADC counts data to mV
-        self.adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, self.maxADC)
-
     def channel_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
@@ -134,12 +126,12 @@ class Picoscope:
     def single_measurement(self):
         self.channel_setup()
         self.trigger_setup(1000)
-        self.timebase_setup()
+        timebase, timeInterval = self.timebase_setup()
         self.buffer_setup()
 
         # Run block capture
         # handle = chandle
-        timebase, timeInterval = self.timebase_setup()
+        # timebase, timeInterval = self.timebase_setup()
         timeIndisposedMs = ctypes.c_double(0)
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
@@ -164,12 +156,20 @@ class Picoscope:
         ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
                             ctypes.byref(overflow))
 
+        # get max ADC value
+        # handle = chandle
+        minADC = ctypes.c_int16()
+        maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        # convert ADC counts data to mV
+        adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, maxADC)
+
         # Create time data
         time = np.linspace(0, self.nSamples * timeInterval * 1000000000, self.nSamples)
 
         # create array of data and save as txt file
         data = np.zeros((self.nSamples, 2))
-        for i, values in enumerate(self.adc2mVChAMax):
+        for i, values in enumerate(adc2mVChAMax):
             timeval = time[i]
             mV = values
             data[i] = [timeval, mV]
