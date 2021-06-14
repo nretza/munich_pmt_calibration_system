@@ -5,6 +5,7 @@ from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV, assert_pico_ok
+import time
 
 
 class Picoscope:
@@ -47,6 +48,10 @@ class Picoscope:
         # Create buffers
         self.bufferAMax = (ctypes.c_int16 * self.nSamples)()
         self.bufferAMin = (ctypes.c_int16 * self.nSamples)()
+
+        # Adc limits
+        self.minADC = ctypes.c_int16()
+        self.maxADC = ctypes.c_int16()
 
     def channel_setup(self):
         """
@@ -123,9 +128,19 @@ class Picoscope:
                                  ctypes.byref(self.bufferAMin), self.nSamples, dataType, waveform,
                                  downSampleMode, action)
 
-    def single_measurement(self):
+    def single_measurement(self, thresh=1000):
+        """
+        This is a function to run a single waveform measurement.
+        First, it runs channel_setup() to set channel A on and B,C,D off.
+        Then, it runs trigger_setup(thresh) which sets the trigger to a rising edge at the given value [mV].
+        Then, it runs timebase_setup() to get the fastest available timebase.
+        Then, it runs buffer_setup() to setup the buffer to store the data unprocessed.
+        Then a single waveform measurement is taken und written into a file in the folder data.
+        :param thresh: int [mV] trigger value, default value: 1000 mV
+        :return:
+        """
         self.channel_setup()
-        self.trigger_setup(1000)
+        self.trigger_setup(thresh)
         timebase, timeInterval = self.timebase_setup()
         self.buffer_setup()
 
@@ -158,22 +173,24 @@ class Picoscope:
 
         # get max ADC value
         # handle = chandle
-        minADC = ctypes.c_int16()
-        maxADC = ctypes.c_int16()
-        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
         # convert ADC counts data to mV
-        adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, maxADC)
+        adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, self.maxADC)
 
         # Create time data
-        time = np.linspace(0, self.nSamples * timeInterval * 1000000000, self.nSamples)
+        timevals = np.linspace(0, self.nSamples * timeInterval * 1000000000, self.nSamples)
 
         # create array of data and save as txt file
         data = np.zeros((self.nSamples, 2))
         for i, values in enumerate(adc2mVChAMax):
-            timeval = time[i]
+            timeval = timevals[i]
             mV = values
             data[i] = [timeval, mV]
-        np.savetxt('./data/measurement.txt', data, delimiter=' ', newline='\n', header='time data [mV]')
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr
+        filename += '.txt'
+        np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
 
     def close_scope(self):
         """
