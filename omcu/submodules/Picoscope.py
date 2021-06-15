@@ -15,11 +15,11 @@ class Picoscope:
 
     def __init__(self):
         self.chandle = ctypes.c_int16()
-        self.resolution = 1 # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+        self.resolution = 1  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0
         # PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
-        self.coupling = 50 # /enums.PICO_COUPLING["PICO_DC_50OHM"]
+        self.coupling = 50  # /enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 8
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
@@ -53,7 +53,7 @@ class Picoscope:
         self.minADC = ctypes.c_int16()
         self.maxADC = ctypes.c_int16()
 
-    def channel_setup(self):
+    def channelA_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
         :return:
@@ -71,6 +71,56 @@ class Picoscope:
         for x in range(1, 3, 1):
             channel = x
             ps.ps6000aSetChannelOff(self.chandle, channel)
+
+    def channel_setup(self, channel):
+        """
+        This is a function to set channel A on and B,C,D off.
+        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D'
+        :return:
+        """
+        # Set given channel on
+        # handle = chandle
+        # channel = channel
+        if channel == 'A':
+            channel = self.channelA
+        if channel == 'B':
+            channel = self.channelB
+        if channel == 'C':
+            channel = self.channelC
+        if channel == 'D':
+            channel = self.channelD
+        else:
+            pass
+        # coupling = self.coupling
+        # channelRange = self.voltrange
+        # analogueOffset = 0 V
+        # bandwidth = self.bandwidth
+        ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+
+        # set other channels off
+        if channel == 0:
+            for x in [1, 2, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 1:
+            for x in [0, 2, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 2:
+            for x in [0, 1, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 3:
+            for x in [0, 1, 2]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        else:
+            for x in [0, 1, 2, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+            print('All channels off')
+
+        return channel
 
     def trigger_setup(self, thresh=1000):
         """
@@ -139,7 +189,7 @@ class Picoscope:
         :param thresh: int [mV] trigger value, default value: 1000 mV
         :return:
         """
-        self.channel_setup()
+        self.channelA_setup()
         self.trigger_setup(thresh)
         timebase, timeInterval = self.timebase_setup()
         self.buffer_setup()
@@ -200,8 +250,8 @@ class Picoscope:
         :param filename: str (e.g. './data/20210615-113248.txt') or can be given by filename = P.single_measurement()
         :return:
         """
-        x,y = np.loadtxt(filename, delimiter=' ', unpack=True)
-        plt.plot(x,y)
+        x, y = np.loadtxt(filename, delimiter=' ', unpack=True)
+        plt.plot(x, y)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
@@ -254,7 +304,7 @@ class Picoscope:
         timebase = ctypes.c_uint32(0)
         timeInterval = ctypes.c_double(0)
         # resolution = resolution
-        ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags,ctypes.byref(timebase),
+        ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags, ctypes.byref(timebase),
                                               ctypes.byref(timeInterval), self.resolution)
         print("timebase = ", timebase.value)
         print("sample interval =", timeInterval.value, "s")
@@ -321,18 +371,18 @@ class Picoscope:
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
 
         # Create time data
-        time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
+        timevals = np.linspace(0, nSamples * timeInterval.value * 1000000000, nSamples)
 
         # create array of data and save as txt file
         data = np.zeros((nSamples, 2))
         for i, values in enumerate(adc2mVChAMax):
-            timeval = time[i]
+            timeval = timevals[i]
             mV = values
             data[i] = [timeval, mV]
         np.savetxt('./data/waveform.txt', data, delimiter=' ', newline='\n', header='time data [mV]')
 
         # plot data from channel A and B
-        plt.plot(time, adc2mVChAMax[:])
+        plt.plot(timevals, adc2mVChAMax[:])
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
@@ -531,19 +581,19 @@ class Picoscope:
         adc2mVChAMax9 = adc2mV(bufferAMax9, channelRange, maxADC)
 
         # Create time data
-        time = np.linspace(0, nSamples * timeInterval.value * 1000000000, nSamples)
+        timevals = np.linspace(0, nSamples * timeInterval.value * 1000000000, nSamples)
 
         # plot data from channel A and B
-        plt.plot(time, adc2mVChAMax[:])
-        plt.plot(time, adc2mVChAMax1[:])
-        plt.plot(time, adc2mVChAMax2[:])
-        plt.plot(time, adc2mVChAMax3[:])
-        plt.plot(time, adc2mVChAMax4[:])
-        plt.plot(time, adc2mVChAMax5[:])
-        plt.plot(time, adc2mVChAMax6[:])
-        plt.plot(time, adc2mVChAMax7[:])
-        plt.plot(time, adc2mVChAMax8[:])
-        plt.plot(time, adc2mVChAMax9[:])
+        plt.plot(timevals, adc2mVChAMax[:])
+        plt.plot(timevals, adc2mVChAMax1[:])
+        plt.plot(timevals, adc2mVChAMax2[:])
+        plt.plot(timevals, adc2mVChAMax3[:])
+        plt.plot(timevals, adc2mVChAMax4[:])
+        plt.plot(timevals, adc2mVChAMax5[:])
+        plt.plot(timevals, adc2mVChAMax6[:])
+        plt.plot(timevals, adc2mVChAMax7[:])
+        plt.plot(timevals, adc2mVChAMax8[:])
+        plt.plot(timevals, adc2mVChAMax9[:])
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
