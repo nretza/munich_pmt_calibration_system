@@ -121,12 +121,15 @@ class Picoscope:
 
         return channel
 
-    def trigger_setup(self, channel=0, threshold=1000):
+    def trigger_setup(self, channel=0, direction=2, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
         :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
+        :param direction: int, default: 2 (rising edge)
+        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
+        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
-        :return:
+        :return: channel (int), direction (int), threshold(int) [mV]
         """
         # Set simple trigger on the given channel, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
@@ -143,11 +146,11 @@ class Picoscope:
             pass
         # source = channel
         # threshold = threshold [mV], default value: 1000 mV
-        direction = self.trigger_direction
+        # direction = self.trigger_direction
         # delay = 0 s
         # autoTriggerMicroSeconds = self.autotrigger
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, self.autotrigger)
-        return channel, threshold
+        return channel, direction, threshold
 
     def timebase_setup(self):
         """
