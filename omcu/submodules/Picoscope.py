@@ -116,8 +116,6 @@ class Picoscope:
             for x in [0, 1, 2]:
                 channel_off = x
                 ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        else:
-            print('Channel must be 0, 1, 2, 3 or A, B, C, D')
 
         return channel
 
@@ -300,7 +298,7 @@ class Picoscope:
         channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
         coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]  # PICO_DC / PICO_AC / PICO_DC_50OHM
         channelRange = 8  # 1: +-20mV, 2: +-50mV, 3: +- 100mV, 4: +- 200mV, 5: +-500mV, 6: +-1V, 7: +-2V, 8: +-5V,
-                          # 9: +-10V, 10: +-20V (not for DC_50OHM)
+        # 9: +-10V, 10: +-20V (not for DC_50OHM)
         # analogueOffset = 0 V
         bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
         ps.ps6000aSetChannelOn(self.chandle, channelA, coupling, channelRange, 0, bandwidth)
@@ -353,8 +351,8 @@ class Picoscope:
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
         ps.ps6000aSetDataBuffers(self.chandle, channelA, ctypes.byref(bufferAMax),
-                                                            ctypes.byref(bufferAMin), nSamples, dataType, waveform,
-                                                            downSampleMode, action)
+                                 ctypes.byref(bufferAMin), nSamples, dataType, waveform,
+                                 downSampleMode, action)
 
         # Run block capture
         # handle = chandle
@@ -364,7 +362,7 @@ class Picoscope:
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
         ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
-                                                ctypes.byref(timeIndisposedMs), 0, None, None)
+                           ctypes.byref(timeIndisposedMs), 0, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
@@ -380,14 +378,14 @@ class Picoscope:
         # segmentIndex = 0
         overflow = ctypes.c_int16(0)
         ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
-                                                  ctypes.byref(overflow))
+                            ctypes.byref(overflow))
 
         # get max ADC value
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC),
-                                                        ctypes.byref(maxADC))
+                               ctypes.byref(maxADC))
 
         # convert ADC counts data to mV
         adc2mVChAMax = adc2mV(bufferAMax, channelRange, maxADC)
@@ -619,3 +617,9 @@ class Picoscope:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
+
+
+if __name__ == "__main__":
+    P = Picoscope()
+    data = P.single_measurement()
+    P.plot_data()
