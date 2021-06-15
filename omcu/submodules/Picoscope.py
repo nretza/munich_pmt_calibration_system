@@ -194,7 +194,7 @@ class Picoscope:
         return filename
 
     def plot_data(self):
-        filename = self.single_measurement()
+        #  filename = self.single_measurement()
         x,y = np.loadtxt(filename, delimiter=' ', unpack=True)
         plt.plot(x,y)
         plt.xlabel('Time (ns)')
