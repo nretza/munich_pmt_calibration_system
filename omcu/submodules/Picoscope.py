@@ -35,24 +35,6 @@ class Picoscope:
         self.channelC = 2  # enums.PICO_CHANNEL["PICO_CHANNEL_C"]
         self.channelD = 3  # enums.PICO_CHANNEL["PICO_CHANNEL_D"]
 
-        self.trigger_direction = 2  # /enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
-        # PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
-        # PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
-        self.autotrigger = 1000  # [us]
-
-        # Set number of samples to be collected
-        self.noOfPreTriggerSamples = 2000
-        self.noOfPostTriggerSamples = 5000
-        self.nSamples = self.noOfPostTriggerSamples + self.noOfPreTriggerSamples
-
-        # Create buffers
-        self.bufferAMax = (ctypes.c_int16 * self.nSamples)()
-        self.bufferAMin = (ctypes.c_int16 * self.nSamples)()
-
-        # Adc limits
-        self.minADC = ctypes.c_int16()
-        self.maxADC = ctypes.c_int16()
-
     def channelA_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
@@ -129,15 +111,15 @@ class Picoscope:
         :param threshold: int [mV] trigger value, default value: 1000 mV
         :return: channel (int), direction (int), threshold(int) [mV]
         """
-        # Set simple trigger on the given channel, [thresh] mV rising with 1 s autotrigger
+        # Set simple trigger on the given channel, [thresh] mV rising with 1 ms autotrigger
         # handle = chandle
         # enable = 1
         # source = channel
         # threshold = threshold [mV], default value: 1000 mV
-        # direction = self.trigger_direction
+        # direction = 2 (rising)
         # delay = 0 s
-        # autoTriggerMicroSeconds = self.autotrigger
-        ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, self.autotrigger)
+        autoTriggerMicroSeconds = 1000  # [us]
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, autoTriggerMicroSeconds)
         return channel, direction, threshold
 
     def timebase_setup(self):
@@ -159,12 +141,19 @@ class Picoscope:
         print("sample interval =", timeInterval.value, "s")
         return timebase.value, timeInterval.value
 
-    def buffer_setup(self, channel=0):
+    def buffer_setup(self, noOfPreTriggerSamples=2000, noOfPostTriggerSamples=5000, channel=0):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
+        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
         :return:
         """
+        # Set number of samples to be collected
+        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
+        # Create buffers
+        bufferMax = (ctypes.c_int16 * nSamples)()
+        bufferMin = (ctypes.c_int16 * nSamples)()
         # Set data buffers
         # handle = chandle
         if channel == 'A':
@@ -187,18 +176,22 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(self.bufferAMax),
-                                 ctypes.byref(self.bufferAMin), self.nSamples, dataType, waveform,
+        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(bufferMax),
+                                 ctypes.byref(bufferMin), nSamples, dataType, waveform,
                                  downSampleMode, action)
+        
+        return bufferMax
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
+    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
+                           noOfPostTriggerSamples=5000, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
         Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
         given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
-        Then, it runs buffer_setup(bufchannel) to setup the buffer to store the data unprocessed.
+        Then, it runs buffer_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel) to setup the buffer to
+        store the data unprocessed.
         Then a single waveform measurement is taken und written into a file in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
@@ -206,13 +199,16 @@ class Picoscope:
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
+        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
+        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return:
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
-        self.buffer_setup(bufchannel)
+        bufferMax = self.buffer_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel)
+        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
 
         # Run block capture
         # handle = chandle
@@ -221,7 +217,7 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+        ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
@@ -233,7 +229,7 @@ class Picoscope:
         # Get data from scope
         # handle = chandle
         # startIndex = 0
-        noOfSamples = ctypes.c_uint64(self.nSamples)
+        noOfSamples = ctypes.c_uint64(nSamples)
         # downSampleRatio = 1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]  # # No downsampling. Returns raw data values.
         # segmentIndex = 0
@@ -243,15 +239,17 @@ class Picoscope:
 
         # get max ADC value
         # handle = chandle
-        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
+        minADC = ctypes.c_int16()
+        maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         # convert ADC counts data to mV
-        adc2mVChAMax = adc2mV(self.bufferAMax, self.voltrange, self.maxADC)
+        adc2mVChAMax = adc2mV(bufferMax, self.voltrange, maxADC)
 
         # Create time data
-        timevals = np.linspace(0, self.nSamples * timeInterval * 1000000000, self.nSamples)
+        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as txt file
-        data = np.zeros((self.nSamples, 2))
+        data = np.zeros((nSamples, 2))
         for i, values in enumerate(adc2mVChAMax):
             timeval = timevals[i]
             mV = values
@@ -262,6 +260,10 @@ class Picoscope:
         filename += '.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         return filename
+
+    def block_measurement(self):
+        blabla=0
+        return blabla
 
     def plot_data(self, filename):
         """
@@ -407,7 +409,7 @@ class Picoscope:
         plt.ylabel('Voltage (mV)')
         plt.show()
 
-    def block_measurement(self):
+    def block_measurement_with_setup(self):
         status = {}
         # Set channel A on
         # handle = chandle
@@ -456,13 +458,13 @@ class Picoscope:
         noOfPostTriggerSamples = 4000
         nSamples = noOfPostTriggerSamples + noOfPreTriggerSamples
 
-        # Set number of memory segments
+        # --> Set number of memory segments
         noOfCaptures = 10
         maxSegments = ctypes.c_uint64(10)
         status["memorySegments"] = ps.ps6000aMemorySegments(self.chandle, noOfCaptures, ctypes.byref(maxSegments))
         assert_pico_ok(status["memorySegments"])
 
-        # Set number of captures
+        # --> Set number of captures
         status["setNoOfCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, noOfCaptures)
         assert_pico_ok(status["setNoOfCaptures"])
 
@@ -621,5 +623,5 @@ class Picoscope:
 
 if __name__ == "__main__":
     P = Picoscope()
-    data = P.single_measurement()
-    P.plot_data(data)
+    data1 = P.single_measurement()
+    P.plot_data(data1)
