@@ -114,11 +114,11 @@ class Picoscope:
             for x in [0, 1, 2]:
                 channel_off = x
                 ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        else:
-            for x in [0, 1, 2, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-            print('All channels off')
+        # else:
+        #     for x in [0, 1, 2, 3]:
+        #         channel_off = x
+        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        #     print('All channels off')
 
         return channel
 
