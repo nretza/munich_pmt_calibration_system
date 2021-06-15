@@ -191,6 +191,15 @@ class Picoscope:
         filename += timestr
         filename += '.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
+        return filename
+
+    def plot_data(self):
+        filename = self.single_measurement()
+        x,y = np.loadtxt(filename, delimiter=' ', unpack=True)
+        plt.plot(x,y)
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        plt.show()
 
     def close_scope(self):
         """
@@ -517,7 +526,7 @@ class Picoscope:
         adc2mVChAMax9 = adc2mV(bufferAMax9, channelRange, maxADC)
 
         # Create time data
-        time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
+        time = np.linspace(0, nSamples * timeInterval.value * 1000000000, nSamples)
 
         # plot data from channel A and B
         plt.plot(time, adc2mVChAMax[:])
