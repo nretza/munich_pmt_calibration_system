@@ -193,8 +193,13 @@ class Picoscope:
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         return filename
 
-    def plot_data(self):
-        #  filename = self.single_measurement()
+    def plot_data(self, filename):
+        """
+        This is a plotting function.
+        It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
+        :param filename: str (e.g. './data/20210615-113248.txt') or can be given by filename = P.single_measurement()
+        :return:
+        """
         x,y = np.loadtxt(filename, delimiter=' ', unpack=True)
         plt.plot(x,y)
         plt.xlabel('Time (ns)')
