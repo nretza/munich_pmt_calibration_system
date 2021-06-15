@@ -74,10 +74,10 @@ class Picoscope:
 
         return channel
 
-    def channel_setup(self, channel):
+    def channel_setup(self, channel=0):
         """
-        This is a function to set channel A on and B,C,D off.
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D'
+        This is a function to set a channel on and the others off.
+        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
         :return: channel: int (0, 1, 2, 3)
         """
         # Set given channel on
@@ -124,7 +124,7 @@ class Picoscope:
     def trigger_setup(self, channel=0, direction=2, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param direction: int, default: 2 (rising edge)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
@@ -134,16 +134,6 @@ class Picoscope:
         # Set simple trigger on the given channel, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
         # enable = 1
-        if channel == 'A':
-            channel = self.channelA
-        if channel == 'B':
-            channel = self.channelB
-        if channel == 'C':
-            channel = self.channelC
-        if channel == 'D':
-            channel = self.channelD
-        else:
-            pass
         # source = channel
         # threshold = threshold [mV], default value: 1000 mV
         # direction = self.trigger_direction
@@ -171,14 +161,25 @@ class Picoscope:
         print("sample interval =", timeInterval.value, "s")
         return timebase.value, timeInterval.value
 
-    def buffer_setup(self):
+    def buffer_setup(self, channel=0):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
         :return:
         """
         # Set data buffers
         # handle = chandle
-        # channel = channelA
+        if channel == 'A':
+            channel = self.channelA
+        if channel == 'B':
+            channel = self.channelB
+        if channel == 'C':
+            channel = self.channelC
+        if channel == 'D':
+            channel = self.channelD
+        else:
+            pass
+        # channel = channel
         # bufferMax = bufferAMax
         # bufferMin = bufferAMin
         # nSamples = nSamples
@@ -188,25 +189,32 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        ps.ps6000aSetDataBuffers(self.chandle, self.channelA, ctypes.byref(self.bufferAMax),
+        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(self.bufferAMax),
                                  ctypes.byref(self.bufferAMin), self.nSamples, dataType, waveform,
                                  downSampleMode, action)
 
-    def single_measurement(self, thresh=1000):
+    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
-        First, it runs channel_setup() to set channel A on and B,C,D off.
-        Then, it runs trigger_setup(thresh) which sets the trigger to a rising edge at the given value [mV].
+        First, it runs channel_setup(channel) to set a channel on and the others off.
+        Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
+        given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
-        Then, it runs buffer_setup() to setup the buffer to store the data unprocessed.
+        Then, it runs buffer_setup(bufchannel) to setup the buffer to store the data unprocessed.
         Then a single waveform measurement is taken und written into a file in the folder data.
-        :param thresh: int [mV] trigger value, default value: 1000 mV
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param direction: int, default: 2 (rising edge)
+        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
+        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
+        :param threshold: int [mV] trigger value, default value: 1000 mV
+        :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return:
         """
-        self.channelA_setup()
-        self.trigger_setup(thresh)
+        self.channel_setup(channel)
+        self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
-        self.buffer_setup()
+        self.buffer_setup(bufchannel)
 
         # Run block capture
         # handle = chandle
