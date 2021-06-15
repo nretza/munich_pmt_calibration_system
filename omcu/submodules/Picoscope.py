@@ -56,27 +56,29 @@ class Picoscope:
     def channelA_setup(self):
         """
         This is a function to set channel A on and B,C,D off.
-        :return:
+        :return: channel = 0
         """
         # Set channel A on
         # handle = chandle
-        # channel = self.channelA
+        channel = self.channelA
         # coupling = self.coupling
         # channelRange = self.voltrange
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
-        ps.ps6000aSetChannelOn(self.chandle, self.channelA, self.coupling, self.voltrange, 0, self.bandwidth)
+        ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
 
         # set channel B,C,D off
         for x in range(1, 3, 1):
-            channel = x
-            ps.ps6000aSetChannelOff(self.chandle, channel)
+            channel_off = x
+            ps.ps6000aSetChannelOff(self.chandle, channel_off)
+
+        return channel
 
     def channel_setup(self, channel):
         """
         This is a function to set channel A on and B,C,D off.
         :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D'
-        :return:
+        :return: channel: int (0, 1, 2, 3)
         """
         # Set given channel on
         # handle = chandle
@@ -114,29 +116,39 @@ class Picoscope:
             for x in [0, 1, 2]:
                 channel_off = x
                 ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        # else:
-        #     for x in [0, 1, 2, 3]:
-        #         channel_off = x
-        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        #     print('All channels off')
+        else:
+            print('Channel must be 0, 1, 2, 3 or A, B, C, D')
 
         return channel
 
-    def trigger_setup(self, thresh=1000):
+    def trigger_setup(self, channel=self.channelA, threshold=1000):
         """
-        This is a function to set the trigger on channel A. The threshold can be given in [mV].
-        :param thresh: int [mV] trigger value, default value: 1000 mV
+        This is a function to set the trigger on the given channel. The threshold can be given in [mV].
+        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: self.channelA
+        :param threshold: int [mV] trigger value, default value: 1000 mV
         :return:
         """
-        # Set simple trigger on channel A, [thresh] mV rising with 1 s autotrigger
+        # Set simple trigger on the given channel, [thresh] mV rising with 1 s autotrigger
         # handle = chandle
         # enable = 1
-        source = self.channelA
-        # threshold = thresh [mV], default value: 1000 mV
+        if channel == 'A':
+            channel = self.channelA
+        if channel == 'B':
+            channel = self.channelB
+        if channel == 'C':
+            channel = self.channelC
+        if channel == 'D':
+            channel = self.channelD
+        else:
+            pass
+        # source = channel
+        # threshold = threshold [mV], default value: 1000 mV
         direction = self.trigger_direction
         # delay = 0 s
         # autoTriggerMicroSeconds = self.autotrigger
-        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, thresh, direction, 0, self.autotrigger)
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, self.autotrigger)
+        info=ps.ps6000aGetTriggerInfo(self.chandle)
+        return info
 
     def timebase_setup(self):
         """
