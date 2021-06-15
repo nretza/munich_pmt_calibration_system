@@ -121,10 +121,10 @@ class Picoscope:
 
         return channel
 
-    def trigger_setup(self, channel=self.channelA, threshold=1000):
+    def trigger_setup(self, channel=0, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: self.channelA
+        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
         :param threshold: int [mV] trigger value, default value: 1000 mV
         :return:
         """
