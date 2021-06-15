@@ -622,4 +622,4 @@ class Picoscope:
 if __name__ == "__main__":
     P = Picoscope()
     data = P.single_measurement()
-    P.plot_data()
+    P.plot_data(data)
