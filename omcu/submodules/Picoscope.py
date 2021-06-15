@@ -147,8 +147,7 @@ class Picoscope:
         # delay = 0 s
         # autoTriggerMicroSeconds = self.autotrigger
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, self.autotrigger)
-        info=ps.ps6000aGetTriggerInfo(self.chandle)
-        return info
+        return channel, threshold
 
     def timebase_setup(self):
         """
