@@ -46,6 +46,7 @@ class PSU(gpd3303s.GPD3303S):
 
 
 if __name__ == "__main__":
-    p1 = PSU()
-    p1.setVoltage(1, 10.0)
-    print(p1.getVoltageOutput(1))
+    P0 = PSU(dev="/dev/PSU_0")
+    P0.setVoltage(1, 10.0)
+    print(P0.getVoltageOutput(1))
+
