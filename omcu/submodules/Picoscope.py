@@ -261,9 +261,32 @@ class Picoscope:
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         return filename
 
-    def block_measurement(self):
-        blabla=0
-        return blabla
+    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
+                           noOfPostTriggerSamples=5000, bufchannel=0):  # TODO: complete this function
+        """
+
+        :param channel:
+        :param trgchannel:
+        :param direction:
+        :param threshold:
+        :param noOfPreTriggerSamples:
+        :param noOfPostTriggerSamples:
+        :param bufchannel:
+        :return:
+        """
+        self.channel_setup(channel)
+        self.trigger_setup(trgchannel, direction, threshold)
+        timebase, timeInterval = self.timebase_setup()
+        bufferMax = self.buffer_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel)
+        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
+
+        # Set number of memory segments
+        noOfCaptures = 10
+        maxSegments = ctypes.c_uint64(10)
+        ps.ps6000aMemorySegments(self.chandle, noOfCaptures, ctypes.byref(maxSegments))
+
+        # Set number of captures
+        ps.ps6000aSetNoOfCaptures(self.chandle, noOfCaptures)
 
     def plot_data(self, filename):
         """
@@ -625,3 +648,4 @@ if __name__ == "__main__":
     P = Picoscope()
     data1 = P.single_measurement()
     P.plot_data(data1)
+    P.close_scope()
