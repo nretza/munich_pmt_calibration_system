@@ -413,7 +413,7 @@ class Picoscope:
         # timestr = time.strftime("%Y%m%d-%H%M%S")
         # filename += timestr + '-' + str(number) + '.txt'
         # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return data  #, filename
+        return adc2mVChMax_list, data  #, filename
 
     def plot_data(self, filename):
         """
