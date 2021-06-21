@@ -232,15 +232,6 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        # ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[0]), ctypes.byref(buffersMin[0]),
-        #                          nSamples, dataType, waveform, downSampleMode, action)
-        #
-        # for i, j, k in zip(range(1, number), buffersMax, buffersMin):
-        #     waveform = i
-        #     j += 1  # index 0 was used before
-        #     k += 1  # index 0 was used before
-        #     ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-        #                              waveform, downSampleMode, add)
 
         for i, j, k in zip(range(0, number), buffersMax, buffersMin):
             waveform = i
@@ -327,8 +318,7 @@ class Picoscope:
             data[i] = [timeval, mV]
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr
-        filename += '.txt'
+        filename += timestr + '-1.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         return filename
 
@@ -406,18 +396,17 @@ class Picoscope:
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as txt file
-        # data = np.zeros((number, nSamples, 2))
-        # for j in adc2mVChAMax_list:  # j = number of waveforms
-        #     for i, values in enumerate(adc2mVChAMax_list[j]):  # i = nSamples
-        #         timeval = timevals[i]
-        #         mV = values
-        #         data[j][i] = [timeval, mV]
-        # filename = './data/'
-        # timestr = time.strftime("%Y%m%d-%H%M%S")
-        # filename += timestr + '-' + str(number) + '.txt'
-        # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        # return filename
-        return adc2mVChMax_list
+        data = np.zeros((number, nSamples, 2))
+        for i in adc2mVChMax_list:  # i = number of waveforms
+            for j, values in enumerate(adc2mVChMax_list[i]):  # j = nSamples
+                timeval = timevals[j]
+                mV = values
+                data[i][j] = [timeval, mV]
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr + '-' + str(number) + '.txt'
+        np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
+        return filename
 
     def plot_data(self, filename):
         """
