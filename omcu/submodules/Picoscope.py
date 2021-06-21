@@ -403,17 +403,11 @@ class Picoscope:
                 mV = samples
                 data[i][j] = [timeval, mV]
 
-        # data = np.zeros((number * nSamples, 3))
-        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        #     for j, samples in enumerate(values):  # j = nSamples
-        #         timeval = timevals[j]
-        #         mV = samples
-        #         data[i*j] = [i, timeval, mV]
-        # filename = './data/'
-        # timestr = time.strftime("%Y%m%d-%H%M%S")
-        # filename += timestr + '-' + str(number) + '.txt'
-        # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return adc2mVChMax_list, data  #, filename
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr + '-' + str(number) + '.npy'
+        np.save(filename, data, delimiter=' ', newline='\n', header='waveform time data [mV]')
+        return filename
 
     def plot_data(self, filename):
         """
