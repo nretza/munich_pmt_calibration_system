@@ -237,7 +237,9 @@ class Picoscope:
 
         for i, j, k in zip(range(1, number), buffersMax, buffersMin):
             waveform = i
-            ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j+1), ctypes.byref(k+1), nSamples, dataType,
+            j += 1  # index 0 was used before
+            k += 1  # index 0 was used before
+            ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                      waveform, downSampleMode, add)
 
         return buffersMax, buffersMin
