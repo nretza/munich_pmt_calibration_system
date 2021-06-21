@@ -204,7 +204,7 @@ class Picoscope:
         # Create buffers
         buffersMax = []
         buffersMin = []
-        for i in range (number):
+        for i in range(number):
             bufferMax = (ctypes.c_int16 * nSamples)()
             bufferMin = (ctypes.c_int16 * nSamples)()
             buffersMax.append(bufferMax)
@@ -338,7 +338,8 @@ class Picoscope:
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
-        buffersMax, buffersMin = self.buffer_multi_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel, number)
+        buffersMax, buffersMin = self.buffer_multi_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel,
+                                                         number)
         nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
 
         # Set number of memory segments
@@ -385,10 +386,10 @@ class Picoscope:
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
 
         # convert ADC counts data to mV
-        adc2mVChAMax_list = []
+        adc2mVChAMax_list = np.zeros((number, nSamples))
         for i in buffersMax:
             adc2mVChAMax = adc2mV(i, self.voltrange, maxADC)
-            adc2mVChAMax_list.append(adc2mVChAMax)
+            adc2mVChAMax_list[i] = adc2mVChAMax
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
@@ -399,11 +400,10 @@ class Picoscope:
             for i, values in enumerate(adc2mVChAMax_list[j]):  # i = nSamples
                 timeval = timevals[i]
                 mV = values
-                data[i] = [timeval, mV]
+                data[j][i] = [timeval, mV]
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr
-        filename += '.txt'
+        filename += timestr + '-' + str(number) + '.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         return filename
 
