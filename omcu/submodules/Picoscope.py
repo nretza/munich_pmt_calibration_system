@@ -396,12 +396,19 @@ class Picoscope:
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as txt file
-        data = np.zeros((number, nSamples, 2))
+        # data = np.zeros((number, nSamples, 2))
+        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
+        #     for j, samples in enumerate(values):  # j = nSamples
+        #         timeval = timevals[j]
+        #         mV = samples
+        #         data[i][j] = [timeval, mV]
+
+        data = np.zeros((number * nSamples, 3))
         for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
             for j, samples in enumerate(values):  # j = nSamples
                 timeval = timevals[j]
                 mV = samples
-                data[i][j] = [timeval, mV]
+                data[i*j] = [i, timeval, mV]
         # filename = './data/'
         # timestr = time.strftime("%Y%m%d-%H%M%S")
         # filename += timestr + '-' + str(number) + '.txt'
