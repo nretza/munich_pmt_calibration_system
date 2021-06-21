@@ -232,15 +232,24 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[0]), ctypes.byref(buffersMin[0]),
-                                 nSamples, dataType, waveform, downSampleMode, action)
+        # ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[0]), ctypes.byref(buffersMin[0]),
+        #                          nSamples, dataType, waveform, downSampleMode, action)
+        #
+        # for i, j, k in zip(range(1, number), buffersMax, buffersMin):
+        #     waveform = i
+        #     j += 1  # index 0 was used before
+        #     k += 1  # index 0 was used before
+        #     ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                              waveform, downSampleMode, add)
 
-        for i, j, k in zip(range(1, number), buffersMax, buffersMin):
+        for i, j, k in zip(range(0, number), buffersMax, buffersMin):
             waveform = i
-            j += 1  # index 0 was used before
-            k += 1  # index 0 was used before
-            ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                     waveform, downSampleMode, add)
+            if i == 0:
+                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, action)
+            if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, add)
 
         return buffersMax, buffersMin
 
