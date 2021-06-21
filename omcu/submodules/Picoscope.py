@@ -406,7 +406,7 @@ class Picoscope:
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
-        np.save(filename, data, delimiter=' ', newline='\n', header='waveform time data [mV]')
+        np.save(filename, data, header='waveform time data [mV]')
         return filename
 
     def plot_data(self, filename):
