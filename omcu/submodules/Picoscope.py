@@ -402,11 +402,11 @@ class Picoscope:
                 timeval = timevals[j]
                 mV = samples
                 data[i][j] = [timeval, mV]
-        filename = './data/'
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-' + str(number) + '.txt'
-        np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return data, filename
+        # filename = './data/'
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # filename += timestr + '-' + str(number) + '.txt'
+        # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
+        return data  #, filename
 
     def plot_data(self, filename):
         """
