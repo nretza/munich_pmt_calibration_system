@@ -403,6 +403,20 @@ class Picoscope:
                 mV = samples
                 data[i][j] = [timeval, mV]
 
+        # plotting
+        cmap = plt.cm.viridis
+        for i, j in enumerate(data):
+            if i == 0:
+                for k in j:
+                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+            if i == 1:
+                for k in j:
+                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+            if i == 2:
+                for k in j:
+                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+        plt.show()
+
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
@@ -417,6 +431,7 @@ class Picoscope:
         :return:
         """
         x, y = np.loadtxt(filename, delimiter=' ', unpack=True)
+        plt.figure()
         plt.plot(x, y)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
