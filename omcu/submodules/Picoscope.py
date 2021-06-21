@@ -264,7 +264,7 @@ class Picoscope:
         :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
         :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :return:
+        :return: filename (str)
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
@@ -325,16 +325,26 @@ class Picoscope:
     def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
                            noOfPostTriggerSamples=5000, bufchannel=0, number=10):  # TODO: complete this function
         """
-
-        :param channel:
-        :param trgchannel:
-        :param direction:
-        :param threshold:
-        :param noOfPreTriggerSamples:
-        :param noOfPostTriggerSamples:
-        :param bufchannel:
-        :param number:
-        :return:
+        This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
+        parameter number.
+        First, it runs channel_setup(channel) to set a channel on and the others off.
+        Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
+        given value [mV].
+        Then, it runs timebase_setup() to get the fastest available timebase.
+        Then, it runs buffer_multi_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel) to setup the buffer
+        to store the data unprocessed.
+        Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param direction: int, default: 2 (rising edge)
+        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
+        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
+        :param threshold: int [mV] trigger value, default value: 1000 mV
+        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
+        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
+        :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param number: int (number of waveforms)
+        :return: filename
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
@@ -404,18 +414,18 @@ class Picoscope:
                 data[i][j] = [timeval, mV]
 
         # plotting
-        cmap = plt.cm.viridis
-        for i, j in enumerate(data):
-            if i == 0:
-                for k in j:
-                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-            if i == 1:
-                for k in j:
-                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-            if i == 2:
-                for k in j:
-                    plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-        plt.show()
+        # cmap = plt.cm.viridis
+        # for i, j in enumerate(data):
+        #     if i == 0:
+        #         for k in j:
+        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+        #     if i == 1:
+        #         for k in j:
+        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+        #     if i == 2:
+        #         for k in j:
+        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
+        # plt.show()
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -423,7 +433,7 @@ class Picoscope:
         np.save(filename, data)
         return filename
 
-    def plot_data(self, filename):
+    def plot_data(self, filename): #TODO: plot data for block_measurement
         """
         This is a plotting function.
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
