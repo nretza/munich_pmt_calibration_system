@@ -395,17 +395,18 @@ class Picoscope:
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as txt file
-        data = np.zeros((number, nSamples, 2))
-        for j in adc2mVChAMax_list:  # j = number of waveforms
-            for i, values in enumerate(adc2mVChAMax_list[j]):  # i = nSamples
-                timeval = timevals[i]
-                mV = values
-                data[j][i] = [timeval, mV]
-        filename = './data/'
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-' + str(number) + '.txt'
-        np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return filename
+        # data = np.zeros((number, nSamples, 2))
+        # for j in adc2mVChAMax_list:  # j = number of waveforms
+        #     for i, values in enumerate(adc2mVChAMax_list[j]):  # i = nSamples
+        #         timeval = timevals[i]
+        #         mV = values
+        #         data[j][i] = [timeval, mV]
+        # filename = './data/'
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # filename += timestr + '-' + str(number) + '.txt'
+        # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
+        # return filename
+        return adc2mVChAMax_list
 
     def plot_data(self, filename):
         """
