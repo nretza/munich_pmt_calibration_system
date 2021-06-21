@@ -235,7 +235,7 @@ class Picoscope:
         ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[0]), ctypes.byref(buffersMin[0]), nSamples,
                                  dataType, waveform, downSampleMode, action)
 
-        for i,j,k in zip(range(1,number,), buffersMax, buffersMin):
+        for i, j, k in zip(range(1, number), buffersMax, buffersMin):
             waveform = i
             ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k),
                                      nSamples, dataType, waveform, downSampleMode, add)
@@ -319,7 +319,7 @@ class Picoscope:
         filename += timestr
         filename += '.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return filename, adc2mVChMax
+        return filename
 
     def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
                            noOfPostTriggerSamples=5000, bufchannel=0, number=10):  # TODO: complete this function
@@ -386,10 +386,10 @@ class Picoscope:
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
 
         # convert ADC counts data to mV
-        adc2mVChAMax_list = np.zeros((number, nSamples))
-        for i in buffersMax:
-            adc2mVChAMax = adc2mV(i, self.voltrange, maxADC)
-            adc2mVChAMax_list[i] = adc2mVChAMax
+        adc2mVChMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersMax):
+            adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChMax_list[i] = adc2mVChMax
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
@@ -406,7 +406,7 @@ class Picoscope:
         # filename += timestr + '-' + str(number) + '.txt'
         # np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
         # return filename
-        return adc2mVChAMax_list
+        return adc2mVChMax_list
 
     def plot_data(self, filename):
         """
