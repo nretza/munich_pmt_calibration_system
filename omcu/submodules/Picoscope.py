@@ -303,14 +303,14 @@ class Picoscope:
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         # convert ADC counts data to mV
-        adc2mVChAMax = adc2mV(bufferMax, self.voltrange, maxADC)
+        adc2mVChMax = adc2mV(bufferMax, self.voltrange, maxADC)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as txt file
         data = np.zeros((nSamples, 2))
-        for i, values in enumerate(adc2mVChAMax):
+        for i, values in enumerate(adc2mVChMax):
             timeval = timevals[i]
             mV = values
             data[i] = [timeval, mV]
@@ -319,7 +319,7 @@ class Picoscope:
         filename += timestr
         filename += '.txt'
         np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
-        return filename
+        return filename, adc2mVChMax
 
     def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
                            noOfPostTriggerSamples=5000, bufchannel=0, number=10):  # TODO: complete this function
