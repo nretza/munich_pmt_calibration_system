@@ -439,14 +439,23 @@ class Picoscope:
         """
         data = np.load(filename)
         number = int(filename[-5])
-        cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, number)))
-        for i, c in zip(data, colors):
-            for k in i:
-                plt.plot(k[0], k[1], '.', color=c)
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
-        plt.show()
+
+        if number == 1:
+            for k in data:
+                plt.plot(k[0], k[1], '.')
+            plt.xlabel('Time (ns)')
+            plt.ylabel('Voltage (mV)')
+            plt.show()
+
+        elif number > 1:
+            cmap = plt.cm.viridis
+            colors = iter(cmap(np.linspace(0, 0.7, number)))
+            for i, c in zip(data, colors):
+                for k in i:
+                    plt.plot(k[0], k[1], '.', color=c)
+            plt.xlabel('Time (ns)')
+            plt.ylabel('Voltage (mV)')
+            plt.show()
 
     def close_scope(self):
         """
