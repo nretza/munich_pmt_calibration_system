@@ -424,14 +424,14 @@ class Picoscope:
         """
         This is a plotting function.
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
-        :param filename: str (e.g. './data/20210621-164652-5.npy') or can be given by filename = P.single_measurement()
-               or filename = P.block_measurement(number=5)
+        :param filename: str (e.g. './data/20210622-171439-10.npy') or can be given by filename = P.single_measurement()
+               or filename = P.block_measurement()
         :return: plot
         """
-        data = np.load(filename)
-        filename_splitted = filename.split('-')
-        filename_splitted_2 = filename_splitted[-1].split('.')
-        number = int(filename_splitted_2[0])
+        data = np.load(filename)  # './data/20210622-171439-10.npy'
+        filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
+        filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
+        number = int(filename_splitted_2[0])  # 10
 
         if number == 1:
             for k in data:
