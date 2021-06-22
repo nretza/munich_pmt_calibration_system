@@ -418,8 +418,7 @@ class Picoscope:
         colors = iter(cmap(np.linspace(0, 0.7, number)))
         for i, c in zip(data, colors):
             for k in i:
-                plt.plot(k[0], k[1], '-', color=c, label="waveform %f" % number)
-        plt.legend(loc='best', shadow=True, fontsize='small')
+                plt.plot(k[0], k[1], '.', color=c)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
@@ -434,12 +433,17 @@ class Picoscope:
         """
         This is a plotting function.
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
-        :param filename: str (e.g. './data/20210615-113248.txt') or can be given by filename = P.single_measurement()
+        :param filename: str (e.g. './data/20210621-164652-5.npy') or can be given by filename = P.single_measurement()
+               or filename = P.block_measurement(number=5)
         :return:
         """
-        x, y = np.loadtxt(filename, delimiter=' ', unpack=True)
-        plt.figure()
-        plt.plot(x, y)
+        data = np.load(filename)
+        number = int(filename[-5])
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, number)))
+        for i, c in zip(data, colors):
+            for k in i:
+                plt.plot(k[0], k[1], '.', color=c)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.show()
