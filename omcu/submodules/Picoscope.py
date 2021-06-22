@@ -413,16 +413,6 @@ class Picoscope:
                 mV = samples
                 data[i][j] = [timeval, mV]
 
-        # plotting
-        cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, number)))
-        for i, c in zip(data, colors):
-            for k in i:
-                plt.plot(k[0], k[1], '.', color=c)
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
-        plt.show()
-
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
@@ -435,14 +425,14 @@ class Picoscope:
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
         :param filename: str (e.g. './data/20210621-164652-5.npy') or can be given by filename = P.single_measurement()
                or filename = P.block_measurement(number=5)
-        :return:
+        :return: plot
         """
         data = np.load(filename)
         number = int(filename[-5])
 
         if number == 1:
             for k in data:
-                plt.plot(k[0], k[1], '.')
+                plt.plot(k[0], k[1], '.', color='blue')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
             plt.show()
@@ -457,10 +447,15 @@ class Picoscope:
             plt.ylabel('Voltage (mV)')
             plt.show()
 
+    def stop_scope(self):
+        """
+        This is a function to stop whatever the picoscope is doing.
+        """
+        ps.ps6000aStop(self.chandle)
+
     def close_scope(self):
         """
         This is a function to stop whatever the picoscope is doing and close the connection to it.
-        :return:
         """
         ps.ps6000aStop(self.chandle)
         ps.ps6000aCloseUnit(self.chandle)
