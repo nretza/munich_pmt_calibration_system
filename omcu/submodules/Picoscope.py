@@ -419,10 +419,10 @@ class Picoscope:
         for i, c in zip(data, colors):
             for k in i:
                 plt.plot(k[0], k[1], '-', color=c, label="waveform %f" % number)
-        plt.legend()
+        plt.legend(loc='best', shadow=True, fontsize='small')
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
-        plt.show(loc='best', shadow=True, fontsize='small')
+        plt.show()
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
