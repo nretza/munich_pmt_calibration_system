@@ -414,18 +414,12 @@ class Picoscope:
                 data[i][j] = [timeval, mV]
 
         # plotting
-        # cmap = plt.cm.viridis
-        # for i, j in enumerate(data):
-        #     if i == 0:
-        #         for k in j:
-        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-        #     if i == 1:
-        #         for k in j:
-        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-        #     if i == 2:
-        #         for k in j:
-        #             plt.plot(k[0], k[1], '.', color=cmap(i / 3))
-        # plt.show()
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.5, number)))
+        for i, c in zip(data, colors):
+            for k in i:
+                plt.plot(k[0], k[1], '.', color=c)
+        plt.show()
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -433,7 +427,7 @@ class Picoscope:
         np.save(filename, data)
         return filename
 
-    def plot_data(self, filename): #TODO: plot data for block_measurement
+    def plot_data(self, filename):  #TODO: plot data for block_measurement
         """
         This is a plotting function.
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
