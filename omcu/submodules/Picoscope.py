@@ -318,8 +318,8 @@ class Picoscope:
             data[i] = [timeval, mV]
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-1.txt'
-        np.savetxt(filename, data, delimiter=' ', newline='\n', header='time data [mV]')
+        filename += timestr + '-1.npy'
+        np.save(filename, data)
         return filename
 
     def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
@@ -415,10 +415,12 @@ class Picoscope:
 
         # plotting
         cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.5, number)))
+        colors = iter(cmap(np.linspace(0, 0.7, number)))
         for i, c in zip(data, colors):
             for k in i:
-                plt.plot(k[0], k[1], '.', color=c)
+                plt.plot(k[0], k[1], '-', color=c, label="waveform %f" % number)
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
         plt.show()
 
         filename = './data/'
