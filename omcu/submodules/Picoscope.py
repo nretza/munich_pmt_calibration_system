@@ -227,7 +227,6 @@ class Picoscope:
         # bufferMin = bufferMin
         # nSamples = nSamples
         dataType = enums.PICO_DATA_TYPE["PICO_INT16_T"]
-        waveform = 0
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
@@ -320,10 +319,11 @@ class Picoscope:
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-1.npy'
         np.save(filename, data)
+
         return filename
 
     def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
-                           noOfPostTriggerSamples=5000, bufchannel=0, number=10):  # TODO: complete this function
+                           noOfPostTriggerSamples=5000, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -417,9 +417,10 @@ class Picoscope:
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
         np.save(filename, data)
+
         return filename
 
-    def plot_data(self, filename):  #TODO: plot data for block_measurement
+    def plot_data(self, filename):
         """
         This is a plotting function.
         It opens a file from the data folder and plots the waveform (voltage [mV ]over time [ns])
@@ -428,7 +429,9 @@ class Picoscope:
         :return: plot
         """
         data = np.load(filename)
-        number = int(filename[-5])
+        filename_splitted = filename.split('-')
+        filename_splitted_2 = filename_splitted[-1].split('.')
+        number = int(filename_splitted_2[0])
 
         if number == 1:
             for k in data:
