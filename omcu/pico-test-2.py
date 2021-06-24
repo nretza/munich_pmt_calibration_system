@@ -11,6 +11,7 @@ import numpy as np
 from picosdk.ps6000a import ps6000a as ps
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV, assert_pico_ok
+from picosdk.PicoDeviceEnums import picoEnum as enums
 import time
 
 # Create chandle and status ready for use
@@ -37,13 +38,13 @@ analogue_offset = 0.0
 # range = ps6000a_2V = 7
 # analogue offset = 0 V
 channel_range = 7
-status["setChA"] = ps.ps6000aSetChannel(chandle,
-                                        ps.ps6000a_CHANNEL['ps6000a_CHANNEL_A'],
+status["setChA"] = ps.ps6000aSetChannelOn(chandle,
+                                        enums.PICO_CHANNEL["PICO_CHANNEL_A"],
                                         enabled,
-                                        ps.ps6000a_COUPLING['ps6000a_DC_1M'],
+                                        enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
-										ps.ps6000a_BANDWIDTH_LIMITER['ps6000a_BW_FULL'])
+										enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"])
 assert_pico_ok(status["setChA"])
 
 # Set up channel B
@@ -53,13 +54,13 @@ assert_pico_ok(status["setChA"])
 # coupling type = ps6000a_DC = 1
 # range = ps6000a_2V = 7
 # analogue offset = 0 V
-status["setChB"] = ps.ps6000aSetChannel(chandle,
-                                        ps.ps6000a_CHANNEL['ps6000a_CHANNEL_B'],
+status["setChB"] = ps.ps6000aSetChannelOn(chandle,
+                                        enums.PICO_CHANNEL["PICO_CHANNEL_B"],
                                         enabled,
-                                        ps.ps6000a_COUPLING['ps6000a_DC_1M'],
+                                        enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
-										ps.ps6000a_BANDWIDTH_LIMITER['ps6000a_BW_FULL'])
+										enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"])
 assert_pico_ok(status["setChB"])
 
 # Size of capture
@@ -81,11 +82,11 @@ bufferBMax = np.zeros(shape=sizeOfOneBuffer, dtype=np.int16)
 # segment index = 0
 # ratio mode = ps6000a_RATIO_MODE_NONE = 0
 status["setDataBuffersA"] = ps.ps6000aSetDataBuffers(chandle,
-                                                     ps.ps6000a_CHANNEL['ps6000a_CHANNEL_A'],
+                                                     enums.PICO_CHANNEL["PICO_CHANNEL_A"],
                                                      bufferAMax.ctypes.data_as(ctypes.POINTER(ctypes.c_int16)),
                                                      None,
                                                      sizeOfOneBuffer,
-                                                     ps.ps6000a_RATIO_MODE['ps6000a_RATIO_MODE_NONE'])
+                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
 assert_pico_ok(status["setDataBuffersA"])
 
 # Set data buffer location for data collection from channel B
@@ -97,11 +98,11 @@ assert_pico_ok(status["setDataBuffersA"])
 # segment index = 0
 # ratio mode = ps6000a_RATIO_MODE_NONE = 0
 status["setDataBuffersB"] = ps.ps6000aSetDataBuffers(chandle,
-                                                     ps.ps6000a_CHANNEL['ps6000a_CHANNEL_B'],
+                                                     enums.PICO_CHANNEL["PICO_CHANNEL_B"],
                                                      bufferBMax.ctypes.data_as(ctypes.POINTER(ctypes.c_int16)),
                                                      None,
                                                      sizeOfOneBuffer,
-                                                     ps.ps6000a_RATIO_MODE['ps6000a_RATIO_MODE_NONE'])
+                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
 assert_pico_ok(status["setDataBuffersB"])
 
 # Begin streaming mode:
@@ -119,7 +120,7 @@ status["runStreaming"] = ps.ps6000aRunStreaming(chandle,
                                                 totalSamples,
                                                 autoStopOn,
                                                 downsampleRatio,
-                                                ps.ps6000a_RATIO_MODE['ps6000a_RATIO_MODE_NONE'],
+                                                enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"],
                                                 sizeOfOneBuffer)
 assert_pico_ok(status["runStreaming"])
 
