@@ -41,7 +41,7 @@ channel_range = 7
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChA"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_CHANNEL["PICO_CHANNEL_A"],
-                                        enums.PICO_COUPLING["PICO_DC_50OHM"],
+                                        enums.PICO_COUPLING["PICO_DC"],
                                         channel_range,
                                         analogue_offset,
 										bandwidth)
@@ -57,7 +57,7 @@ assert_pico_ok(status["setChA"])
 # bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChB"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_CHANNEL["PICO_CHANNEL_B"],
-                                        enums.PICO_COUPLING["PICO_DC_50OHM"],
+                                        enums.PICO_COUPLING["PICO_DC"],
                                         channel_range,
                                         analogue_offset,
 										bandwidth)
@@ -115,6 +115,17 @@ status["setDataBuffersB"] = ps.ps6000aSetDataBuffers(chandle,
                                                      action)
 assert_pico_ok(status["setDataBuffersB"])
 
+# Get fastest available timebase
+# handle = chandle
+enabledChannelFlags = enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
+timebase = ctypes.c_uint32(0)
+timeInterval = ctypes.c_double(0)
+# resolution = resolution
+status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(chandle, enabledChannelFlags, ctypes.byref(timebase), ctypes.byref(timeInterval), resolution)
+assert_pico_ok(status["getMinimumTimebaseStateless"])
+print("timebase = ", timebase.value)
+print("sample interval =", timeInterval.value, "s")
+
 # Begin streaming mode:
 sampleInterval = ctypes.c_int32(250)
 sampleUnits = enums.PICO_TIME_UNITS['PICO_US']
@@ -124,7 +135,7 @@ autoStopOn = 1
 # No downsampling:
 downsampleRatio = 1
 status["runStreaming"] = ps.ps6000aRunStreaming(chandle,
-                                                ctypes.byref(sampleInterval),
+                                                ctypes.byref(timeInterval),
                                                 sampleUnits,
                                                 maxPreTriggerSamples,
                                                 totalSamples,
