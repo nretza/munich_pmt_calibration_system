@@ -130,8 +130,8 @@ print("sample interval =", timeInterval.value, "s")
 sampleInterval = ctypes.c_int32(250)
 sampleUnits = enums.PICO_TIME_UNITS['PICO_US']
 # We are not triggering:
-maxPreTriggerSamples = 1000
-maxPostTriggerSamples = 4000
+maxPreTriggerSamples = 100
+maxPostTriggerSamples = 400
 autoStopOn = 1
 # No downsampling:
 downsampleRatio = 1
