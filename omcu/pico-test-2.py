@@ -141,8 +141,7 @@ status["runStreaming"] = ps.ps6000aRunStreaming(chandle,
                                                 totalSamples,
                                                 autoStopOn,
                                                 downsampleRatio,
-                                                enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"],
-                                                sizeOfOneBuffer)
+                                                enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
 assert_pico_ok(status["runStreaming"])
 
 actualSampleInterval = sampleInterval.value
