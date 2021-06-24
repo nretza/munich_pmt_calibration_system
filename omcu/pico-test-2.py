@@ -20,7 +20,7 @@ status = {}
 
 # Open PicoScope 6000 Series device
 # Returns handle to chandle for use in future API functions
-resolution = 1
+resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_8BIT"]
 status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(chandle), None, resolution)
 assert_pico_ok(status["openunit"])
 
