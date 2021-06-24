@@ -44,7 +44,7 @@ status["setChA"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
-										enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"])
+										0)
 assert_pico_ok(status["setChA"])
 
 # Set up channel B
@@ -60,7 +60,7 @@ status["setChB"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
-										enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"])
+										0)
 assert_pico_ok(status["setChB"])
 
 # Size of capture
