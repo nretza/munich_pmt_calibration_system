@@ -117,7 +117,7 @@ assert_pico_ok(status["setDataBuffersB"])
 
 # Begin streaming mode:
 sampleInterval = ctypes.c_int32(250)
-sampleUnits = ps.ps6000a_TIME_UNITS['ps6000a_US']
+sampleUnits = enums.PICO_TIME_UNITS['PICO_US']
 # We are not triggering:
 maxPreTriggerSamples = 0
 autoStopOn = 1
