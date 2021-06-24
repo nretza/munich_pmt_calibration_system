@@ -130,7 +130,8 @@ print("sample interval =", timeInterval.value, "s")
 sampleInterval = ctypes.c_int32(250)
 sampleUnits = enums.PICO_TIME_UNITS['PICO_US']
 # We are not triggering:
-maxPreTriggerSamples = 0
+maxPreTriggerSamples = 1000
+maxPostTriggerSamples = 4000
 autoStopOn = 1
 # No downsampling:
 downsampleRatio = 1
@@ -138,7 +139,7 @@ status["runStreaming"] = ps.ps6000aRunStreaming(chandle,
                                                 ctypes.byref(timeInterval),
                                                 sampleUnits,
                                                 maxPreTriggerSamples,
-                                                totalSamples,
+                                                maxPostTriggerSamples,
                                                 autoStopOn,
                                                 downsampleRatio,
                                                 enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
