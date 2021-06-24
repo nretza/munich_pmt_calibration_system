@@ -19,7 +19,8 @@ status = {}
 
 # Open PicoScope 6000 Series device
 # Returns handle to chandle for use in future API functions
-status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(chandle), None)
+resolution = 1
+status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(chandle), None, resolution)
 assert_pico_ok(status["openunit"])
 
 
