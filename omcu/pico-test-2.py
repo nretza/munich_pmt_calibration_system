@@ -41,7 +41,6 @@ channel_range = 7
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChA"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_CHANNEL["PICO_CHANNEL_A"],
-                                        enabled,
                                         enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
@@ -58,7 +57,6 @@ assert_pico_ok(status["setChA"])
 # bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
 status["setChB"] = ps.ps6000aSetChannelOn(chandle,
                                         enums.PICO_CHANNEL["PICO_CHANNEL_B"],
-                                        enabled,
                                         enums.PICO_COUPLING["PICO_DC_50OHM"],
                                         channel_range,
                                         analogue_offset,
