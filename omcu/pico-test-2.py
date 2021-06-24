@@ -36,7 +36,7 @@ analogue_offset = 0.0
 # coupling type = ps6000a_DC = 1
 # range = ps6000a_2V = 7
 # analogue offset = 0 V
-channel_range = ps.ps6000a_RANGE['ps6000a_2V']
+channel_range = 7
 status["setChA"] = ps.ps6000aSetChannel(chandle,
                                         ps.ps6000a_CHANNEL['ps6000a_CHANNEL_A'],
                                         enabled,
