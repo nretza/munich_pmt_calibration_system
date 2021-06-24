@@ -109,7 +109,10 @@ status["setDataBuffersB"] = ps.ps6000aSetDataBuffers(chandle,
                                                      bufferBMax.ctypes.data_as(ctypes.POINTER(ctypes.c_int16)),
                                                      None,
                                                      sizeOfOneBuffer,
-                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
+                                                     dataType,
+                                                     waveform,
+                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"],
+                                                     action)
 assert_pico_ok(status["setDataBuffersB"])
 
 # Begin streaming mode:
