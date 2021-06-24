@@ -145,7 +145,7 @@ status["runStreaming"] = ps.ps6000aRunStreaming(chandle,
                                                 enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
 assert_pico_ok(status["runStreaming"])
 
-actualSampleInterval = sampleInterval.value
+actualSampleInterval = timeInterval.value
 actualSampleIntervalNs = actualSampleInterval * 1000
 
 print("Capturing at sample interval %s ns" % actualSampleIntervalNs)
