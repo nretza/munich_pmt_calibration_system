@@ -79,14 +79,21 @@ bufferBMax = np.zeros(shape=sizeOfOneBuffer, dtype=np.int16)
 # pointer to buffer max = ctypes.byref(bufferAMax)
 # pointer to buffer min = ctypes.byref(bufferAMin)
 # buffer length = maxSamples
-# segment index = 0
+dataType = enums.PICO_DATA_TYPE["PICO_INT16_T"]
+waveform = 0  # segment index
 # ratio mode = ps6000a_RATIO_MODE_NONE = 0
+clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
+add = enums.PICO_ACTION["PICO_ADD"]
+action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 status["setDataBuffersA"] = ps.ps6000aSetDataBuffers(chandle,
                                                      enums.PICO_CHANNEL["PICO_CHANNEL_A"],
                                                      bufferAMax.ctypes.data_as(ctypes.POINTER(ctypes.c_int16)),
                                                      None,
                                                      sizeOfOneBuffer,
-                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"])
+                                                     dataType,
+                                                     waveform,
+                                                     enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"],
+                                                     action)
 assert_pico_ok(status["setDataBuffersA"])
 
 # Set data buffer location for data collection from channel B
