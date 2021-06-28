@@ -415,7 +415,7 @@ class Picoscope:
             plt.ylabel('Voltage (mV)')
             plt.show()
 
-        figureName = './data/plots/Figure_' + figname + 'pdf'
+        figureName = './data/plots/Figure_' + figname + '.pdf'
         plt.savefig(figureName)
 
     def plot_histogram(self, filename):
@@ -454,7 +454,7 @@ class Picoscope:
         plt.xlabel('area [Vs]')
         plt.show()
 
-        figureName = './data/plots/Histogram_' + figname + 'pdf'
+        figureName = './data/plots/Histogram_' + figname + '.pdf'
         plt.savefig(figureName)
 
     def stop_scope(self):
