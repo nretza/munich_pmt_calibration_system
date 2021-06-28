@@ -31,7 +31,6 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
 
-        self.nCaptures = 10000
         self.noOfPreTriggerSamples = 200
         self.noOfPostTriggerSamples = 3000
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
@@ -413,6 +412,9 @@ class Picoscope:
             plt.ylabel('Voltage (mV)')
             plt.show()
 
+        figureName = 'Figure_' + filename
+        plt.savefig(figureName)
+
     def plot_histogram(self, filename):
         """
         This is a function to plot a histogram of the area under the curve for multiple waveforms.
@@ -445,6 +447,9 @@ class Picoscope:
         plt.ylabel('counts')
         plt.xlabel('area [Vs]')
         plt.show()
+
+        HistogramName = 'Histogram_' + filename
+        plt.savefig(HistogramName)
 
     def stop_scope(self):
         """
