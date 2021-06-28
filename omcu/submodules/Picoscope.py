@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import ctypes
 import numpy as np
+from numpy import trapz
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
@@ -31,6 +32,10 @@ class Picoscope:
         # PICO_BW_500MHZ = 500000000
 
         self.nCaptures = 10000
+        self.noOfPreTriggerSamples = 200
+        self.noOfPostTriggerSamples = 3000
+        self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
+
 
     def channelA_setup(self):
         """
@@ -128,16 +133,14 @@ class Picoscope:
         print("sample interval =", timeInterval.value, "s")
         return timebase.value, timeInterval.value
 
-    def buffer_setup(self, noOfPreTriggerSamples=200, noOfPostTriggerSamples=800, channel=0):
+    def buffer_setup(self, channel=0):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
-        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
-        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return:
         """
         # Set number of samples to be collected
-        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
+        nSamples = self.nSamples
         # Create buffers
         bufferMax = (ctypes.c_int16 * nSamples)()
         bufferMin = (ctypes.c_int16 * nSamples)()
@@ -158,17 +161,15 @@ class Picoscope:
                                  downSampleMode, action)
         return bufferMax
 
-    def buffer_multi_setup(self, noOfPreTriggerSamples=200, noOfPostTriggerSamples=800, channel=0, number=10):
+    def buffer_multi_setup(self, channel=0, number=10):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
-        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
-        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param number: int (number of waveforms)
         :return:
         """
         # Set number of samples to be collected
-        nSamples = noOfPostTriggerSamples + noOfPreTriggerSamples
+        nSamples = self.nSamples
 
         # Set number of memory segments
         # noOfCaptures = number
@@ -210,15 +211,14 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=200,
-                           noOfPostTriggerSamples=800, bufchannel=0):
+    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
         Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
         given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
-        Then, it runs buffer_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel) to setup the buffer to
+        Then, it runs buffer_setup(bufchannel) to setup the buffer to
         store the data unprocessed.
         Then a single waveform measurement is taken und written into a file in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
@@ -227,16 +227,14 @@ class Picoscope:
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
-        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
-        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: filename (str)
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
-        bufferMax = self.buffer_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel)
-        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
+        bufferMax = self.buffer_setup(bufchannel)
+        nSamples = self.nSamples
 
         # Run block capture
         # handle = chandle
@@ -245,7 +243,7 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
@@ -289,8 +287,7 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=200,
-                           noOfPostTriggerSamples=800, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -298,7 +295,7 @@ class Picoscope:
         Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
         given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
-        Then, it runs buffer_multi_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel) to setup the buffer
+        Then, it runs buffer_multi_setup(bufchannel, number) to setup the buffer
         to store the data unprocessed.
         Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
@@ -307,8 +304,6 @@ class Picoscope:
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
-        :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
-        :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param number: int (number of waveforms)
         :return: filename
@@ -316,9 +311,8 @@ class Picoscope:
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
-        buffersMax, buffersMin = self.buffer_multi_setup(noOfPreTriggerSamples, noOfPostTriggerSamples, bufchannel,
-                                                         number)
-        nSamples = noOfPreTriggerSamples + noOfPostTriggerSamples
+        buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        nSamples = self.nSamples
 
         # Set number of memory segments
         # noOfCaptures = number
@@ -335,7 +329,7 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        ps.ps6000aRunBlock(self.chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
@@ -400,6 +394,8 @@ class Picoscope:
         filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
         number = int(filename_splitted_2[0])  # 10
 
+        plt.figure()
+
         if number == 1:
             for k in data:
                 plt.plot(k[0], k[1], '.', color='blue')
@@ -416,6 +412,39 @@ class Picoscope:
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
             plt.show()
+
+    def plot_histogram(self, filename):
+        """
+        This is a function to plot a histogram of the area under the curve for multiple waveforms.
+        :param filename: str (e.g. './data/20210622-171439-10.npy') or can be given by filename = P.single_measurement()
+               or filename = P.block_measurement()
+        :return: plot
+        """
+
+        data = np.load(filename)  # './data/20210622-171439-10.npy'
+        filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
+        filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
+        number = int(filename_splitted_2[0])  # 10
+
+        x = []
+        y = []
+        for i in data:
+            for j in i:
+                x.append(j[0])
+                y.append(j[1])
+
+        nSamples = self.nSamples
+        x_array = np.reshape(x, (number, nSamples))
+        y_array = np.reshape(y, (number, nSamples))
+
+        area_array = np.trapz(y_array, x_array, axis=1)
+
+        nBins = nSamples * 0.01
+        plt.figure()
+        plt.hist(area_array, bins=nBins)
+        plt.ylabel('counts')
+        plt.xlabel('area [Vs]')
+        plt.show()
 
     def stop_scope(self):
         """
