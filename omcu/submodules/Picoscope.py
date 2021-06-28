@@ -390,10 +390,11 @@ class Picoscope:
         """
         data = np.load(filename)  # './data/20210622-171439-10.npy'
         filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
-        figname = filename_split1[-1]
-        filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
-        filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
-        number = int(filename_splitted_2[0])  # 10
+        filename_split1b = filename_split1[-1].split('.')  # ['20210622-171439-10', 'npy']
+        figname = filename_split1b[0]
+        filename_split2 = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
+        filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
+        number = int(filename_split2b[0])  # 10
 
         plt.figure()
 
@@ -414,7 +415,7 @@ class Picoscope:
             plt.ylabel('Voltage (mV)')
             plt.show()
 
-        figureName = './data/plots/Figure_' + figname
+        figureName = './data/plots/Figure_' + figname + 'pdf'
         plt.savefig(figureName)
 
     def plot_histogram(self, filename):
@@ -427,10 +428,11 @@ class Picoscope:
 
         data = np.load(filename)  # './data/20210622-171439-10.npy'
         filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
-        histname = filename_split1[-1]
-        filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
-        filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
-        number = int(filename_splitted_2[0])  # 10
+        filename_split1b = filename_split1[-1].split('.')  # ['20210622-171439-10', 'npy']
+        figname = filename_split1b[0]
+        filename_split2 = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
+        filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
+        number = int(filename_split2b[0])  # 10
 
         x = []
         y = []
@@ -452,8 +454,8 @@ class Picoscope:
         plt.xlabel('area [Vs]')
         plt.show()
 
-        HistogramName = './data/plots/Histogram_' + histname
-        plt.savefig(HistogramName)
+        figureName = './data/plots/Histogram_' + figname + 'pdf'
+        plt.savefig(figureName)
 
     def stop_scope(self):
         """
