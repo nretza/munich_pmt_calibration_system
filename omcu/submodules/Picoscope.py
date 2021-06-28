@@ -35,7 +35,7 @@ class Picoscope:
         self.noOfPreTriggerSamples = 200
         self.noOfPostTriggerSamples = 3000
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
-
+        self.nBins = int(self.nSamples * 0.01)
 
     def channelA_setup(self):
         """
@@ -439,7 +439,7 @@ class Picoscope:
 
         area_array = np.trapz(y_array, x_array, axis=1)
 
-        nBins = nSamples * 0.01
+        nBins = self.nBins
         plt.figure()
         plt.hist(area_array, bins=nBins)
         plt.ylabel('counts')
