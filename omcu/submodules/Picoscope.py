@@ -30,10 +30,7 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
 
-        self.channelA = 0  # enums.PICO_CHANNEL["PICO_CHANNEL_A"]
-        self.channelB = 1  # enums.PICO_CHANNEL["PICO_CHANNEL_B"]
-        self.channelC = 2  # enums.PICO_CHANNEL["PICO_CHANNEL_C"]
-        self.channelD = 3  # enums.PICO_CHANNEL["PICO_CHANNEL_D"]
+        self.nCaptures = 10000
 
     def channelA_setup(self):
         """
@@ -42,7 +39,7 @@ class Picoscope:
         """
         # Set channel A on
         # handle = chandle
-        channel = self.channelA
+        channel = 0  # channel A
         # coupling = self.coupling
         # channelRange = self.voltrange
         # analogueOffset = 0 V
@@ -59,22 +56,12 @@ class Picoscope:
     def channel_setup(self, channel=0):
         """
         This is a function to set a channel on and the others off.
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: channel: int (0, 1, 2, 3)
         """
         # Set given channel on
         # handle = chandle
         # channel = channel
-        if channel == 'A':
-            channel = self.channelA
-        if channel == 'B':
-            channel = self.channelB
-        if channel == 'C':
-            channel = self.channelC
-        if channel == 'D':
-            channel = self.channelD
-        else:
-            pass
         # coupling = self.coupling
         # channelRange = self.voltrange
         # analogueOffset = 0 V
@@ -141,12 +128,12 @@ class Picoscope:
         print("sample interval =", timeInterval.value, "s")
         return timebase.value, timeInterval.value
 
-    def buffer_setup(self, noOfPreTriggerSamples=2000, noOfPostTriggerSamples=5000, channel=0):
+    def buffer_setup(self, noOfPreTriggerSamples=200, noOfPostTriggerSamples=800, channel=0):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
         :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
         :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return:
         """
         # Set number of samples to be collected
@@ -156,16 +143,6 @@ class Picoscope:
         bufferMin = (ctypes.c_int16 * nSamples)()
         # Set data buffers
         # handle = chandle
-        if channel == 'A':
-            channel = self.channelA
-        if channel == 'B':
-            channel = self.channelB
-        if channel == 'C':
-            channel = self.channelC
-        if channel == 'D':
-            channel = self.channelD
-        else:
-            pass
         # channel = channel
         # bufferMax = bufferAMax
         # bufferMin = bufferAMin
@@ -181,12 +158,12 @@ class Picoscope:
                                  downSampleMode, action)
         return bufferMax
 
-    def buffer_multi_setup(self, noOfPreTriggerSamples=2000, noOfPostTriggerSamples=5000, channel=0, number=10):
+    def buffer_multi_setup(self, noOfPreTriggerSamples=200, noOfPostTriggerSamples=800, channel=0, number=10):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
         :param noOfPreTriggerSamples: int (number of pre trigger samples to be stored)
         :param noOfPostTriggerSamples: int (number of post trigger samples to be stored)
-        :param channel: int or str: 0/'A', 1/'B', 2/'C', 3/'D', default: 0
+        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param number: int (number of waveforms)
         :return:
         """
@@ -202,26 +179,16 @@ class Picoscope:
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
 
         # Create buffers
-        buffersMax = []
-        buffersMin = []
+        buffersMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersMin = ((ctypes.c_int16 * nSamples) * number)()
         for i in range(number):
             bufferMax = (ctypes.c_int16 * nSamples)()
             bufferMin = (ctypes.c_int16 * nSamples)()
-            buffersMax.append(bufferMax)
-            buffersMin.append(bufferMin)
+            buffersMax[i] = bufferMax
+            buffersMin[i] = bufferMin
 
         # Set data buffers
         # handle = chandle
-        if channel == 'A':
-            channel = self.channelA
-        if channel == 'B':
-            channel = self.channelB
-        if channel == 'C':
-            channel = self.channelC
-        if channel == 'D':
-            channel = self.channelD
-        else:
-            pass
         # channel = channel
         # bufferMax = bufferMax
         # bufferMin = bufferMin
@@ -243,8 +210,8 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
-                           noOfPostTriggerSamples=5000, bufchannel=0):
+    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=200,
+                           noOfPostTriggerSamples=800, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
@@ -322,8 +289,8 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=2000,
-                           noOfPostTriggerSamples=5000, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, noOfPreTriggerSamples=200,
+                           noOfPostTriggerSamples=800, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
