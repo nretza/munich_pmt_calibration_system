@@ -389,6 +389,8 @@ class Picoscope:
         :return: plot
         """
         data = np.load(filename)  # './data/20210622-171439-10.npy'
+        filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
+        figname = filename_split1[-1]
         filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
         filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
         number = int(filename_splitted_2[0])  # 10
@@ -412,7 +414,7 @@ class Picoscope:
             plt.ylabel('Voltage (mV)')
             plt.show()
 
-        figureName = 'Figure_' + filename
+        figureName = './data/plots/Figure_' + figname
         plt.savefig(figureName)
 
     def plot_histogram(self, filename):
@@ -424,6 +426,8 @@ class Picoscope:
         """
 
         data = np.load(filename)  # './data/20210622-171439-10.npy'
+        filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
+        histname = filename_split1[-1]
         filename_splitted = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
         filename_splitted_2 = filename_splitted[-1].split('.')  # ['10', 'npy']
         number = int(filename_splitted_2[0])  # 10
@@ -448,7 +452,7 @@ class Picoscope:
         plt.xlabel('area [Vs]')
         plt.show()
 
-        HistogramName = 'Histogram_' + filename
+        HistogramName = './data/plots/Histogram_' + histname
         plt.savefig(HistogramName)
 
     def stop_scope(self):
