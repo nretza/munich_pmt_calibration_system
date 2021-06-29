@@ -272,7 +272,7 @@ class Picoscope:
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
-        # create array of data and save as txt file
+        # create array of data and save as npy file
         data = np.zeros((nSamples, 2))
         for i, values in enumerate(adc2mVChMax):
             timeval = timevals[i]
@@ -315,7 +315,7 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint32(nSamples)  # maxSegments = ctypes.c_uint64(10)
+        maxSegments = ctypes.c_uint64(nSamples)  # maxSegments = ctypes.c_uint64(10)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
         print('Memory segments set')
 
