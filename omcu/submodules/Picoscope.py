@@ -820,6 +820,6 @@ if __name__ == "__main__":
     P = Picoscope()
     #data1 = P.single_measurement()
     #P.plot_data(data1)
-    data2 = P.block_measurement(number=10000)
+    data2 = P.block_measurement(number=1000)
     P.plot_histogram(data2)
     P.close_scope()
