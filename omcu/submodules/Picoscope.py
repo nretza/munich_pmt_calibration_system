@@ -348,7 +348,7 @@ class Picoscope:
         # segmentIndex = 0
         end = number-1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
-        # Creates a overflow location for each segment
+        # Creates an overflow location for each segment
         overflow = (ctypes.c_int16 * nSamples)()
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                       ctypes.byref(overflow))
@@ -818,9 +818,8 @@ class Picoscope:
 
 if __name__ == "__main__":
     P = Picoscope()
-    P.stop_scope()
     #data1 = P.single_measurement()
     #P.plot_data(data1)
-    data2 = P.block_measurement(number=10000)
+    data2 = P.block_measurement(number=1000)
     P.plot_histogram(data2)
     P.close_scope()
