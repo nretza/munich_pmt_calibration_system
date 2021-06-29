@@ -366,16 +366,20 @@ class Picoscope:
 
         # create array of data and save as txt file
         data = np.zeros((number, nSamples, 2))
+        print('data array with zeros')
         for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
             for j, samples in enumerate(values):  # j = nSamples
                 timeval = timevals[j]
                 mV = samples
                 data[i][j] = [timeval, mV]
+            print('round', i)
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
+        print(filename)
         np.save(filename, data)
+        print('file has been saved')
 
         return filename
 
