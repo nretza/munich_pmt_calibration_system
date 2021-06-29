@@ -34,7 +34,6 @@ class Picoscope:
         self.noOfPreTriggerSamples = 200
         self.noOfPostTriggerSamples = 3000
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
-        self.nBins = int(self.nSamples * 0.01)
 
     def channelA_setup(self):
         """
@@ -400,7 +399,7 @@ class Picoscope:
 
         if number == 1:
             for k in data:
-                plt.plot(k[0], k[1], '.', color='blue')
+                plt.plot(k[0], k[1], '.', color='cornflowerblue')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
             plt.show()
@@ -418,11 +417,12 @@ class Picoscope:
         figureName = './data/plots/Figure_' + figname + '.pdf'
         plt.savefig(figureName)
 
-    def plot_histogram(self, filename):
+    def plot_histogram(self, filename, nBins=20):
         """
         This is a function to plot a histogram of the area under the curve for multiple waveforms.
         :param filename: str (e.g. './data/20210622-171439-10.npy') or can be given by filename = P.single_measurement()
                or filename = P.block_measurement()
+        :param nBins: int: number of bins, default: 20
         :return: plot
         """
 
@@ -445,9 +445,9 @@ class Picoscope:
         x_array = np.reshape(x, (number, nSamples))
         y_array = np.reshape(y, (number, nSamples))
 
-        area_array = np.trapz(y_array, x_array, axis=1)
+        area_array = trapz(y_array, x_array, axis=1)
 
-        nBins = self.nBins
+        # nBins = self.nBins
         plt.figure()
         plt.hist(area_array, bins=nBins)
         plt.ylabel('counts')
