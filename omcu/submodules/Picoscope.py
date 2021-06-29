@@ -818,6 +818,7 @@ class Picoscope:
 
 if __name__ == "__main__":
     P = Picoscope()
+    P.stop_scope()
     #data1 = P.single_measurement()
     #P.plot_data(data1)
     data2 = P.block_measurement(number=10000)
