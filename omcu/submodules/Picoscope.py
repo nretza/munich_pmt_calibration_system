@@ -395,8 +395,6 @@ class Picoscope:
         filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split2b[0])  # 10
 
-        plt.figure()
-
         if number == 1:
             for k in data:
                 plt.plot(k[0], k[1], '.', color='cornflowerblue')
@@ -448,7 +446,6 @@ class Picoscope:
         area_array = trapz(y_array, x_array, axis=1)
 
         # nBins = self.nBins
-        plt.figure()
         plt.hist(area_array, bins=nBins)
         plt.ylabel('counts')
         plt.xlabel('area [Vs]')
@@ -807,6 +804,8 @@ class Picoscope:
 
 if __name__ == "__main__":
     P = Picoscope()
-    data1 = P.single_measurement()
-    P.plot_data(data1)
+    #data1 = P.single_measurement()
+    #P.plot_data(data1)
+    data2 = P.block_measurement(number=1000)
+    P.plot_histogram(data2)
     P.close_scope()
