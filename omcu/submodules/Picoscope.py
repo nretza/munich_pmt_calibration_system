@@ -463,13 +463,16 @@ class Picoscope:
         This is a function to stop whatever the picoscope is doing.
         """
         ps.ps6000aStop(self.chandle)
+        print('Picoscope stopped')
 
     def close_scope(self):
         """
         This is a function to stop whatever the picoscope is doing and close the connection to it.
         """
         ps.ps6000aStop(self.chandle)
+        print('Picoscope stopped')
         ps.ps6000aCloseUnit(self.chandle)
+        print('Picoscope closed')
 
     def single_measurement_with_setup(self, thresh=1000):
         """
