@@ -314,7 +314,7 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(10)
+        maxSegments = ctypes.c_uint32(nSamples)  # maxSegments = ctypes.c_uint64(10)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
 
         # Set number of captures
@@ -364,7 +364,7 @@ class Picoscope:
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
-        # create array of data and save as txt file
+        # create array of data and save as npy file
         data = np.zeros((number, nSamples, 2))
         print('data array with zeros')
         for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
