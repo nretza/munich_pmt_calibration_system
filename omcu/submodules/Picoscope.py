@@ -310,15 +310,18 @@ class Picoscope:
         self.trigger_setup(trgchannel, direction, threshold)
         timebase, timeInterval = self.timebase_setup()
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        print('Picoscope set')
         nSamples = self.nSamples
 
         # Set number of memory segments
         # noOfCaptures = number
         maxSegments = ctypes.c_uint32(nSamples)  # maxSegments = ctypes.c_uint64(10)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+        print('Memory segments set')
 
         # Set number of captures
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
+        print('Number of captures set')
 
         # Run block capture
         # handle = chandle
@@ -335,6 +338,7 @@ class Picoscope:
         check = ctypes.c_int16(0)
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+        print('Picoscope ready')
 
         # Get data from scope
         # handle = chandle
@@ -348,18 +352,21 @@ class Picoscope:
         overflow = (ctypes.c_int16 * 10)()
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                       ctypes.byref(overflow))
+        print('got values')
 
         # get max ADC value
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        print('adc limits')
 
         # convert ADC counts data to mV
         adc2mVChMax_list = np.zeros((number, nSamples))
         for i, buffers in enumerate(buffersMax):
             adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
             adc2mVChMax_list[i] = adc2mVChMax
+            print('buffer round', i)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
