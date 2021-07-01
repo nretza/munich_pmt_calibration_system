@@ -349,7 +349,7 @@ class Picoscope:
         end = number-1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         # Creates an overflow location for each segment
-        overflow = (ctypes.c_int16 * nSamples)()
+        overflow = (ctypes.c_int16 * number)()
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                       ctypes.byref(overflow))
         print('got values')
