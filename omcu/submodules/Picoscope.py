@@ -380,8 +380,8 @@ class Picoscope:
         #         timeval = timevals[j]
         #         mV = samples
         #         data[i][j] = [timeval, mV]
-        data[:,0] = timevals
-        data[:,1] = adc2mVChMax_list
+        data[:,:,0] = timevals
+        data[:,:,1] = adc2mVChMax_list
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -822,6 +822,6 @@ if __name__ == "__main__":
     P = Picoscope()
     #data1 = P.single_measurement()
     #P.plot_data(data1)
-    file, data2 = P.block_measurement(number=10000)
+    file, data2 = P.block_measurement(number=100)
     P.plot_histogram(data2)
     P.close_scope()
