@@ -363,10 +363,10 @@ class Picoscope:
 
         # convert ADC counts data to mV
         adc2mVChMax_list = np.zeros((number, nSamples))
+
         for i, buffers in enumerate(buffersMax):
             adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
             adc2mVChMax_list[i] = adc2mVChMax
-            print('buffer round', i)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
@@ -379,7 +379,7 @@ class Picoscope:
                 timeval = timevals[j]
                 mV = samples
                 data[i][j] = [timeval, mV]
-            print('round', i)
+        print('round', i)
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
