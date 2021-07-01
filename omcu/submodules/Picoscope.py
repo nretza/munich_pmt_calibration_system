@@ -385,10 +385,10 @@ class Picoscope:
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
         print(filename)
-        np.save(filename, data)
+        #np.save(filename, data)
         print('file has been saved')
 
-        return filename
+        return filename, data
 
     def plot_data(self, filename):
         """
