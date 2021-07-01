@@ -447,10 +447,12 @@ class Picoscope:
 
         x = []
         y = []
-        for i in data:
-            for j in i:
-                x.append(j[0])
-                y.append(j[1])
+        # for i in data:
+        #     for j in i:
+        #         x.append(j[0])
+        #         y.append(j[1])
+        x = data[:, :, 0]
+        y = data[:, :, 1]
 
         nSamples = self.nSamples
         x_array = np.reshape(x, (number, nSamples))
