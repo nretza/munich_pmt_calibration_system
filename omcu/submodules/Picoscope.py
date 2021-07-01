@@ -823,5 +823,5 @@ if __name__ == "__main__":
     #data1 = P.single_measurement()
     #P.plot_data(data1)
     file, data2 = P.block_measurement(number=100)
-    P.plot_histogram(data2)
+    P.plot_histogram(file)
     P.close_scope()
