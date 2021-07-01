@@ -380,13 +380,12 @@ class Picoscope:
                 timeval = timevals[j]
                 mV = samples
                 data[i][j] = [timeval, mV]
-        print('round', i)
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename += timestr + '-' + str(number) + '.npy'
         print(filename)
-        #np.save(filename, data)
+        np.save(filename, data)
         print('file has been saved')
 
         return filename, data
@@ -821,6 +820,6 @@ if __name__ == "__main__":
     P = Picoscope()
     #data1 = P.single_measurement()
     #P.plot_data(data1)
-    data2 = P.block_measurement(number=10000)
+    file, data2 = P.block_measurement(number=10000)
     P.plot_histogram(data2)
     P.close_scope()
