@@ -12,7 +12,12 @@ sys.path.append('/home/canada/munich_pmt_calibration_system/omcu')
 # Import the sys-system python modules of this master-control software.
 import argparse
 
+from submodules.Picoscope import Picoscope
+from submodules.PSU import PSU
+from submodules.Picoamp import Picoamp
+from submodules.rot_stage import Rotation_stage
 from submodules.Laser import Laser
+from submodules.Powermeter import Powermeter
 from logging_config import setup_logging
 from config import Config
 
