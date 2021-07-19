@@ -22,7 +22,7 @@ class Rotation:
                                         timeout=2
                                         )
 
-    def go_phi(self, phi):
+    def set_phi(self, phi):
         """
         Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param phi: Float (0-360 in 5000 steps)
@@ -30,7 +30,7 @@ class Rotation:
         phi_pos = io_serial(bytes(f'goY {phi}', 'utf-8'), serial=self.serial)
         return phi_pos
 
-    def go_theta(self, theta):
+    def set_theta(self, theta):
         """
         Controls the lower stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param theta: Float (0-360 in 5000 steps)
@@ -54,8 +54,8 @@ class Rotation:
         :param theta: Float (0-360 in 5000 steps)
         """
         pos = [0, 0]
-        pos[0] = self.go_phi(phi)
-        pos[1] = self.go_theta(theta)
+        pos[0] = self.set_phi(phi)
+        pos[1] = self.set_theta(theta)
         return pos
 
     def get_position(self):
