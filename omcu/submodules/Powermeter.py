@@ -335,3 +335,30 @@ class Powermeter:
         print("The run mode is:", run_string, "(0 = stopped, 1 = running)")
         run = int(run_string)
         return run
+
+    def set_offset(self):
+        """
+        This is a function that sets the zeroing value with the present reading
+        :return: float (set offset value)
+        """
+        self.__write_serial(b'PM:ZEROSTO\r\n')  # sets the zeroing value with the present reading
+        return self.get_offset()
+
+    def set_offset_val(self, offset):
+        """
+        This is a function that sets the zeroing value with the given value
+        :param offset: float
+        :return: float (set offset value)
+        """
+        self.__write_serial(str.encode(f'PM:ZEROVAL {offset}\r\n'))  # sets the zeroing value with the given value
+        return self.get_offset()
+
+    def get_offset(self):
+        """
+        This is a function that returns the set offset value
+        :return: float (set offset value)
+        """
+        offset_string = self.__write_serial(b'PM:ZEROVAL?\r\n')  # returns
+        print("The offset value is set to:", offset_string)
+        offset = float(offset_string)
+        return offset
