@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import serial
 import logging
-import time
+
 from .Serial2 import io_serial
 
 
@@ -24,29 +24,23 @@ class Rotation:
 
     def go_phi(self, phi):
         """
-        Controls the upper stepper. Phi direction is relativ to the PMT and not a global coordinate system
-
-        PARAMETERS
-        ----------
-        phi: Float
+        Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system
+        :param phi: Float (0-360 in 5000 steps)
         """
         phi_pos = io_serial(bytes(f'goY {phi}', 'utf-8'), serial=self.serial)
         return phi_pos
 
     def go_theta(self, theta):
         """
-        Controls the lower stepper. Phi direction is relativ to the PMT and not a global coordinate system
-
-        PARAMETERS
-        ----------
-        theta: Float
+        Controls the lower stepper. Phi direction is relative to the PMT and not a global coordinate system
+        :param theta: Float (0-360 in 5000 steps)
         """
         theta_pos = io_serial(bytes(f'goX {theta}', 'utf-8'), serial=self.serial)
         return theta_pos
         
     def go_home(self):
         """
-        sends gohome command
+        Sends the Rotation stage to home position.
         """
         home_pos = [0, 0]
         home_pos[0] = io_serial(bytes(f'goHomeY', 'utf-8'), serial=self.serial)
@@ -56,10 +50,8 @@ class Rotation:
     def set_position(self, phi, theta):
         """
         Gives the rotation stage 2D coordinates to move to. First phi, than theta direction
-        PARAMETERS
-        ----------
-        phi: Float
-        theta: Float
+        :param phi: Float (0-360 in 5000 steps)
+        :param theta: Float (0-360 in 5000 steps)
         """
         pos = [0, 0]
         pos[0] = self.go_phi(phi)
@@ -77,10 +69,8 @@ class Rotation:
 
     def set_speed(self, speed):
         """
-        sets the delaytime inbetween single steps in milliseconds. Minimum value is 300.
-        PARAMETERS
-        ----------
-        speed: Float
+        sets the delay time in-between single steps in milliseconds. Minimum value is 300.
+        :param speed: Float (0-360 in 5000 steps)
         """
         speed_val = io_serial(bytes(f'setspeed {speed}', 'utf-8'), serial=self.serial)
         return speed_val
