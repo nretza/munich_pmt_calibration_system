@@ -2,7 +2,8 @@
 import serial
 import time
 
-def io_serial(cmd, delay=0.1,serial=serial):
+
+def io_serial(cmd, delay=0.1, serial=serial):
         """
         1. Checks if something is to read. 2. write command to serial 3. checks if response is available and if yes: prints it
         PARAMETERS
