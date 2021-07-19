@@ -2,26 +2,27 @@
 import serial
 import logging
 import time
-from Serial2 import io_serial
+from .Serial2 import io_serial
 
-class Rotation_stage:
+
+class Rotation:
     """
     Class for the rotation stage consisting of 2 stepper motors
     """
-    def __init__(self, dev="/dev/ttyUSB0",  delay=.1): #TODO: Change device path!
+    def __init__(self, dev="/dev/Rotation",  delay=.1):  #TODO: Change device path!
         self.logger = logging.getLogger(type(self).__name__)
         serial_connection = serial.Serial
         self.delay = delay  # set default delay
 
         # initialise Serial or SimSerial
         self.serial = serial_connection(dev,
-                                        baudrate=9600, #TODO: change baudrate back, this is currently in the ardunio code!
+                                        baudrate=9600,  #TODO: change baudrate back, this is currently in the ardunio code!
                                         bytesize=serial.EIGHTBITS,
                                         parity=serial.PARITY_NONE,
                                         timeout=2
                                         )
-        
-    def go_phi(self,phi):
+
+    def go_phi(self, phi):
         """
         Controls the upper stepper. Phi direction is relativ to the PMT and not a global coordinate system
 
@@ -32,15 +33,14 @@ class Rotation_stage:
         
         ret = io_serial(bytes(f'goY {phi}', 'utf-8'), serial=self.serial)
         return ret
-        
-        
-    def go_theta(self,theta):
+
+    def go_theta(self, theta):
         """
         Controls the lower stepper. Phi direction is relativ to the PMT and not a global coordinate system
 
         PARAMETERS
         ----------
-        phi: Float
+        theta: Float
         """
         return io_serial(bytes(f'goX {theta}', 'utf-8'), serial=self.serial)
         
@@ -48,12 +48,12 @@ class Rotation_stage:
         """
         sends gohome command
         """
-        ret = [0,0]
+        ret = [0, 0]
         ret[0] = io_serial(bytes(f'goHomeY', 'utf-8'), serial=self.serial)
         ret[1] = io_serial(bytes(f'goHomeX', 'utf-8'), serial=self.serial)
         return ret
     
-    def set_speed(self,speed):
+    def set_speed(self, speed):
         """
         sets the delaytime inbetween single steps in milliseconds. Minimum value is 300.
         PARAMETERS
@@ -62,7 +62,7 @@ class Rotation_stage:
         """
         return io_serial(bytes(f'setspeed {speed}', 'utf-8'), serial=self.serial)
         
-    def scan(self,phi,theta):
+    def scan(self, phi, theta):
         """
         Gives the rotation stage 2D coordinates to move to. First phi, than theta direction
         PARAMETERS
@@ -70,7 +70,7 @@ class Rotation_stage:
         phi: Float
         theta: Float
         """
-        ret = [0,0]
+        ret = [0, 0]
         ret[0] = self.go_phi(phi)
         ret[1] = self.go_theta(theta)
         return ret
@@ -79,7 +79,7 @@ class Rotation_stage:
         """
         Returns the current position
         """
-        ret = [0,0]
+        ret = [0, 0]
         ret[0] = io_serial(bytes(f'getPositionY', 'utf-8'), serial=self.serial)
         ret[1] = io_serial(bytes(f'getPositionX', 'utf-8'), serial=self.serial)
         return ret
