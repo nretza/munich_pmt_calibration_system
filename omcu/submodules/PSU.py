@@ -8,7 +8,7 @@ class PSU(gpd3303s.GPD3303S):
     It is important that the udev rules allow access to the current user.
     """
 
-    def __init__(self, dev="/dev/PSU_0"):  # PSU_0 or PSU_1
+    def __init__(self, dev="/dev/PSU_1"):  # PSU_0 or PSU_1
         """
         This is the init function for the power supply device
         :param dev: device path, use: dev="/dev/PSU_0" or dev="/dev/PSU_1"
@@ -20,7 +20,7 @@ class PSU(gpd3303s.GPD3303S):
         self.setCurrent(1, .1)
         self.setCurrent(2, .1)
         self.setVoltage(1, 5.0)
-        self.setVoltage(2, 5.0)
+        self.setVoltage(2, 1.1)
 
     def settings(self, channel, voltage=5.0, current=0.1):
         """

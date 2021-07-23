@@ -22,7 +22,7 @@ class Picoscope:
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
         self.coupling = 50  # /enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange = 8
+        self.voltrange = 7
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -31,8 +31,8 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
 
-        self.noOfPreTriggerSamples = 200
-        self.noOfPostTriggerSamples = 3000
+        self.noOfPreTriggerSamples = 100
+        self.noOfPostTriggerSamples = 200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def channelA_setup(self):
@@ -108,7 +108,7 @@ class Picoscope:
         # threshold = threshold [mV], default value: 1000 mV
         # direction = 2 (rising)
         # delay = 0 s
-        autoTriggerMicroSeconds = 1000  # [us]
+        autoTriggerMicroSeconds = 1000000  # [us]
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, autoTriggerMicroSeconds)
         return channel, direction, threshold
 
@@ -209,7 +209,7 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
+    def single_measurement(self, channel=0, trgchannel=0, direction=3, threshold=1000, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
@@ -221,7 +221,7 @@ class Picoscope:
         Then a single waveform measurement is taken und written into a file in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 2 (rising edge)
+        :param direction: int, default: 3 (falling edge)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
@@ -266,6 +266,7 @@ class Picoscope:
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        self.stop_scope()
         # convert ADC counts data to mV
         adc2mVChMax = adc2mV(bufferMax, self.voltrange, maxADC)
 
@@ -285,7 +286,7 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, trgchannel=0, direction=3, threshold=1000, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -298,7 +299,7 @@ class Picoscope:
         Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 2 (rising edge)
+        :param direction: int, default: 3 (falling edge)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
