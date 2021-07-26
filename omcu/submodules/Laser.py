@@ -36,7 +36,7 @@ class Laser:
         self.set_trig_source(0)  # trigger source: internal
         self.set_trig_level(0)  # trigger level: 0 mV
         self.set_tune_value(700)  # tune value at 50%
-        self.set_freq(1e3)  # frequency = 1 kHZ
+        self.set_freq(10e3)  # frequency = 1 kHZ
         self.off_cw()  # CW laser emission OFF
 
     def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
