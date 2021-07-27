@@ -37,7 +37,7 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
         self.trgchannel = 0  # channel A
-        self.trglevel = 3000  # 3V
+        self.trglevel = 30  # 3V
         self.trgtype = 2  # 0=ABOVE, 1=BELOW, 2=RISING, 3=FALLING, 4=R+F
         self.autotrig = 1000000  # us
         self.trgrange = 8  # ±5 V
