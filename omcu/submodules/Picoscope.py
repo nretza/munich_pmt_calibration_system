@@ -30,6 +30,10 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
         self.trgchannel = 0  # channel A
+        self.trglevel = 3000  # 3V
+        self.trgtype = 2  # 0=ABOVE, 1=BELOW, 2=RISING, 3=FALLING, 4=R+F
+        self.autotrig = 10000000  # us
+        self.trgrange = 8  # ±5 V
         self.noOfPreTriggerSamples = 100
         self.noOfPostTriggerSamples = 200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
@@ -40,13 +44,13 @@ class Picoscope:
         :return: channel = 0
         """
         # Set channel A on
-        # handle = chandle
+        # handle = self.chandle
         channel = 0  # channel A
-        # coupling = self.coupling
-        # channelRange = self.voltrange
+        coupling = self.coupling
+        channelRange = self.trgrange
         # analogueOffset = 0 V
-        # bandwidth = self.bandwidth
-        ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+        bandwidth = self.bandwidth
+        ps.ps6000aSetChannelOn(self.chandle, channel, coupling, channelRange, 0, bandwidth)
 
         # set channel B,C,D off
         for x in range(1, 3, 1):
@@ -69,47 +73,45 @@ class Picoscope:
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
         ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+        ps.ps6000aSetChannelOn(self.chandle, 1, self.coupling, self.voltrange, 0, self.bandwidth)
+        ps.ps6000aSetChannelOn(self.chandle, 2, self.coupling, self.voltrange, 0, self.bandwidth)
+        ps.ps6000aSetChannelOn(self.chandle, 3, self.coupling, self.voltrange, 0, self.bandwidth)
 
         # set other channels off
-        if channel == 0:
-            for x in [1, 2, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 1:
-            for x in [0, 2, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 2:
-            for x in [0, 1, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 3:
-            for x in [0, 1, 2]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # if channel == 0:
+        #     for x in [1, 2, 3]:
+        #         channel_off = x
+        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # if channel == 1:
+        #     for x in [0, 2, 3]:
+        #         channel_off = x
+        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # if channel == 2:
+        #     for x in [0, 1, 3]:
+        #         channel_off = x
+        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # if channel == 3:
+        #     for x in [0, 1, 2]:
+        #         channel_off = x
+        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
 
         return channel
 
-    def trigger_setup(self, channel=0, direction=2, threshold=-100):
+    def trigger_setup(self):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
-        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 2 (rising edge)
-        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
-        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
-        :param threshold: int [mV] trigger value, default value: -100 mV
-        :return: channel (int), direction (int), threshold(int) [mV]
+        :return: source (int), direction (int), threshold(int) [mV]
         """
         # Set simple trigger on the given channel, [thresh] mV rising with 1 ms autotrigger
         # handle = chandle
         # enable = 1
-        # source = channel
-        # threshold = threshold [mV], default value: 1000 mV
-        # direction = 2 (rising)
+        source = self.trgchannel
+        threshold = self.trglevel
+        direction = self.trgtype
         # delay = 0 s
-        autoTriggerMicroSeconds = 10000000  # [us]
-        ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, autoTriggerMicroSeconds)
-        return channel, direction, threshold
+        autoTrigger = self.autotrig  # [us]
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0, autoTrigger)
+        return source, direction, threshold
 
     def timebase_setup(self):
         """
@@ -208,27 +210,22 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=-100, bufchannel=0):
+    def single_measurement(self, channel=0, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
-        Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
+        Then, it runs trigger_setup() which sets the trigger to a rising edge at the
         given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
         Then, it runs buffer_setup(bufchannel) to setup the buffer to
         store the data unprocessed.
         Then a single waveform measurement is taken und written into a file in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 2 (rising edge)
-        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
-        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
-        :param threshold: int [mV] trigger value, default value: -100 mV
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: filename (str)
         """
         self.channel_setup(channel)
-        self.trigger_setup(trgchannel, direction, threshold)
+        self.trigger_setup()
         timebase, timeInterval = self.timebase_setup()
         bufferMax = self.buffer_setup(bufchannel)
         nSamples = self.nSamples
@@ -285,29 +282,24 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=-100, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
         First, it runs channel_setup(channel) to set a channel on and the others off.
-        Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
+        Then, it runs trigger_setup() which sets the trigger to a rising edge at the
         given value [mV].
         Then, it runs timebase_setup() to get the fastest available timebase.
         Then, it runs buffer_multi_setup(bufchannel, number) to setup the buffer
         to store the data unprocessed.
         Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 2 (rising edge)
-        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
-        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
-        :param threshold: int [mV] trigger value, default value: -100 mV
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param number: int (number of waveforms)
         :return: filename
         """
         self.channel_setup(channel)
-        self.trigger_setup(trgchannel, direction, threshold)
+        self.trigger_setup()
         timebase, timeInterval = self.timebase_setup()
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         print('Picoscope set')

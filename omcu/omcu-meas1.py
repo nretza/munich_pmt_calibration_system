@@ -15,14 +15,16 @@ PSU1 = PSU(dev="/dev/PSU_1")
 #Pamp = Picoamp()
 L=Laser()
 
+PSU1.on()
+L.on_pulsed()
+
 #PSU0.settings(channel=1, voltage=5.0, current=0.1)  # values?
 #PSU0.settings(channel=2, voltage=5.0, current=0.1)  # values?
 #PSU1.settings(channel=1, voltage=5.0, current=0.1)  # values?
 #PSU1.settings(channel=2, voltage=1.1, current=0.1)  # values?
-PSU1.on()
-L.on_pulsed()
-file1, data1=P.block_measurement(channel=0, trgchannel=0, direction=2, threshold=-100, bufchannel=0, number=1)
-file2, data2=P.block_measurement(channel=2, trgchannel=2, direction=2, threshold=4500, bufchannel=2, number=1)
+
+file1, data1=P.block_measurement(channel=0, bufchannel=0, number=1)
+file2, data2=P.block_measurement(channel=2, bufchannel=2, number=1)
 
 x1=data1[0,:,0]
 y1=data1[0,:,1]

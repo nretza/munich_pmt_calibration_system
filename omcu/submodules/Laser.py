@@ -11,7 +11,7 @@ class Laser:
     This is a class for the Picosecond Laser System Controller EIG2000DX
     """
 
-    def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.5):  # run sudo udevadm trigger before
+    def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.1):  # run sudo udevadm trigger before
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial
