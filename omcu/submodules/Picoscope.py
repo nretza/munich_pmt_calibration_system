@@ -306,7 +306,7 @@ class Picoscope:
         """
         self.channel_setup(channel)
         self.trigger_setup()
-        # timebase, timeInterval = self.timebase_setup()
+        timebase, timeInterval = self.timebase_setup()
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         print('Picoscope set')
         nSamples = self.nSamples
@@ -323,7 +323,7 @@ class Picoscope:
 
         # Run block capture
         # handle = chandle
-        timebase = self.timebase
+        # timebase = self.timebase
         timeIndisposedMs = ctypes.c_double(0)
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
@@ -368,7 +368,7 @@ class Picoscope:
             adc2mVChMax_list[i] = adc2mVChMax
 
         # Create time data
-        timeInterval = self.timeInterval
+        # timeInterval = self.timeInterval
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
