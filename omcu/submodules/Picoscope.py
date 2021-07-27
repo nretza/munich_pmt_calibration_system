@@ -39,7 +39,7 @@ class Picoscope:
         self.trgchannel = 0  # channel A
         self.trglevel = 3000  # 3V
         self.trgtype = 2  # 0=ABOVE, 1=BELOW, 2=RISING, 3=FALLING, 4=R+F
-        self.autotrig = 10000000  # us
+        self.autotrig = 1000000  # us
         self.trgrange = 8  # ±5 V
         self.noOfPreTriggerSamples = 100
         self.noOfPostTriggerSamples = 400
