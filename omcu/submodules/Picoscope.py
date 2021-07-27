@@ -37,10 +37,10 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
         self.trgchannel = 0  # channel A
-        self.trglevel = 30  # 3V
+        self.trglevel = 1000  # 3V
         self.trgtype = 2  # 0=ABOVE, 1=BELOW, 2=RISING, 3=FALLING, 4=R+F
         self.autotrig = 1000000  # us
-        self.trgrange = 8  # ±5 V
+        self.trgrange = 7  # ±2 V
         self.noOfPreTriggerSamples = 100
         self.noOfPostTriggerSamples = 400
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
@@ -112,11 +112,11 @@ class Picoscope:
         # Set simple trigger on the given channel, [thresh] mV rising with 1 ms autotrigger
         # handle = chandle
         # enable = 1
-        source = self.trgchannel
-        threshold = self.trglevel
-        direction = self.trgtype
+        source = 0  # self.trgchannel
+        threshold = 1000  # self.trglevel
+        direction = 2  # self.trgtype
         # delay = 0 s
-        autoTrigger = self.autotrig  # [us]
+        autoTrigger = 1000000  # self.autotrig  # [us]
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, source, threshold, direction, 0, autoTrigger)
         return source, direction, threshold
 
