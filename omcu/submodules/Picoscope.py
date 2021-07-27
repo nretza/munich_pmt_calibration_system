@@ -5,7 +5,7 @@ from numpy import trapz
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
-from picosdk.functions import adc2mV, assert_pico_ok
+from picosdk.functions import adc2mV
 import time
 
 
@@ -19,6 +19,13 @@ class Picoscope:
         self.resolution = 1  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
+
+        self.timebase = 6  #
+        if self.timebase < 5:
+            self.timeInterval = (2 ** self.timebase) / 5000000000  # [s]
+        else:
+            self.timeInterval = (self.timebase-4)/156250000  # [s]
+
         self.coupling = 50  # enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 6
@@ -35,7 +42,7 @@ class Picoscope:
         self.autotrig = 10000000  # us
         self.trgrange = 8  # ±5 V
         self.noOfPreTriggerSamples = 100
-        self.noOfPostTriggerSamples = 200
+        self.noOfPostTriggerSamples = 400
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def channelA_setup(self):
@@ -61,39 +68,39 @@ class Picoscope:
 
     def channel_setup(self, channel=0):
         """
-        This is a function to set a channel on and the others off.
+        This is a function to set the triggerchannel and one other channel on and the others off.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: channel: int (0, 1, 2, 3)
         """
-        # Set given channel on
+        # Set trigger channel on
         # handle = chandle
         # channel = channel
         # coupling = self.coupling
         # channelRange = self.voltrange
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
-        ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
-        ps.ps6000aSetChannelOn(self.chandle, 1, self.coupling, self.voltrange, 0, self.bandwidth)
-        ps.ps6000aSetChannelOn(self.chandle, 2, self.coupling, self.voltrange, 0, self.bandwidth)
-        ps.ps6000aSetChannelOn(self.chandle, 3, self.coupling, self.voltrange, 0, self.bandwidth)
+        ps.ps6000aSetChannelOn(self.chandle, self.trgchannel, self.coupling, self.trgrange, 0, self.bandwidth)
 
-        # set other channels off
-        # if channel == 0:
-        #     for x in [1, 2, 3]:
-        #         channel_off = x
-        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        # if channel == 1:
-        #     for x in [0, 2, 3]:
-        #         channel_off = x
-        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        # if channel == 2:
-        #     for x in [0, 1, 3]:
-        #         channel_off = x
-        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        # if channel == 3:
-        #     for x in [0, 1, 2]:
-        #         channel_off = x
-        #         ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # set other channels on/off
+        if channel == 0:
+            for x in [1, 2, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 1:
+            ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+            for x in [2, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 2:
+            ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+            for x in [1, 3]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        if channel == 3:
+            ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+            for x in [1, 2]:
+                channel_off = x
+                ps.ps6000aSetChannelOff(self.chandle, channel_off)
 
         return channel
 
@@ -155,9 +162,8 @@ class Picoscope:
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
-        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(bufferMax),
-                                 ctypes.byref(bufferMin), nSamples, dataType, waveform,
-                                 downSampleMode, action)
+        ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(bufferMax), ctypes.byref(bufferMin), nSamples,
+                                 dataType, waveform, downSampleMode, action)
         return bufferMax
 
     def buffer_multi_setup(self, channel=0, number=10):
@@ -300,7 +306,7 @@ class Picoscope:
         """
         self.channel_setup(channel)
         self.trigger_setup()
-        timebase, timeInterval = self.timebase_setup()
+        # timebase, timeInterval = self.timebase_setup()
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         print('Picoscope set')
         nSamples = self.nSamples
@@ -317,7 +323,7 @@ class Picoscope:
 
         # Run block capture
         # handle = chandle
-        # timebase = timebase
+        timebase = self.timebase
         timeIndisposedMs = ctypes.c_double(0)
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
@@ -362,6 +368,7 @@ class Picoscope:
             adc2mVChMax_list[i] = adc2mVChMax
 
         # Create time data
+        timeInterval = self.timeInterval
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
