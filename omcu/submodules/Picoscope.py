@@ -19,9 +19,16 @@ class Picoscope:
         self.resolution = 1  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
-        self.coupling = 50  # /enums.PICO_COUPLING["PICO_DC_50OHM"]
+        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 7
+
+        self.timebase = 6  #
+        if self.timebase < 5:
+            self.timeInterval = (2 ** self.timebase) / 5000000000  # [s]
+        else:
+            self.timeInterval = (self.timebase - 4) / 156250000
+
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -119,7 +126,7 @@ class Picoscope:
         """
         # Get fastest available timebase
         # handle = chandle
-        enabledChannelFlags = 1  # enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
+        enabledChannelFlags = enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
         # PICO_CHANNEL_A_FLAGS = 1, PICO_CHANNEL_B_FLAGS = 2, PICO_CHANNEL_C_FLAGS = 4, PICO_CHANNEL_D_FLAGS = 8
         timebase = ctypes.c_uint32(0)
         timeInterval = ctypes.c_double(0)
@@ -195,7 +202,7 @@ class Picoscope:
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
-        action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
+        action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
         for i, j, k in zip(range(0, number), buffersMax, buffersMin):
             waveform = i
@@ -208,7 +215,7 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def single_measurement(self, channel=0, trgchannel=0, direction=3, threshold=1000, bufchannel=0):
+    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
@@ -220,7 +227,7 @@ class Picoscope:
         Then a single waveform measurement is taken und written into a file in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 3 (falling edge)
+        :param direction: int, default: 2 (rising)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
@@ -260,12 +267,12 @@ class Picoscope:
         ps.ps6000aGetValues(self.chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, 0,
                             ctypes.byref(overflow))
 
+        self.stop_scope()
         # get max ADC value
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        self.stop_scope()
         # convert ADC counts data to mV
         adc2mVChMax = adc2mV(bufferMax, self.voltrange, maxADC)
 
@@ -285,7 +292,7 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=0, trgchannel=0, direction=3, threshold=1000, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -298,7 +305,7 @@ class Picoscope:
         Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param direction: int, default: 3 (falling edge)
+        :param direction: int, default: 2 (rising)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
@@ -308,7 +315,10 @@ class Picoscope:
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
-        timebase, timeInterval = self.timebase_setup()
+        #timebase, timeInterval = self.timebase_setup()
+        timebase=self.timebase
+        timeInterval=self.timeInterval
+        print(timeInterval)
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         print('Picoscope set')
         nSamples = self.nSamples
