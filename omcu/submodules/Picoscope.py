@@ -23,7 +23,7 @@ class Picoscope:
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 7
 
-        self.timebase = 6  #
+        self.timebase = 6  # 0 and 1 didn't work
         if self.timebase < 5:
             self.timeInterval = (2 ** self.timebase) / 5000000000  # [s]
         else:
@@ -423,7 +423,7 @@ class Picoscope:
                 plt.plot(k[0], k[1], '.', color='cornflowerblue')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
-            plt.show()
+            #plt.show()
 
         elif number > 1:
             cmap = plt.cm.viridis
@@ -433,10 +433,10 @@ class Picoscope:
                     plt.plot(k[0], k[1], '.', color=c)
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
-            plt.show()
 
         figureName = './data/plots/Figure_' + figname + '.pdf'
         plt.savefig(figureName)
+        plt.show()
 
     def plot_histogram(self, filename, nBins=20):
         """
@@ -455,8 +455,6 @@ class Picoscope:
         filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split2b[0])  # 10
 
-        x = []
-        y = []
         # for i in data:
         #     for j in i:
         #         x.append(j[0])
@@ -474,10 +472,10 @@ class Picoscope:
         plt.hist(area_array, bins=nBins)
         plt.ylabel('counts')
         plt.xlabel('area [Vs]')
-        plt.show()
 
         figureName = './data/plots/Histogram_' + figname + '.pdf'
         plt.savefig(figureName)
+        plt.show()
 
     def stop_scope(self):
         """
