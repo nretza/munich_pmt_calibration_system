@@ -192,11 +192,11 @@ class Picoscope:
         # Create buffers
         buffersMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersMin = ((ctypes.c_int16 * nSamples) * number)()
-        for i in range(number):
-            bufferMax = (ctypes.c_int16 * nSamples)()
-            bufferMin = (ctypes.c_int16 * nSamples)()
-            buffersMax[i] = bufferMax
-            buffersMin[i] = bufferMin
+        # for i in range(number):
+        #     bufferMax = (ctypes.c_int16 * nSamples)()
+        #     bufferMin = (ctypes.c_int16 * nSamples)()
+        #     buffersMax[i] = bufferMax
+        #     buffersMin[i] = bufferMin
 
         # Set data buffers
         # handle = chandle
@@ -253,11 +253,6 @@ class Picoscope:
         if channel0 == 1:
             buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
             buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
-            for i in range(number):
-                bufferAMax = (ctypes.c_int16 * nSamples)()
-                bufferAMin = (ctypes.c_int16 * nSamples)()
-                buffersAMax[i] = bufferAMax
-                buffersAMin[i] = bufferAMin
 
             for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
                 waveform = i
@@ -276,11 +271,6 @@ class Picoscope:
         if channel1 == 1:
             buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
             buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
-            for i in range(number):
-                bufferBMax = (ctypes.c_int16 * nSamples)()
-                bufferBMin = (ctypes.c_int16 * nSamples)()
-                buffersBMax[i] = bufferBMax
-                buffersBMin[i] = bufferBMin
 
             for i, j, k in zip(range(0, number), buffersBMax, buffersBMin):
                 waveform = i
@@ -299,11 +289,6 @@ class Picoscope:
         if channel2 == 1:
             buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
             buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
-            for i in range(number):
-                bufferCMax = (ctypes.c_int16 * nSamples)()
-                bufferCMin = (ctypes.c_int16 * nSamples)()
-                buffersCMax[i] = bufferCMax
-                buffersCMin[i] = bufferCMin
 
             for i, j, k in zip(range(0, number), buffersCMax, buffersCMin):
                 waveform = i
@@ -322,11 +307,6 @@ class Picoscope:
         if channel3 == 1:
             buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
             buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
-            for i in range(number):
-                bufferDMax = (ctypes.c_int16 * nSamples)()
-                bufferDMin = (ctypes.c_int16 * nSamples)()
-                buffersDMax[i] = bufferDMax
-                buffersDMin[i] = bufferDMin
 
             for i, j, k in zip(range(0, number), buffersDMax, buffersDMin):
                 waveform = i
