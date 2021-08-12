@@ -192,11 +192,11 @@ class Picoscope:
         # Create buffers
         buffersMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersMin = ((ctypes.c_int16 * nSamples) * number)()
-        for i in range(number):
-            bufferMax = (ctypes.c_int16 * nSamples)()
-            bufferMin = (ctypes.c_int16 * nSamples)()
-            buffersMax[i] = bufferMax
-            buffersMin[i] = bufferMin
+        # for i in range(number):
+        #     bufferMax = (ctypes.c_int16 * nSamples)()
+        #     bufferMin = (ctypes.c_int16 * nSamples)()
+        #     buffersMax[i] = bufferMax
+        #     buffersMin[i] = bufferMin
 
         # Set data buffers
         # handle = chandle
@@ -565,7 +565,6 @@ class Picoscope:
                 plt.plot(k[0], k[1], '.', color='cornflowerblue')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
-            #plt.show()
 
         elif number > 1:
             cmap = plt.cm.viridis
@@ -610,6 +609,7 @@ class Picoscope:
 
         area_array = trapz(y_array, x_array, axis=1)
 
+        plt.figure()
         # nBins = self.nBins
         plt.hist(area_array, bins=nBins)
         plt.ylabel('counts')
