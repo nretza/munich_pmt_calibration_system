@@ -448,40 +448,40 @@ class Picoscope:
                                                       ctypes.byref(overflow))
         print('got values')
 
-        # get max ADC value
-        # handle = chandle
-        minADC = ctypes.c_int16()
-        maxADC = ctypes.c_int16()
-        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        print('adc limits')
-        self.stop_scope()
-
-        # convert ADC counts data to mV
-        #adc2mVChMax_list = np.zeros((number, nSamples))
-
-        # for i, buffers in enumerate(buffersMax):
-        #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #     adc2mVChMax_list[i] = adc2mVChMax
-
-        adc2mVChAMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersAMax):
-            adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChAMax_list[i] = adc2mVChAMax
-
-        adc2mVChBMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersBMax):
-            adc2mVChBMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChBMax_list[i] = adc2mVChBMax
-
-        adc2mVChCMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersCMax):
-            adc2mVChCMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChCMax_list[i] = adc2mVChCMax
-
-        adc2mVChDMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersDMax):
-            adc2mVChDMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChDMax_list[i] = adc2mVChDMax
+        # # get max ADC value
+        # # handle = chandle
+        # minADC = ctypes.c_int16()
+        # maxADC = ctypes.c_int16()
+        # ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        # print('adc limits')
+        # self.stop_scope()
+        #
+        # # convert ADC counts data to mV
+        # #adc2mVChMax_list = np.zeros((number, nSamples))
+        #
+        # # for i, buffers in enumerate(buffersMax):
+        # #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        # #     adc2mVChMax_list[i] = adc2mVChMax
+        #
+        # adc2mVChAMax_list = np.zeros((number, nSamples))
+        # for i, buffers in enumerate(buffersAMax):
+        #     adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
+        #     adc2mVChAMax_list[i] = adc2mVChAMax
+        #
+        # adc2mVChBMax_list = np.zeros((number, nSamples))
+        # for i, buffers in enumerate(buffersBMax):
+        #     adc2mVChBMax = adc2mV(buffers, self.voltrange, maxADC)
+        #     adc2mVChBMax_list[i] = adc2mVChBMax
+        #
+        # adc2mVChCMax_list = np.zeros((number, nSamples))
+        # for i, buffers in enumerate(buffersCMax):
+        #     adc2mVChCMax = adc2mV(buffers, self.voltrange, maxADC)
+        #     adc2mVChCMax_list[i] = adc2mVChCMax
+        #
+        # adc2mVChDMax_list = np.zeros((number, nSamples))
+        # for i, buffers in enumerate(buffersDMax):
+        #     adc2mVChDMax = adc2mV(buffers, self.voltrange, maxADC)
+        #     adc2mVChDMax_list[i] = adc2mVChDMax
 
         # # Create time data
         # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
@@ -505,7 +505,7 @@ class Picoscope:
         # print('file has been saved')
 
         #return filename, data
-        return adc2mVChAMax_list, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
+        return buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def plot_data(self, filename):
         """
