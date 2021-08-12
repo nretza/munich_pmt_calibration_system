@@ -332,8 +332,8 @@ class Picoscope:
         :param number: int (number of waveforms)
         :return: filename
         """
-        #self.channel_setup(channel)
-        self.channel_setup_all()
+        self.channel_setup(channel)
+        #self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
