@@ -382,7 +382,7 @@ class Picoscope:
 
         return filename
 
-    def block_measurement(self, channel=2, trgchannel=0, direction=2, threshold=1000, bufchannel=0, number=10):
+    def block_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -404,16 +404,16 @@ class Picoscope:
         :return: filename
         """
         #
-        #self.channel_setup(channel)
-        self.channel_setup_all()
+        self.channel_setup(channel)
+        #self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
         print(timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
-        #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-            self.buffer_multi_setup_all(number=number)
+        buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        #buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+            #self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -505,7 +505,7 @@ class Picoscope:
         # print('file has been saved')
 
         #return filename, data
-        return buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        return buffersMax, buffersMin
 
     def plot_data(self, filename):
         """
