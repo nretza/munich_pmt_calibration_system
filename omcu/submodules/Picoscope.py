@@ -192,11 +192,11 @@ class Picoscope:
         # Create buffers
         buffersMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersMin = ((ctypes.c_int16 * nSamples) * number)()
-        # for i in range(number):
-        #     bufferMax = (ctypes.c_int16 * nSamples)()
-        #     bufferMin = (ctypes.c_int16 * nSamples)()
-        #     buffersMax[i] = bufferMax
-        #     buffersMin[i] = bufferMin
+        for i in range(number):
+            bufferMax = (ctypes.c_int16 * nSamples)()
+            bufferMin = (ctypes.c_int16 * nSamples)()
+            buffersMax[i] = bufferMax
+            buffersMin[i] = bufferMin
 
         # Set data buffers
         # handle = chandle
