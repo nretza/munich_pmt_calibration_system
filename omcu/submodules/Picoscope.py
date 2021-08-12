@@ -443,16 +443,17 @@ class Picoscope:
         :param number: int (number of waveforms)
         :return: filename
         """
-        #self.channel_setup(channel)
-        self.channel_setup_all()
+        #
+        self.channel_setup(channel)
+        #self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
         print(timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
-        #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-            self.buffer_multi_setup_all(number=number)
+        buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        #buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+            #self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -498,26 +499,26 @@ class Picoscope:
         # convert ADC counts data to mV
         adc2mVChMax_list = np.zeros((number, nSamples))
 
-        # for i, buffers in enumerate(buffersMax):
-        #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #     adc2mVChMax_list[i] = adc2mVChMax
+        for i, buffers in enumerate(buffersMax):
+            adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChMax_list[i] = adc2mVChMax
 
-        if channel == 0:
-            for i, buffers in enumerate(buffersAMax):
-                adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-                adc2mVChMax_list[i] = adc2mVChMax
-        if channel == 1:
-            for i, buffers in enumerate(buffersBMax):
-                adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-                adc2mVChMax_list[i] = adc2mVChMax
-        if channel == 2:
-            for i, buffers in enumerate(buffersCMax):
-                adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-                adc2mVChMax_list[i] = adc2mVChMax
-        if channel == 3:
-            for i, buffers in enumerate(buffersDMax):
-                adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-                adc2mVChMax_list[i] = adc2mVChMax
+        # if channel == 0:
+        #     for i, buffers in enumerate(buffersAMax):
+        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        #         adc2mVChMax_list[i] = adc2mVChMax
+        # if channel == 1:
+        #     for i, buffers in enumerate(buffersBMax):
+        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        #         adc2mVChMax_list[i] = adc2mVChMax
+        # if channel == 2:
+        #     for i, buffers in enumerate(buffersCMax):
+        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        #         adc2mVChMax_list[i] = adc2mVChMax
+        # if channel == 3:
+        #     for i, buffers in enumerate(buffersDMax):
+        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        #         adc2mVChMax_list[i] = adc2mVChMax
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
