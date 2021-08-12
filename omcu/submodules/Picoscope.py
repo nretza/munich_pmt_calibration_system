@@ -221,7 +221,7 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def buffer_multi_setup_all(self, channel0=1, channel1=0, channel2=1, channel3=0, number=10):
+    def buffer_multi_setup_all(self, number=10):
 
         # Set number of samples to be collected
         nSamples = self.nSamples
@@ -250,76 +250,56 @@ class Picoscope:
 
         # Create buffers
         # Channel A
-        if channel0 == 1:
-            buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
-            buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
+        buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
 
-            for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
-                waveform = i
-                if i == 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, action)
-                if i > 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, add)
-
-        else:
-            buffersAMax = 0
-            buffersAMin = 0
+        for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
+            waveform = i
+            if i == 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, action)
+            if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, add)
 
         # Channel B
-        if channel1 == 1:
-            buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
-            buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
+        buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
 
-            for i, j, k in zip(range(0, number), buffersBMax, buffersBMin):
-                waveform = i
-                if i == 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, action)
-                if i > 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, add)
-
-        else:
-            buffersBMax = 0
-            buffersBMin = 0
+        for i, j, k in zip(range(0, number), buffersBMax, buffersBMin):
+            waveform = i
+            if i == 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, action)
+            if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, add)
 
         # Channel C
-        if channel2 == 1:
-            buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
-            buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
+        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
 
-            for i, j, k in zip(range(0, number), buffersCMax, buffersCMin):
-                waveform = i
-                if i == 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, action)
-                if i > 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, add)
-
-        else:
-            buffersCMax = 0
-            buffersCMin = 0
+        for i, j, k in zip(range(0, number), buffersCMax, buffersCMin):
+            waveform = i
+            if i == 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, action)
+            if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, add)
 
         # Channel D
-        if channel3 == 1:
-            buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
-            buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
+        buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
 
-            for i, j, k in zip(range(0, number), buffersDMax, buffersDMin):
-                waveform = i
-                if i == 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, action)
-                if i > 0:
-                    ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                             waveform, downSampleMode, add)
-
-        else:
-            buffersDMax = 0
-            buffersDMin = 0
+        for i, j, k in zip(range(0, number), buffersDMax, buffersDMin):
+            waveform = i
+            if i == 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, action)
+            if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                                         waveform, downSampleMode, add)
 
         return buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
@@ -424,16 +404,16 @@ class Picoscope:
         :return: filename
         """
         #
-        self.channel_setup(channel)
-        #self.channel_setup_all()
+        #self.channel_setup(channel)
+        self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
         print(timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
-        buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        #buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-            #self.buffer_multi_setup_all(number=number)
+        #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+            self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -477,51 +457,55 @@ class Picoscope:
         self.stop_scope()
 
         # convert ADC counts data to mV
-        adc2mVChMax_list = np.zeros((number, nSamples))
+        #adc2mVChMax_list = np.zeros((number, nSamples))
 
-        for i, buffers in enumerate(buffersMax):
-            adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChMax_list[i] = adc2mVChMax
+        # for i, buffers in enumerate(buffersMax):
+        #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+        #     adc2mVChMax_list[i] = adc2mVChMax
 
-        # if channel == 0:
-        #     for i, buffers in enumerate(buffersAMax):
-        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #         adc2mVChMax_list[i] = adc2mVChMax
-        # if channel == 1:
-        #     for i, buffers in enumerate(buffersBMax):
-        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #         adc2mVChMax_list[i] = adc2mVChMax
-        # if channel == 2:
-        #     for i, buffers in enumerate(buffersCMax):
-        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #         adc2mVChMax_list[i] = adc2mVChMax
-        # if channel == 3:
-        #     for i, buffers in enumerate(buffersDMax):
-        #         adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #         adc2mVChMax_list[i] = adc2mVChMax
+        adc2mVChAMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersAMax):
+            adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChAMax_list[i] = adc2mVChAMax
 
-        # Create time data
-        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+        adc2mVChBMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersBMax):
+            adc2mVChBMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChBMax_list[i] = adc2mVChBMax
 
-        # create array of data and save as npy file
-        data = np.zeros((number, nSamples, 2))
-        print('data array with zeros')
-        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        #     for j, samples in enumerate(values):  # j = nSamples
-        #         timeval = timevals[j]
-        #         mV = samples
-        #         data[i][j] = [timeval, mV]
-        data[:,:,0] = timevals
-        data[:,:,1] = adc2mVChMax_list
+        adc2mVChCMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersCMax):
+            adc2mVChCMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChCMax_list[i] = adc2mVChCMax
 
-        filename = './data/'
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-' + str(number) + '.npy'
-        print(filename)
-        np.save(filename, data)
-        print('file has been saved')
+        adc2mVChDMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersDMax):
+            adc2mVChDMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChDMax_list[i] = adc2mVChDMax
 
-        return filename, data
+        # # Create time data
+        # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+        #
+        # # create array of data and save as npy file
+        # data = np.zeros((number, nSamples, 2))
+        # print('data array with zeros')
+        # # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
+        # #     for j, samples in enumerate(values):  # j = nSamples
+        # #         timeval = timevals[j]
+        # #         mV = samples
+        # #         data[i][j] = [timeval, mV]
+        # data[:,:,0] = timevals
+        # data[:,:,1] = adc2mVChMax_list
+        #
+        # filename = './data/'
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # filename += timestr + '-' + str(number) + '.npy'
+        # print(filename)
+        # np.save(filename, data)
+        # print('file has been saved')
+
+        #return filename, data
+        return adc2mVChAMax_list, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
 
     def plot_data(self, filename):
         """
