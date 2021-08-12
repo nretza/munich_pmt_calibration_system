@@ -559,6 +559,7 @@ class Picoscope:
         filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split2b[0])  # 10
 
+        plt.figure()
         if number == 1:
             for k in data:
                 plt.plot(k[0], k[1], '.', color='cornflowerblue')
