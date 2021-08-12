@@ -97,6 +97,10 @@ class Picoscope:
 
         return channel
 
+    def channel_setup_all(self):
+        for ch in [0, 1, 2, 3]:
+            ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
+
     def trigger_setup(self, channel=0, direction=2, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
@@ -177,11 +181,13 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(number)
+        maxSegments = ctypes.c_uint64(nSamples)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+        print('Memory segments set')
 
         # Set number of captures
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
+        print('Number of captures set')
 
         # Create buffers
         buffersMax = ((ctypes.c_int16 * nSamples) * number)()
@@ -236,7 +242,9 @@ class Picoscope:
         """
         self.channel_setup(channel)
         self.trigger_setup(trgchannel, direction, threshold)
-        timebase, timeInterval = self.timebase_setup()
+        #timebase, timeInterval = self.timebase_setup()
+        timebase=self.timebase
+        timeInterval=self.timeInterval
         bufferMax = self.buffer_setup(bufchannel)
         nSamples = self.nSamples
 
@@ -313,25 +321,16 @@ class Picoscope:
         :param number: int (number of waveforms)
         :return: filename
         """
-        self.channel_setup(channel)
-        self.trigger_setup(trgchannel, direction, threshold)
+        #self.channel_setup(channel)
+        self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
         print(timeInterval)
+        self.trigger_setup(trgchannel, direction, threshold)
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         print('Picoscope set')
         nSamples = self.nSamples
-
-        # Set number of memory segments
-        # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(nSamples)
-        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-        print('Memory segments set')
-
-        # Set number of captures
-        ps.ps6000aSetNoOfCaptures(self.chandle, number)
-        print('Number of captures set')
 
         # Run block capture
         # handle = chandle
