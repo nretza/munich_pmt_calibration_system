@@ -448,20 +448,20 @@ class Picoscope:
                                                       ctypes.byref(overflow))
         print('got values')
 
-        # # get max ADC value
-        # # handle = chandle
-        # minADC = ctypes.c_int16()
-        # maxADC = ctypes.c_int16()
-        # ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        # print('adc limits')
-        # self.stop_scope()
-        #
-        # # convert ADC counts data to mV
-        # #adc2mVChMax_list = np.zeros((number, nSamples))
-        #
-        # # for i, buffers in enumerate(buffersMax):
-        # #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        # #     adc2mVChMax_list[i] = adc2mVChMax
+        # get max ADC value
+        # handle = chandle
+        minADC = ctypes.c_int16()
+        maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        print('adc limits')
+        self.stop_scope()
+
+        # convert ADC counts data to mV
+        adc2mVChMax_list = np.zeros((number, nSamples))
+
+        for i, buffers in enumerate(buffersMax):
+            adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChMax_list[i] = adc2mVChMax
         #
         # adc2mVChAMax_list = np.zeros((number, nSamples))
         # for i, buffers in enumerate(buffersAMax):
@@ -485,7 +485,7 @@ class Picoscope:
 
         # # Create time data
         # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
-        #
+
         # # create array of data and save as npy file
         # data = np.zeros((number, nSamples, 2))
         # print('data array with zeros')
@@ -505,7 +505,7 @@ class Picoscope:
         # print('file has been saved')
 
         #return filename, data
-        return buffersMax, buffersMin
+        return buffersMax, buffersMin, adc2mVChMax_list
 
     def plot_data(self, filename):
         """
