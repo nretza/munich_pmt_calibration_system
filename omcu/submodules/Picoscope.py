@@ -483,29 +483,29 @@ class Picoscope:
         #     adc2mVChDMax = adc2mV(buffers, self.voltrange, maxADC)
         #     adc2mVChDMax_list[i] = adc2mVChDMax
 
-        # # Create time data
-        # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+        # Create time data
+        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
-        # # create array of data and save as npy file
-        # data = np.zeros((number, nSamples, 2))
-        # print('data array with zeros')
-        # # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        # #     for j, samples in enumerate(values):  # j = nSamples
-        # #         timeval = timevals[j]
-        # #         mV = samples
-        # #         data[i][j] = [timeval, mV]
-        # data[:,:,0] = timevals
-        # data[:,:,1] = adc2mVChMax_list
-        #
-        # filename = './data/'
-        # timestr = time.strftime("%Y%m%d-%H%M%S")
-        # filename += timestr + '-' + str(number) + '.npy'
-        # print(filename)
-        # np.save(filename, data)
-        # print('file has been saved')
+        # create array of data and save as npy file
+        data = np.zeros((number, nSamples, 2))
+        print('data array with zeros')
+        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
+        #     for j, samples in enumerate(values):  # j = nSamples
+        #         timeval = timevals[j]
+        #         mV = samples
+        #         data[i][j] = [timeval, mV]
+        data[:,:,0] = timevals
+        data[:,:,1] = adc2mVChMax_list
 
-        #return filename, data
-        return buffersMax, buffersMin, adc2mVChMax_list
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr + '-' + str(number) + '.npy'
+        print(filename)
+        np.save(filename, data)
+        print('file has been saved')
+
+        return filename, data
+        #return buffersMax, buffersMin, adc2mVChMax_list
 
     def plot_data(self, filename):
         """
