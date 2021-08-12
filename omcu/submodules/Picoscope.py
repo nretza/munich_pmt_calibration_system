@@ -210,13 +210,24 @@ class Picoscope:
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
-        for i, j, k in zip(range(0, number), buffersMax, buffersMin):
-            waveform = i
-            if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        # for i, j, k in zip(range(0, number), buffersMax, buffersMin):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, add)
+
+        for ch in [0, 1, 2, 3]:
+            channel = ch
+            for i, j, k in zip(range(0, number), buffersMax, buffersMin):
+                waveform = i
+                if i == 0:
+                    ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                          waveform, downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+                if i > 0:
+                    ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                          waveform, downSampleMode, add)
 
         return buffersMax, buffersMin
@@ -321,8 +332,8 @@ class Picoscope:
         :param number: int (number of waveforms)
         :return: filename
         """
-        self.channel_setup(channel)
-        #self.channel_setup_all()
+        #self.channel_setup(channel)
+        self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
