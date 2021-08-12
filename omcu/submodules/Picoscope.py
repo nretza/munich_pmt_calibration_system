@@ -403,7 +403,7 @@ class Picoscope:
         :param number: int (number of waveforms)
         :return: filename
         """
-        #
+
         self.channel_setup(channel)
         #self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
@@ -414,7 +414,7 @@ class Picoscope:
         buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         #buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
             #self.buffer_multi_setup_all(number=number)
-        print('Picoscope set')
+        print('Picoscope set', 'Buffermax =', buffersMax)
         nSamples = self.nSamples
 
         # Run block capture
