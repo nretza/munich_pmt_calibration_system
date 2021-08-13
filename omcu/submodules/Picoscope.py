@@ -181,7 +181,7 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(nSamples)
+        maxSegments = ctypes.c_uint64(number)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
         print('Memory segments set')
 
@@ -228,7 +228,7 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(nSamples)
+        maxSegments = ctypes.c_uint64(number)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
         print('Memory segments set')
 
