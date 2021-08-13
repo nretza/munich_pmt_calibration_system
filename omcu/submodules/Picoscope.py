@@ -412,8 +412,8 @@ class Picoscope:
         print(timebase, timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        # buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-        #     self.buffer_multi_setup_all(number=number)
+        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+             self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -426,9 +426,6 @@ class Picoscope:
         # pParameter = None
         ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
-
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin = \
-            self.buffer_multi_setup_all(number=number)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
@@ -449,6 +446,12 @@ class Picoscope:
         overflow = (ctypes.c_int16 * number)()
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                       ctypes.byref(overflow))
+        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
+                                ctypes.byref(overflow))
+        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
+                                ctypes.byref(overflow))
+        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
+                                ctypes.byref(overflow))
         print('got values')
 
         # get max ADC value
