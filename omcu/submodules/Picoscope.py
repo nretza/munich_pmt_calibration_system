@@ -16,7 +16,7 @@ class Picoscope:
 
     def __init__(self):
         self.chandle = ctypes.c_int16()
-        self.resolution = 1  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+        self.resolution = 0  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
         self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
