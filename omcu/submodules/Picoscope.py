@@ -21,7 +21,10 @@ class Picoscope:
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
         self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange = 7
+        self.voltrange = 5
+        # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
+        # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
+        # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
 
         self.timebase = 6  # 0 and 1 didn't work
         if self.timebase < 5:
@@ -29,9 +32,6 @@ class Picoscope:
         else:
             self.timeInterval = (self.timebase - 4) / 156250000
 
-        # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
-        # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
-        # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
         self.bandwidth = 0  # /enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
         # PICO_BW_FULL = 0, PICO_BW_100KHZ = 100000, PICO_BW_20KHZ = 20000, PICO_BW_1MHZ = 1000000,
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
@@ -409,7 +409,7 @@ class Picoscope:
         timebase, timeInterval = self.timebase_setup()
         #timebase=self.timebase
         #timeInterval=self.timeInterval
-        print(timeInterval)
+        #print(timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
