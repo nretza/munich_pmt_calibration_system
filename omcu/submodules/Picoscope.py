@@ -406,10 +406,10 @@ class Picoscope:
 
         #self.channel_setup(channel)
         self.channel_setup_all()
-        timebase, timeInterval = self.timebase_setup()
-        #timebase=self.timebase
-        #timeInterval=self.timeInterval
-        #print(timeInterval)
+        #timebase, timeInterval = self.timebase_setup()
+        timebase=self.timebase
+        timeInterval=self.timeInterval
+        print(timebase, timeInterval)
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
         buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
