@@ -438,20 +438,14 @@ class Picoscope:
         # handle = chandle
         # startIndex = 0
         noOfSamples = ctypes.c_uint64(nSamples)
-        # downSampleRatio = 1
         # segmentIndex = 0
         end = number-1
+        # downSampleRatio = 1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         # Creates an overflow location for each segment
         overflow = (ctypes.c_int16 * number)()
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                       ctypes.byref(overflow))
-        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
-                                ctypes.byref(overflow))
-        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
-                                ctypes.byref(overflow))
-        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
-                                ctypes.byref(overflow))
         print('got values')
 
         # get max ADC value
