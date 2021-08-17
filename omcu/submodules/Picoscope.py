@@ -103,7 +103,6 @@ class Picoscope:
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
 
-
     def trigger_setup(self, channel=0, direction=2, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
@@ -408,8 +407,8 @@ class Picoscope:
         :return: filename
         """
 
-        self.channel_setup(channel)
-        #self.channel_setup_all()
+        #self.channel_setup(channel)
+        self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
@@ -424,7 +423,7 @@ class Picoscope:
 
         self.trigger_setup(trgchannel, direction, threshold)
 
-        #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
+        #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
         buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
         #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
@@ -458,8 +457,9 @@ class Picoscope:
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         # Creates an overflow location for each segment
         overflow = (ctypes.c_int16 * number)()
+
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
-                                                      ctypes.byref(overflow))
+                                                  ctypes.byref(overflow))
         print('got values')
 
         # get max ADC value
@@ -468,6 +468,7 @@ class Picoscope:
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         print('adc limits')
+
         self.stop_scope()
 
         # convert ADC counts data to mV
@@ -478,8 +479,7 @@ class Picoscope:
 
         adc2mVChAMax_list = np.zeros((number, nSamples))
         for i, buffers in enumerate(buffersAMax):
-            adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
-            adc2mVChAMax_list[i] = adc2mVChAMax
+            adc2mVChAMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
         #
         # adc2mVChBMax_list = np.zeros((number, nSamples))
         # for i, buffers in enumerate(buffersBMax):
