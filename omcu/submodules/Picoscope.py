@@ -27,10 +27,6 @@ class Picoscope:
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
-        self.enable = [1, 1, 1, 1]
-        self.vrange = [5, 5, 5, 5]
-        self.coupling2 = [enums.PICO_COUPLING["PICO_DC_50OHM"], enums.PICO_COUPLING["PICO_DC_50OHM"],
-                          enums.PICO_COUPLING["PICO_DC_50OHM"], enums.PICO_COUPLING["PICO_DC_50OHM"]]
 
         self.timebase = 6  # 0 and 1 didn't work
         if self.timebase < 5:
@@ -261,27 +257,14 @@ class Picoscope:
         buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
 
-        # for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
-        #     waveform = i
-        #     if i == 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-        #                                  waveform, downSampleMode, action)
-        #         print(j, k)
-        #     if i > 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-        #                                  waveform, downSampleMode, add)
-        #         print(j, k)
-
         for i in range(0, number):
             waveform = i
             if i == 0:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, action)
-                print(i, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]))
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, add)
-                print(i, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]))
 
         # # Channel B
         # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
@@ -443,7 +426,7 @@ class Picoscope:
 
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin= self.buffer_multi_setup_all(number=number) #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+        #buffersAMax, buffersAMin= self.buffer_multi_setup_all(number=number) #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
 
         print('Picoscope set')
         nSamples = self.nSamples
@@ -458,6 +441,8 @@ class Picoscope:
         for i in range(0, number):
             ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), i, None, None)
+
+        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
