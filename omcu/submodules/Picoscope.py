@@ -261,16 +261,28 @@ class Picoscope:
         buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
 
-        for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
+        # for i, j, k in zip(range(0, number), buffersAMax, buffersAMin):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, action)
+        #         print(j, k)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, add)
+        #         print(j, k)
+
+        for i in range(0, number):
             waveform = i
             if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j[i]), ctypes.byref(k[i]), nSamples, dataType,
-                                         waveform, downSampleMode, action)
-                print(j[i], k[i])
+                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[0]), ctypes.byref(buffersAMin[0]),
+                                         nSamples, dataType,waveform, downSampleMode, action)
+                print(buffersAMax[0], buffersAMin[0])
             if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j[i]), ctypes.byref(k[i]), nSamples, dataType,
-                                         waveform, downSampleMode, add)
-                print(j[i], k[i])
+                for j in range(1, number):
+                    ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[j]), ctypes.byref(buffersAMin[j]),
+                                             nSamples, dataType, waveform, downSampleMode, add)
+                    print(buffersAMax[j], buffersAMin[j])
 
         # # Channel B
         # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
