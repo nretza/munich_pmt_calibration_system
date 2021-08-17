@@ -418,15 +418,15 @@ class Picoscope:
         # Set number of memory segments
         maxSegments = ctypes.c_uint64(number)
         ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-        print('Memory segments set')
 
         # Set number of captures
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
-        print('Number of captures set')
 
         self.trigger_setup(trgchannel, direction, threshold)
+
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        #buffersAMax, buffersAMin= self.buffer_multi_setup_all(number=number) #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
+        #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
         print('Picoscope set')
         nSamples = self.nSamples
@@ -438,9 +438,8 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        for i in range(0, number):
-            ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
-                           ctypes.byref(timeIndisposedMs), i, None, None)
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                           ctypes.byref(timeIndisposedMs), 0, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
@@ -448,8 +447,6 @@ class Picoscope:
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
         print('Picoscope ready')
-
-        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
 
         # Get data from scope
         # handle = chandle
