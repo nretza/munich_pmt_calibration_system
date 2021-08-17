@@ -490,15 +490,14 @@ class Picoscope:
 
         # convert ADC counts data to mV
         # adc2mVChMax_list = np.zeros((number, nSamples))
-        #
         # for i, buffers in enumerate(buffersMax):
         #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
         #     adc2mVChMax_list[i] = adc2mVChMax
 
-        # adc2mVChAMax_list = np.zeros((number, nSamples))
-        # for i, buffers in enumerate(buffersAMax):
-        #     adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
-        #     adc2mVChAMax_list[i] = adc2mVChAMax
+        adc2mVChAMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersAMax):
+            adc2mVChAMax = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVChAMax_list[i] = adc2mVChAMax
         #
         # adc2mVChBMax_list = np.zeros((number, nSamples))
         # for i, buffers in enumerate(buffersBMax):
@@ -516,29 +515,29 @@ class Picoscope:
         #     adc2mVChDMax_list[i] = adc2mVChDMax
 
         # Create time data
-        # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
-        #
-        # # create array of data and save as npy file
-        # data = np.zeros((number, nSamples, 2))
-        # print('data array with zeros')
-        # # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        # #     for j, samples in enumerate(values):  # j = nSamples
-        # #         timeval = timevals[j]
-        # #         mV = samples
-        # #         data[i][j] = [timeval, mV]
-        # data[:,:,0] = timevals
-        # data[:,:,1] = adc2mVChMax_list
-        #
-        # filename = './data/'
-        # timestr = time.strftime("%Y%m%d-%H%M%S")
-        # filename += timestr + '-' + str(number) + '.npy'
-        # print(filename)
-        # np.save(filename, data)
-        # print('file has been saved')
-        #
-        # return filename, data
+        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+
+        # create array of data and save as npy file
+        data = np.zeros((number, nSamples, 2))
+        print('data array with zeros')
+        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
+        #     for j, samples in enumerate(values):  # j = nSamples
+        #         timeval = timevals[j]
+        #         mV = samples
+        #         data[i][j] = [timeval, mV]
+        data[:,:,0] = timevals
+        data[:,:,1] = adc2mVChAMax_list
+
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr + '-' + str(number) + '.npy'
+        print(filename)
+        np.save(filename, data)
+        print('file has been saved')
+
+        return filename, data
         # return adc2mVChAMax_list, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
-        return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        # return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def adc2v(self, data, vrange):
         maxADC = ctypes.c_int32(32512)
