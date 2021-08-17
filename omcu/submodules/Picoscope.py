@@ -246,7 +246,7 @@ class Picoscope:
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
         clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add = enums.PICO_ACTION["PICO_ADD"]
-        action = clear | add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
+        action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
         # Create buffers
         # Channel A
@@ -258,9 +258,11 @@ class Picoscope:
             if i == 0:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                          waveform, downSampleMode, action)
+                print(j, k)
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                          waveform, downSampleMode, add)
+                print(j, k)
 
         # # Channel B
         # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
