@@ -442,14 +442,14 @@ class Picoscope:
             ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), i, None, None)
 
-        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
-
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
         print('Picoscope ready')
+
+        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
 
         # Get data from scope
         # handle = chandle
