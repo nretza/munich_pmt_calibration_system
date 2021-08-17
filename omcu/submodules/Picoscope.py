@@ -228,13 +228,13 @@ class Picoscope:
 
         # Set number of memory segments
         # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(number)
-        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-        print('Memory segments set')
-
-        # Set number of captures
-        ps.ps6000aSetNoOfCaptures(self.chandle, number)
-        print('Number of captures set')
+        # maxSegments = ctypes.c_uint64(number)
+        # ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+        # print('Memory segments set')
+        #
+        # # Set number of captures
+        # ps.ps6000aSetNoOfCaptures(self.chandle, number)
+        # print('Number of captures set')
 
         # Set data buffers
         # handle = chandle
@@ -410,10 +410,20 @@ class Picoscope:
         timebase=self.timebase
         timeInterval=self.timeInterval
         print(timebase, timeInterval)
+
+        # Set number of memory segments
+        maxSegments = ctypes.c_uint64(number)
+        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+        print('Memory segments set')
+
+        # Set number of captures
+        ps.ps6000aSetNoOfCaptures(self.chandle, number)
+        print('Number of captures set')
+
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-             self.buffer_multi_setup_all(number=number)
+        # buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+        #      self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -433,6 +443,9 @@ class Picoscope:
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
         print('Picoscope ready')
+
+        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+            self.buffer_multi_setup_all(number=number)
 
         # Get data from scope
         # handle = chandle
