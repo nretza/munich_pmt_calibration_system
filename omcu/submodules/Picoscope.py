@@ -262,46 +262,46 @@ class Picoscope:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
                                          waveform, downSampleMode, add)
 
-        # Channel B
-        buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
+        # # Channel B
+        # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
+        #
+        # for i, j, k in zip(range(0, number), buffersBMax, buffersBMin):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, add)
+        #
+        # # Channel C
+        # buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
+        #
+        # for i, j, k in zip(range(0, number), buffersCMax, buffersCMin):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, add)
+        #
+        # # Channel D
+        # buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
+        #
+        # for i, j, k in zip(range(0, number), buffersDMax, buffersDMin):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
+        #                                  waveform, downSampleMode, add)
 
-        for i, j, k in zip(range(0, number), buffersBMax, buffersBMin):
-            waveform = i
-            if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, add)
-
-        # Channel C
-        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
-
-        for i, j, k in zip(range(0, number), buffersCMax, buffersCMin):
-            waveform = i
-            if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, add)
-
-        # Channel D
-        buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
-
-        for i, j, k in zip(range(0, number), buffersDMax, buffersDMin):
-            waveform = i
-            if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, add)
-
-        return buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        return buffersAMax, buffersAMin, #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
         """
@@ -422,8 +422,8 @@ class Picoscope:
 
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-            self.buffer_multi_setup_all(number=number)
+        buffersAMax, buffersAMin= self.buffer_multi_setup_all(number=number) #buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+
         print('Picoscope set')
         nSamples = self.nSamples
 
@@ -517,7 +517,7 @@ class Picoscope:
         #
         # return filename, data
         # return adc2mVChAMax_list, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
-        return buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def adc2v(self, data, vrange):
         maxADC = ctypes.c_int32(32512)
