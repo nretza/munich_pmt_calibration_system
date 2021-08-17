@@ -52,12 +52,13 @@ assert_pico_ok(status["setSimpleTrigger"])
 # Get fastest available timebase
 # handle = chandle
 enabledChannelFlags = enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"]
-timebase = ctypes.c_uint32(0)
-timeInterval = ctypes.c_double(0)
-# resolution = resolution
-status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(chandle, enabledChannelFlags, ctypes.byref(timebase), ctypes.byref(timeInterval), resolution)
-print("timebase = ", timebase.value)
-print("sample interval =", timeInterval.value, "s")
+timebase = 6
+if timebase < 5:
+    timeInterval = (2 ** timebase) / 5000000000  # [s]
+else:
+    timeInterval = (timebase - 4) / 156250000
+print("timebase = ", timebase)
+print("sample interval =", timeInterval, "s")
 
 # Set number of samples to be collected
 noOfPreTriggerSamples = 2000
@@ -123,7 +124,7 @@ for s in range(1):
     adc2mVChAMax =  adc2mV(bufferAMax, channelRange, maxADC)
 
     # Create time data
-    time = np.linspace(0, (nSamples) * timeInterval.value * 1000000000, nSamples)
+    time = np.linspace(0, (nSamples) * timeInterval * 1000000000, nSamples)
 
     # plot data from channel A and B
     plt.plot(time, adc2mVChAMax[:])
