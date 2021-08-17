@@ -463,10 +463,10 @@ class Picoscope:
 
         # get max ADC value
         # handle = chandle
-        minADC = ctypes.c_int16()
-        maxADC = ctypes.c_int16()
-        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        print('adc limits')
+        # minADC = ctypes.c_int16()
+        # maxADC = ctypes.c_int16()
+        # ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        # print('adc limits')
         self.stop_scope()
 
         # convert ADC counts data to mV
