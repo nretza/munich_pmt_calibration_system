@@ -422,13 +422,10 @@ class Picoscope:
 
         self.trigger_setup(trgchannel, direction, threshold)
         #buffersMax, buffersMin = self.buffer_multi_setup(bufchannel, number)
-        # buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-        #      self.buffer_multi_setup_all(number=number)
+        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
+            self.buffer_multi_setup_all(number=number)
         print('Picoscope set')
         nSamples = self.nSamples
-
-        buffersAMax, buffersAMin, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin =\
-             self.buffer_multi_setup_all(number=number)
 
         # Run block capture
         # handle = chandle
@@ -437,8 +434,9 @@ class Picoscope:
         # segmentIndex = 0
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
-        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
-                           ctypes.byref(timeIndisposedMs), 0, None, None)
+        for i in range(0, number):
+            ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                           ctypes.byref(timeIndisposedMs), i, None, None)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
@@ -463,10 +461,10 @@ class Picoscope:
 
         # get max ADC value
         # handle = chandle
-        # minADC = ctypes.c_int16()
-        # maxADC = ctypes.c_int16()
-        # ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        # print('adc limits')
+        minADC = ctypes.c_int16()
+        maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        print('adc limits')
         self.stop_scope()
 
         # convert ADC counts data to mV
