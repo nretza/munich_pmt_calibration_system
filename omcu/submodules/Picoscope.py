@@ -242,6 +242,8 @@ class Picoscope:
         # Channel A
         buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
+        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
 
         for i in range(0, number):
             waveform = i
@@ -266,8 +268,6 @@ class Picoscope:
         #                                  nSamples, dataType, waveform, downSampleMode, add)
         #
         # Channel C
-        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
 
         for i in range(0, number):
             waveform = i
