@@ -64,7 +64,7 @@ class Picoscope:
 
         return channel
 
-    def channel_setup(self, channel=0):
+    def channel_setup(self, trgchannel=0, sgnlchannel=0):
         """
         This is a function to set a channel on and the others off.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
@@ -77,27 +77,19 @@ class Picoscope:
         # channelRange = self.voltrange
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
-        ps.ps6000aSetChannelOn(self.chandle, channel, self.coupling, self.voltrange, 0, self.bandwidth)
+        # ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling, self.voltrange, 0, self.bandwidth)
+        # ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling, self.voltrange, 0, self.bandwidth)
 
-        # set other channels off
-        if channel == 0:
-            for x in [1, 2, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 1:
-            for x in [0, 2, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 2:
-            for x in [0, 1, 3]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
-        if channel == 3:
-            for x in [0, 1, 2]:
-                channel_off = x
-                ps.ps6000aSetChannelOff(self.chandle, channel_off)
+        # channel setup
+        for ch in [0, 1, 2, 3]:
+            if trgchannel == ch or sgnlchannel == ch:
+                ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
+                print("Channels on:", ch)
+            else:
+                ps.ps6000aSetChannelOff(self.chandle, ch)
+                print("Channel off:", ch)
 
-        return channel
+        return trgchannel, sgnlchannel
 
     def channel_setup_all(self):
         for ch in [0, 1, 2, 3]:
@@ -498,14 +490,13 @@ class Picoscope:
 
         # create array of data and save as npy file
         data = np.zeros((number, nSamples, 2))
-        print('data array with zeros')
         # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
         #     for j, samples in enumerate(values):  # j = nSamples
         #         timeval = timevals[j]
         #         mV = samples
         #         data[i][j] = [timeval, mV]
-        data[:,:,0] = timevals
-        data[:,:,1] = adc2mVChAMax_list
+        data[:, :, 0] = timevals
+        data[:, :, 1] = adc2mVChAMax_list
 
         filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -544,7 +535,7 @@ class Picoscope:
         plt.figure()
         if number == 1:
             for k in data:
-                plt.plot(k[0], k[1], '.', color='cornflowerblue')
+                plt.plot(k[0], k[1], ',', color='cornflowerblue')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
 
@@ -553,7 +544,7 @@ class Picoscope:
             colors = iter(cmap(np.linspace(0, 0.7, number)))
             for i, c in zip(data, colors):
                 for k in i:
-                    plt.plot(k[0], k[1], '.', color=c)
+                    plt.plot(k[0], k[1], ',', color=c)
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
 
