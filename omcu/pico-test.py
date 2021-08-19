@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Pico Technology Ltd. See LICENSE file for terms.
 #
 # PS6000 A BLOCK MODE EXAMPLE
-# This example opens a 6000a driver device, sets up two channels and a trigger then collects a block of data.
+# This example opens a 6000a driver device, sets up one channel and a trigger then collects a block of data.
 # This data is then plotted as mV against time in ns.
 
 import ctypes
