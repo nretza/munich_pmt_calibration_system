@@ -103,7 +103,7 @@ class Picoscope:
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
 
-    def get_offset_limits(self, voltrange=5, coupling=50, max, min):
+    def get_offset_limits(self, voltrange=5, coupling=50, max=1000, min=1000):
         return ps.ps6000aGetAnalogueOffsetLimits(self.chandle, voltrange, coupling, max, min)
 
     def trigger_setup(self, channel=0, direction=2, threshold=1000):
