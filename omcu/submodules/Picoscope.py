@@ -243,8 +243,8 @@ class Picoscope:
         buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
         # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
         # buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
         # buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
         # buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
 
@@ -269,18 +269,16 @@ class Picoscope:
         #                                  nSamples, dataType, waveform, downSampleMode, add)
 
         # Channel C
-        for i in range(0, number):
-            waveform = i
-            if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, add)
+        # for i in range(0, number):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
+        #                                  nSamples, dataType, waveform, downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
+        #                                  nSamples, dataType, waveform, downSampleMode, add)
 
         # Channel D
-        buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
         # for i in range(0, number):
         #     waveform = i
         #     if i == 0:
@@ -290,7 +288,7 @@ class Picoscope:
         #         ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(buffersDMax[i]), ctypes.byref(buffersDMin[i]),
         #                                  nSamples, dataType, waveform, downSampleMode, add)
 
-        return buffersAMax, buffersAMin, buffersCMax, buffersCMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
         """
@@ -411,7 +409,7 @@ class Picoscope:
         print('Picoscope set')
 
         #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
+        buffersAMax, buffersAMin = self.buffer_multi_setup_all(number=number)
         #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
         nSamples = self.nSamples
@@ -472,9 +470,9 @@ class Picoscope:
         # for i, buffers in enumerate(buffersBMax):
         #     adc2mVChBMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
         #
-        adc2mVChCMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersCMax):
-            adc2mVChCMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
+        # adc2mVChCMax_list = np.zeros((number, nSamples))
+        # for i, buffers in enumerate(buffersCMax):
+        #     adc2mVChCMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
         #
         # adc2mVChDMax_list = np.zeros((number, nSamples))
         # for i, buffers in enumerate(buffersDMax):
@@ -501,7 +499,7 @@ class Picoscope:
         # print('file has been saved')
         #
         # return filename, data
-        return adc2mVChAMax_list, adc2mVChCMax_list#, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
+        return adc2mVChAMax_list#, adc2mVChCMax_list#, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
         # return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def adc2v(self, data, vrange):
