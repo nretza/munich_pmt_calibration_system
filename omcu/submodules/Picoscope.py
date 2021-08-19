@@ -239,12 +239,16 @@ class Picoscope:
 
 
         # Create buffers
-        # Channel A
         buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
         buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
         buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
+        # buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
 
+        # Channel A
         for i in range(0, number):
             waveform = i
             if i == 0:
@@ -254,10 +258,7 @@ class Picoscope:
                 ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, add)
 
-        # # Channel B
-        # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
-        #
+        # Channel B
         # for i in range(0, number):
         #     waveform = i
         #     if i == 0:
@@ -266,9 +267,8 @@ class Picoscope:
         #     if i > 0:
         #         ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(buffersBMax[i]), ctypes.byref(buffersBMin[i]),
         #                                  nSamples, dataType, waveform, downSampleMode, add)
-        #
-        # Channel C
 
+        # Channel C
         for i in range(0, number):
             waveform = i
             if i == 0:
@@ -277,11 +277,10 @@ class Picoscope:
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, add)
-        #
-        # # Channel D
-        # buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
-        #
+
+        # Channel D
+        buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
+        buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
         # for i in range(0, number):
         #     waveform = i
         #     if i == 0:
@@ -395,10 +394,6 @@ class Picoscope:
 
         self.channel_setup(trgchannel, sgnlchannel)
         #self.channel_setup_all()
-        #timebase, timeInterval = self.timebase_setup()
-        timebase=self.timebase
-        timeInterval=self.timeInterval
-        print(timebase, timeInterval)
 
         # Set number of memory segments
         maxSegments = ctypes.c_uint64(number)
@@ -407,11 +402,12 @@ class Picoscope:
         # Set number of captures
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
 
-        self.trigger_setup(trgchannel, direction, threshold)
+        # timebase, timeInterval = self.timebase_setup()
+        timebase = self.timebase
+        timeInterval = self.timeInterval
+        print(timebase, timeInterval)
 
-        #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
-        #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        self.trigger_setup(trgchannel, direction, threshold)
 
         print('Picoscope set')
         nSamples = self.nSamples
@@ -432,6 +428,10 @@ class Picoscope:
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
         print('Picoscope ready')
+
+        #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
+        buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
+        #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
         # Get data from scope
         # handle = chandle
