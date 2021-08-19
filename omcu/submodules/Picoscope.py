@@ -408,30 +408,31 @@ class Picoscope:
         print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
-
         print('Picoscope set')
-        nSamples = self.nSamples
-
-        # Run block capture
-        # handle = chandle
-        # timebase = timebase
-        timeIndisposedMs = ctypes.c_double(0)
-        # segmentIndex = 0
-        # lpReady = None   Using IsReady rather than a callback
-        # pParameter = None
-        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
-                           ctypes.byref(timeIndisposedMs), 0, None, None)
-
-        # Check for data collection to finish using ps6000aIsReady
-        ready = ctypes.c_int16(0)
-        check = ctypes.c_int16(0)
-        while ready.value == check.value:
-            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
-        print('Picoscope ready')
 
         #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
         buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
         #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+
+        nSamples = self.nSamples
+
+        for s in range(number):
+            # Run block capture
+            # handle = chandle
+            # timebase = timebase
+            timeIndisposedMs = ctypes.c_double(0)
+            # segmentIndex = 0
+            # lpReady = None   Using IsReady rather than a callback
+            # pParameter = None
+            ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                               ctypes.byref(timeIndisposedMs), s, None, None)
+
+            # Check for data collection to finish using ps6000aIsReady
+            ready = ctypes.c_int16(0)
+            check = ctypes.c_int16(0)
+            while ready.value == check.value:
+                ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+            print('Picoscope ready')
 
         # Get data from scope
         # handle = chandle
