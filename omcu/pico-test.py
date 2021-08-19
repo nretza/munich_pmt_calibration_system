@@ -25,7 +25,7 @@ assert_pico_ok(status["openunit"])
 # Set channel A on
 # handle = chandle
 channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
-coupling = enums.PICO_COUPLING["PICO_DC"]
+coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
 channelRange = 7  # defines the voltage range that can be displayed, 0-1000mV
 # analogueOffset = 0 V
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
@@ -82,7 +82,9 @@ downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
 clear = enums.PICO_ACTION["PICO_CLEAR_ALL"]
 add = enums.PICO_ACTION["PICO_ADD"]
 action = clear|add # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]  
-status["setDataBuffers"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax), ctypes.byref(bufferAMin), nSamples, dataType, waveform, downSampleMode, action)
+status["setDataBuffers"] = ps.ps6000aSetDataBuffers(chandle, channelA, ctypes.byref(bufferAMax),
+                                                    ctypes.byref(bufferAMin), nSamples, dataType, waveform,
+                                                    downSampleMode, action)
 assert_pico_ok(status["setDataBuffers"])
 
 # Run block capture
@@ -92,7 +94,8 @@ timeIndisposedMs = ctypes.c_double(0)
 # segmentIndex = 0
 # lpReady = None   Using IsReady rather than a callback
 # pParameter = None
-status["runBlock"] = ps.ps6000aRunBlock(chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, ctypes.byref(timeIndisposedMs), 0, None, None)
+status["runBlock"] = ps.ps6000aRunBlock(chandle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase,
+                                        ctypes.byref(timeIndisposedMs), 0, None, None)
 assert_pico_ok(status["runBlock"])
 
 # Check for data collection to finish using ps6000aIsReady
@@ -110,7 +113,8 @@ noOfSamples = ctypes.c_uint64(nSamples)
 overflow = ctypes.c_int16(0)
 for s in range(1):
     print(s)
-    status["getValues"] = ps.ps6000aGetValues(chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, s, ctypes.byref(overflow))
+    status["getValues"] = ps.ps6000aGetValues(chandle, 0, ctypes.byref(noOfSamples), 1, downSampleMode, s,
+                                              ctypes.byref(overflow))
     assert_pico_ok(status["getValues"])
 
     # get max ADC value

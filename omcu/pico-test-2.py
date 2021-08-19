@@ -11,14 +11,14 @@ status = {}
 
 # Open 6000 A series PicoScope
 # returns handle to chandle for use in future API functions
-resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_8BIT"]
+resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
 status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(chandle), None, resolution)
 assert_pico_ok(status["openunit"])
 
 # Set channel A on
 # handle = chandle
 channelA = enums.PICO_CHANNEL["PICO_CHANNEL_A"]
-coupling = enums.PICO_COUPLING["PICO_DC"]
+coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
 channelRange = 7
 # analogueOffset = 0 V
 bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
@@ -52,8 +52,8 @@ print("timebase = ", timebase)
 print("sample interval =", timeInterval, "s")
 
 # Set number of samples to be collected
-noOfPreTriggerSamples = 500000
-noOfPostTriggerSamples = 1000000
+noOfPreTriggerSamples = 2000
+noOfPostTriggerSamples = 4000
 nSamples = noOfPostTriggerSamples + noOfPreTriggerSamples
 
 # Set number of memory segments
@@ -202,11 +202,11 @@ adc2mVChAMax9 = adc2mV(bufferAMax9, channelRange, maxADC)
 time = np.linspace(0, (nSamples) * timeInterval * 1000000000, nSamples)
 
 # plot data from channel A and B
-plt.plot(time, adc2mVChAMax, marker='.')
-plt.plot(time, adc2mVChAMax1, marker='.')
-#plt.plot(time, adc2mVChAMax2, marker='.')
-#plt.plot(time, adc2mVChAMax3, marker='.')
-#plt.plot(time, adc2mVChAMax4, marker='.')
+plt.plot(time, adc2mVChAMax, marker=',')
+plt.plot(time, adc2mVChAMax1, marker=',')
+plt.plot(time, adc2mVChAMax2, marker=',')
+plt.plot(time, adc2mVChAMax3, marker=',')
+plt.plot(time, adc2mVChAMax4, marker=',')
 #plt.plot(time, adc2mVChAMax5, marker='.')
 #plt.plot(time, adc2mVChAMax6, marker='.')
 #plt.plot(time, adc2mVChAMax7, marker='.')

@@ -16,14 +16,14 @@ class Picoscope:
 
     def __init__(self):
         self.chandle = ctypes.c_int16()
-        self.resolution = 0  # /enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
+        self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
 
         # CHANNEL SETUP
         self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange = 5
+        self.voltrange = 7
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -34,13 +34,13 @@ class Picoscope:
         else:
             self.timeInterval = (self.timebase - 4) / 156250000
 
-        self.bandwidth = 0  # /enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
+        self.bandwidth = enums.PICO_BANDWIDTH_LIMITER["PICO_BW_FULL"]
         # PICO_BW_FULL = 0, PICO_BW_100KHZ = 100000, PICO_BW_20KHZ = 20000, PICO_BW_1MHZ = 1000000,
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
 
-        self.noOfPreTriggerSamples = 100
-        self.noOfPostTriggerSamples = 200
+        self.noOfPreTriggerSamples = 2000 #100
+        self.noOfPostTriggerSamples = 4000 #200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def channelA_setup(self):
@@ -102,9 +102,6 @@ class Picoscope:
     def channel_setup_all(self):
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
-
-    def get_offset_limits(self, voltrange=5, coupling=50, max=1000, min=1000):
-        return ps.ps6000aGetAnalogueOffsetLimits(self.chandle, voltrange, coupling, max, min)
 
     def trigger_setup(self, channel=0, direction=2, threshold=1000):
         """
@@ -410,8 +407,8 @@ class Picoscope:
         :return: filename
         """
 
-        #self.channel_setup(channel)
-        self.channel_setup_all()
+        self.channel_setup(channel)
+        #self.channel_setup_all()
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
