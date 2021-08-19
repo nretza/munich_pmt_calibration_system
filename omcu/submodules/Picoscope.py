@@ -28,7 +28,7 @@ class Picoscope:
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
 
-        self.timebase = 6  # 0 and 1 didn't work
+        self.timebase = 2  # 0 and 1 didn't work
         if self.timebase < 5:
             self.timeInterval = (2 ** self.timebase) / 5000000000  # [s]
         else:
@@ -39,8 +39,8 @@ class Picoscope:
         # PICO_BW_20MHZ = 20000000, PICO_BW_25MHZ = 25000000, PICO_BW_50MHZ = 50000000, PICO_BW_250MHZ = 250000000,
         # PICO_BW_500MHZ = 500000000
 
-        self.noOfPreTriggerSamples = 2000 #100
-        self.noOfPostTriggerSamples = 4000 #200
+        self.noOfPreTriggerSamples = 10 #100
+        self.noOfPostTriggerSamples = 200 #200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def channelA_setup(self):
@@ -410,42 +410,44 @@ class Picoscope:
 
         #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
         buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
-        #, buffersBMax, buffersBMin, buffersDMax, buffersDMin
+        #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
         nSamples = self.nSamples
 
-        for s in range(number):
-            # Run block capture
-            # handle = chandle
-            # timebase = timebase
-            timeIndisposedMs = ctypes.c_double(0)
-            # segmentIndex = 0
-            # lpReady = None   Using IsReady rather than a callback
-            # pParameter = None
-            ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
-                               ctypes.byref(timeIndisposedMs), s, None, None)
+        # Run block capture
+        # handle = chandle
+        # timebase = timebase
+        timeIndisposedMs = ctypes.c_double(0)
+        # segmentIndex = 0
+        # lpReady = None   Using IsReady rather than a callback
+        # pParameter = None
 
-            # Check for data collection to finish using ps6000aIsReady
-            ready = ctypes.c_int16(0)
-            check = ctypes.c_int16(0)
-            while ready.value == check.value:
-                ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
-            print('Picoscope ready')
+        t1=time.time()
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                           ctypes.byref(timeIndisposedMs), 0, None, None)
+        t2=time.time()
+        deltaT=t2-t1
+        # Check for data collection to finish using ps6000aIsReady
+        ready = ctypes.c_int16(0)
+        check = ctypes.c_int16(0)
+        while ready.value == check.value:
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+        print('Picoscope ready')
 
-            # Get data from scope
-            # handle = chandle
-            # startIndex = 0
-            noOfSamples = ctypes.c_uint64(nSamples)
-            # segmentIndex = 0
-            end = number-1
-            # downSampleRatio = 1
-            downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
-            # Creates an overflow location for each segment
-            overflow = (ctypes.c_int16 * number)()
+        # Get data from scope
+        # handle = chandle
+        # startIndex = 0
+        noOfSamples = ctypes.c_uint64(nSamples)
+        # segmentIndex = 0
+        end = number-1
+        # downSampleRatio = 1
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
+        # Creates an overflow location for each segment
+        overflow = (ctypes.c_int16 * number)()
 
-            ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
-                                                      ctypes.byref(overflow))
-            print('got values')
+        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
+                                                  ctypes.byref(overflow))
+        print('got values')
 
         # get max ADC value
         # handle = chandle
@@ -479,27 +481,27 @@ class Picoscope:
         #     adc2mVChDMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
 
         # Create time data
-        # timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
-        #
-        # # create array of data and save as npy file
-        # data = np.zeros((number, nSamples, 2))
-        # # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        # #     for j, samples in enumerate(values):  # j = nSamples
-        # #         timeval = timevals[j]
-        # #         mV = samples
-        # #         data[i][j] = [timeval, mV]
-        # data[:, :, 0] = timevals
-        # data[:, :, 1] = adc2mVChAMax_list
-        #
-        # filename = './data/'
-        # timestr = time.strftime("%Y%m%d-%H%M%S")
-        # filename += timestr + '-' + str(number) + '.npy'
-        # print(filename)
-        # np.save(filename, data)
-        # print('file has been saved')
-        #
-        # return filename, data
-        return adc2mVChAMax_list, adc2mVChCMax_list#, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
+        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+
+        # create array of data and save as npy file
+        data = np.zeros((number, nSamples, 2))
+        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
+        #     for j, samples in enumerate(values):  # j = nSamples
+        #         timeval = timevals[j]
+        #         mV = samples
+        #         data[i][j] = [timeval, mV]
+        data[:, :, 0] = timevals
+        data[:, :, 1] = adc2mVChCMax_list
+
+        filename = './data/'
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        filename += timestr + '-' + str(number) + '.npy'
+        print(filename)
+        np.save(filename, data)
+        print('file has been saved')
+
+        return filename, data, deltaT
+        # return adc2mVChAMax_list, adc2mVChCMax_list#, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
         # return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
     def adc2v(self, data, vrange):
@@ -528,7 +530,7 @@ class Picoscope:
         plt.figure()
         if number == 1:
             for k in data:
-                plt.plot(k[0], k[1], ',', color='cornflowerblue')
+                plt.plot(k[0], k[1], '.', color='red')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
 
@@ -537,7 +539,7 @@ class Picoscope:
             colors = iter(cmap(np.linspace(0, 0.7, number)))
             for i, c in zip(data, colors):
                 for k in i:
-                    plt.plot(k[0], k[1], ',', color=c)
+                    plt.plot(k[0], k[1], '.', color=c)
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
 

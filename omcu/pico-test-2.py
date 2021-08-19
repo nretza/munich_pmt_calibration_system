@@ -26,7 +26,7 @@ status["setChannelA"] = ps.ps6000aSetChannelOn(chandle, channelA, coupling, chan
 assert_pico_ok(status["setChannelA"])
 
 # set channel B-H off
-for x in range(1, 3, 1):
+for x in [1,2,3]:
     channel = x
     status["setChannel", x] = ps.ps6000aSetChannelOff(chandle, channel)
     assert_pico_ok(status["setChannel", x])
@@ -39,7 +39,7 @@ source = channelA
 direction = enums.PICO_THRESHOLD_DIRECTION["PICO_RISING"]
 # delay = 0 s
 # autoTriggerMicroSeconds = 1000000 us
-status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(chandle, 1, source, 1000, direction, 0, 1000000)
+status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(chandle, 1, source, -5, direction, 0, 1000000)
 assert_pico_ok(status["setSimpleTrigger"])
 
 # Timebase setup
@@ -52,8 +52,8 @@ print("timebase = ", timebase)
 print("sample interval =", timeInterval, "s")
 
 # Set number of samples to be collected
-noOfPreTriggerSamples = 2000
-noOfPostTriggerSamples = 4000
+noOfPreTriggerSamples = 20
+noOfPostTriggerSamples = 40
 nSamples = noOfPostTriggerSamples + noOfPreTriggerSamples
 
 # Set number of memory segments
