@@ -279,7 +279,7 @@ class Picoscope:
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
-        bufferMax, bufferMin = self.buffer_setup(channel=channel)
+        bufferMax = self.buffer_setup(channel=channel)
         nSamples = self.nSamples
 
         # Run block capture
