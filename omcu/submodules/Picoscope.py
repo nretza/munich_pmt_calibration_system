@@ -356,6 +356,13 @@ class Picoscope:
         self.channel_setup(trgchannel, sgnlchannel)
         #self.channel_setup_all()
 
+        # Set number of memory segments
+        maxSegments = ctypes.c_uint64(number)
+        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+
+        # Set number of captures
+        ps.ps6000aSetNoOfCaptures(self.chandle, number)
+
         # timebase, timeInterval = self.timebase_setup()
         timebase = self.timebase
         timeInterval = self.timeInterval
@@ -364,15 +371,8 @@ class Picoscope:
         self.trigger_setup(trgchannel, direction, threshold)
         print('Picoscope set')
 
-        # Set number of memory segments
-        maxSegments = ctypes.c_uint64(number)
-        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-
-        # Set number of captures
-        ps.ps6000aSetNoOfCaptures(self.chandle, number)
-
         buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
-            self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=1)
+            self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=number)
 
         nSamples = self.nSamples
 
