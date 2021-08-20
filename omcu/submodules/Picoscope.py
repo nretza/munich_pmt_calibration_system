@@ -67,7 +67,8 @@ class Picoscope:
     def channel_setup(self, trgchannel=0, sgnlchannel=0):
         """
         This is a function to set a channel on and the others off.
-        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: channel: int (0, 1, 2, 3)
         """
         # Set given channel on
@@ -92,6 +93,10 @@ class Picoscope:
         return trgchannel, sgnlchannel
 
     def channel_setup_all(self):
+        """
+        This function turns all channels on.
+        :return:
+        """
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
 
@@ -163,7 +168,7 @@ class Picoscope:
                                  downSampleMode, action)
         return bufferMax
 
-    def buffer_multi_setup(self, channel=0, number=10):
+    def buffer_setup_block(self, channel=0, number=10):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
@@ -172,16 +177,6 @@ class Picoscope:
         """
         # Set number of samples to be collected
         nSamples = self.nSamples
-
-        # Set number of memory segments
-        # noOfCaptures = number
-        maxSegments = ctypes.c_uint64(number)
-        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-        print('Memory segments set')
-
-        # Set number of captures
-        ps.ps6000aSetNoOfCaptures(self.chandle, number)
-        print('Number of captures set')
 
         # Create buffers
         buffersMax = ((ctypes.c_int16 * nSamples) * number)()
@@ -199,31 +194,28 @@ class Picoscope:
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
-        for i, j, k in zip(range(0, number), buffersMax, buffersMin):
+        for i in range(0, number):
             waveform = i
             if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, action)
+                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[i]), ctypes.byref(buffersMin[i]),
+                                         nSamples, dataType, waveform, downSampleMode, action)
             if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(j), ctypes.byref(k), nSamples, dataType,
-                                         waveform, downSampleMode, add)
+                ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[i]), ctypes.byref(buffersMin[i]),
+                                         nSamples, dataType, waveform, downSampleMode, add)
 
         return buffersMax, buffersMin
 
-    def buffer_multi_setup_all(self, number=10):
+    def buffer_setup_block_multi(self, trgchannel=0, sgnlchannel=0, number=10):
 
         # Set number of samples to be collected
         nSamples = self.nSamples
 
-        # Set number of memory segments
-        # noOfCaptures = number
-        # maxSegments = ctypes.c_uint64(number)
-        # ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-        # print('Memory segments set')
-        #
-        # # Set number of captures
-        # ps.ps6000aSetNoOfCaptures(self.chandle, number)
-        # print('Number of captures set')
+        # Create buffers
+        buffersMax_trgch = ((ctypes.c_int16 * nSamples) * number)()
+        buffersMin_trgch = ((ctypes.c_int16 * nSamples) * number)()
+
+        buffersMax_sgnlch = ((ctypes.c_int16 * nSamples) * number)()
+        buffersMin_sgnlch = ((ctypes.c_int16 * nSamples) * number)()
 
         # Set data buffers
         # handle = chandle
@@ -237,60 +229,33 @@ class Picoscope:
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
-
-        # Create buffers
-        buffersAMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersAMin = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersBMax = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersBMin = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMax = ((ctypes.c_int16 * nSamples) * number)()
-        buffersCMin = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersDMax = ((ctypes.c_int16 * nSamples) * number)()
-        # buffersDMin = ((ctypes.c_int16 * nSamples) * number)()
-
-        # Channel A
+        # Trigger channel
         for i in range(0, number):
             waveform = i
             if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, action)
+                ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
+                                         ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
+                                         downSampleMode, action)
             if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 0, ctypes.byref(buffersAMax[i]), ctypes.byref(buffersAMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, add)
+                ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
+                                         ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
+                                         downSampleMode, add)
 
-        # Channel B
-        # for i in range(0, number):
-        #     waveform = i
-        #     if i == 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(buffersBMax[i]), ctypes.byref(buffersBMin[i]),
-        #                                  nSamples, dataType, waveform, downSampleMode, action)
-        #     if i > 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 1, ctypes.byref(buffersBMax[i]), ctypes.byref(buffersBMin[i]),
-        #                                  nSamples, dataType, waveform, downSampleMode, add)
-
-        # Channel C
+        # Signal channel
         for i in range(0, number):
             waveform = i
             if i == 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, action)
+                ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
+                                         ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
+                                         downSampleMode, action)
             if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, 2, ctypes.byref(buffersCMax[i]), ctypes.byref(buffersCMin[i]),
-                                         nSamples, dataType, waveform, downSampleMode, add)
+                ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
+                                         ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
+                                         downSampleMode, add)
 
-        # Channel D
-        # for i in range(0, number):
-        #     waveform = i
-        #     if i == 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(buffersDMax[i]), ctypes.byref(buffersDMin[i]),
-        #                                  nSamples, dataType, waveform, downSampleMode, action)
-        #     if i > 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, 3, ctypes.byref(buffersDMax[i]), ctypes.byref(buffersDMin[i]),
-        #                                  nSamples, dataType, waveform, downSampleMode, add)
+        return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
-        return buffersAMax, buffersAMin, buffersCMax, buffersCMin#, buffersBMax, buffersBMin, buffersDMax, buffersDMin
-
-    def single_measurement(self, channel=0, trgchannel=0, direction=2, threshold=1000, bufchannel=0):
+    def single_measurement(self, trgchannel=0, sgnlchannel=0, direction=2, threshold=1000):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
@@ -300,8 +265,8 @@ class Picoscope:
         Then, it runs buffer_setup(bufchannel) to setup the buffer to
         store the data unprocessed.
         Then a single waveform measurement is taken und written into a file in the folder data.
-        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param direction: int, default: 2 (rising)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
@@ -309,12 +274,13 @@ class Picoscope:
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: filename (str)
         """
-        self.channel_setup(channel)
+        self.channel_setup(sgnlchannel)
         self.trigger_setup(trgchannel, direction, threshold)
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
-        bufferMax = self.buffer_setup(bufchannel)
+        buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
+            self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=1)
         nSamples = self.nSamples
 
         # Run block capture
@@ -351,23 +317,21 @@ class Picoscope:
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         # convert ADC counts data to mV
-        adc2mVChMax = adc2mV(bufferMax, self.voltrange, maxADC)
+        adc2mVMax_sgnlch = adc2mV(buffersMax_sgnlch, self.voltrange, maxADC)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
         data = np.zeros((nSamples, 2))
-        for i, values in enumerate(adc2mVChMax):
-            timeval = timevals[i]
-            mV = values
-            data[i] = [timeval, mV]
-        filename = './data/'
+        data[:, 0] = timevals
+        data[:, 1] = adc2mVMax_sgnlch
+
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-1.npy'
+        filename = './data/' + timestr + '-1.npy'
         np.save(filename, data)
 
-        return filename
+        return filename, data
 
     def block_measurement(self, trgchannel=0, sgnlchannel=0, direction=2, threshold=1000, number=10):
         """
@@ -393,13 +357,6 @@ class Picoscope:
         self.channel_setup(trgchannel, sgnlchannel)
         #self.channel_setup_all()
 
-        # Set number of memory segments
-        maxSegments = ctypes.c_uint64(number)
-        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
-
-        # Set number of captures
-        ps.ps6000aSetNoOfCaptures(self.chandle, number)
-
         # timebase, timeInterval = self.timebase_setup()
         timebase = self.timebase
         timeInterval = self.timeInterval
@@ -408,9 +365,15 @@ class Picoscope:
         self.trigger_setup(trgchannel, direction, threshold)
         print('Picoscope set')
 
-        #buffersAMax, buffersAMin = self.buffer_multi_setup(bufchannel, number)
-        buffersAMax, buffersAMin, buffersCMax, buffersCMin = self.buffer_multi_setup_all(number=number)
-        #, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
+        # Set number of memory segments
+        maxSegments = ctypes.c_uint64(number)
+        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+
+        # Set number of captures
+        ps.ps6000aSetNoOfCaptures(self.chandle, number)
+
+        buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
+            self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=1)
 
         nSamples = self.nSamples
 
@@ -422,11 +385,12 @@ class Picoscope:
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
 
-        t1=time.time()
+        t1 = time.time()
         ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
-        t2=time.time()
-        deltaT=t2-t1
+        t2 = time.time()
+        deltaT = t2-t1
+
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
         check = ctypes.c_int16(0)
@@ -459,52 +423,37 @@ class Picoscope:
         self.stop_scope()
 
         # convert ADC counts data to mV
-        # adc2mVChMax_list = np.zeros((number, nSamples))
-        # for i, buffers in enumerate(buffersMax):
-        #     adc2mVChMax = adc2mV(buffers, self.voltrange, maxADC)
-        #     adc2mVChMax_list[i] = adc2mVChMax
+        adc2mVMax_trgch_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersMax_trgch):
+            adc2mVMax_trgch_list[i] = adc2mV(buffers, self.voltrange, maxADC)
 
-        adc2mVChAMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersAMax):
-            adc2mVChAMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
-
-        # adc2mVChBMax_list = np.zeros((number, nSamples))
-        # for i, buffers in enumerate(buffersBMax):
-        #     adc2mVChBMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
-        #
-        adc2mVChCMax_list = np.zeros((number, nSamples))
-        for i, buffers in enumerate(buffersCMax):
-            adc2mVChCMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
-        #
-        # adc2mVChDMax_list = np.zeros((number, nSamples))
-        # for i, buffers in enumerate(buffersDMax):
-        #     adc2mVChDMax_list[i] = adc2mV(buffers, self.voltrange, maxADC)
+        adc2mVMax_sgnlch_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersMax_sgnlch):
+            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange, maxADC)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
         data = np.zeros((number, nSamples, 2))
-        # for i, values in enumerate(adc2mVChMax_list):  # i = number of waveforms
-        #     for j, samples in enumerate(values):  # j = nSamples
-        #         timeval = timevals[j]
-        #         mV = samples
-        #         data[i][j] = [timeval, mV]
         data[:, :, 0] = timevals
-        data[:, :, 1] = adc2mVChCMax_list
+        data[:, :, 1] = adc2mVMax_sgnlch_list
 
-        filename = './data/'
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename += timestr + '-' + str(number) + '.npy'
+        filename = './data/' + timestr + '-' + str(number) + '.npy'
         print(filename)
         np.save(filename, data)
         print('file has been saved')
 
         return filename, data, deltaT
-        # return adc2mVChAMax_list, adc2mVChCMax_list#, adc2mVChBMax_list, adc2mVChCMax_list, adc2mVChDMax_list
-        # return buffersAMax, buffersAMin#, buffersBMax, buffersBMin, buffersCMax, buffersCMin, buffersDMax, buffersDMin
 
-    def adc2v(self, data, vrange):
+    def adc2v(self, data, vrange=7):
+        """
+        This function converts adc data to values in V
+        :param data:
+        :param vrange:
+        :return:
+        """
         maxADC = ctypes.c_int32(32512)
         vranges = {2:0.05,3:0.1,4:0.2,5:0.5,6:1,7:2,8:5}
         data = np.array(data)
@@ -528,20 +477,20 @@ class Picoscope:
         number = int(filename_split2b[0])  # 10
 
         plt.figure()
-        if number == 1:
-            for k in data:
-                plt.plot(k[0], k[1], '.', color='red')
-            plt.xlabel('Time (ns)')
-            plt.ylabel('Voltage (mV)')
-
-        elif number > 1:
-            cmap = plt.cm.viridis
-            colors = iter(cmap(np.linspace(0, 0.7, number)))
-            for i, c in zip(data, colors):
-                for k in i:
-                    plt.plot(k[0], k[1], '.', color=c)
-            plt.xlabel('Time (ns)')
-            plt.ylabel('Voltage (mV)')
+        # if number == 1:
+        #     for k in data:
+        #         plt.plot(k[0], k[1], '.', color='red')
+        #     plt.xlabel('Time (ns)')
+        #     plt.ylabel('Voltage (mV)')
+        #
+        # elif number > 1:
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, number)))
+        for i, c in zip(data, colors):
+            for k in i:
+                plt.plot(k[0], k[1], '.', color=c)
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
 
         figureName = './data/plots/Figure_' + figname + '.pdf'
         plt.savefig(figureName)
@@ -564,10 +513,6 @@ class Picoscope:
         filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split2b[0])  # 10
 
-        # for i in data:
-        #     for j in i:
-        #         x.append(j[0])
-        #         y.append(j[1])
         x = data[:, :, 0]
         y = data[:, :, 1]
 
@@ -605,9 +550,7 @@ class Picoscope:
 
 
 if __name__ == "__main__":
-    P = Picoscope()
-    #data1 = P.single_measurement()
-    #P.plot_data(data1)
-    file, data2 = P.block_measurement(number=100)
-    P.plot_histogram(file)
-    P.close_scope()
+    ps = Picoscope()
+    file, data = ps.single_measurement()
+    ps.plot_data(file)
+    ps.close_scope()
