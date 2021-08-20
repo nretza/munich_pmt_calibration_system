@@ -265,9 +265,9 @@ class Picoscope:
         # Set number of captures
         ps.ps6000aSetNoOfCaptures(self.chandle, number)
 
-        # timebase, timeInterval = self.timebase_setup()
-        timebase = self.timebase
-        timeInterval = self.timeInterval
+        timebase, timeInterval = self.timebase_setup()
+        # timebase = self.timebase
+        # timeInterval = self.timeInterval
         print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
