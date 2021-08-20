@@ -23,7 +23,7 @@ class Picoscope:
         # CHANNEL SETUP
         self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange = 7
+        self.voltrange = 4  # voltage range for signal channel needs to be sufficiently low to avoid large noise band
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -40,7 +40,7 @@ class Picoscope:
         # PICO_BW_500MHZ = 500000000
 
         self.noOfPreTriggerSamples = 10 #100
-        self.noOfPostTriggerSamples = 200 #200
+        self.noOfPostTriggerSamples = 240 #200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def channel_setup(self, trgchannel=0, sgnlchannel=0):
@@ -385,8 +385,7 @@ class Picoscope:
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, number)))
         for i, c in zip(data, colors):
-            for k in i:
-                plt.plot(k[0], k[1], '.', color=c)
+            plt.plot(i[:, 0], i[:, 1], color=c)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
