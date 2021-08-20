@@ -346,7 +346,7 @@ class Picoscope:
         np.save(filename, data)
         print('file has been saved')
 
-        return filename, data, deltaT
+        return filename, data, deltaT, adc2mVMax_trgch_list
 
     def adc2v(self, data, vrange=7):
         """
