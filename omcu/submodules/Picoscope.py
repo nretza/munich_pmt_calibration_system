@@ -336,17 +336,21 @@ class Picoscope:
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
-        data = np.zeros((number, nSamples, 2))
-        data[:, :, 0] = timevals
-        data[:, :, 1] = adc2mVMax_sgnlch_list
+        data_sgnl = np.zeros((number, nSamples, 2))
+        data_sgnl[:, :, 0] = timevals
+        data_sgnl[:, :, 1] = adc2mVMax_sgnlch_list
+
+        data_trg = np.zeros((number, nSamples, 2))
+        data_trg[:, :, 0] = timevals
+        data_trg[:, :, 1] = adc2mVMax_trgch_list
 
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename = './data/' + timestr + '-' + str(number) + '.npy'
         print(filename)
-        np.save(filename, data)
+        np.save(filename, data_sgnl)
         print('file has been saved')
 
-        return filename, data, deltaT, adc2mVMax_trgch_list
+        return filename, data_sgnl, data_trg, deltaT
 
     def adc2v(self, data, vrange=7):
         """
