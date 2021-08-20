@@ -255,7 +255,7 @@ class Picoscope:
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
-    def single_measurement(self, trgchannel=0, sgnlchannel=0, direction=2, threshold=1000):
+    def single_measurement(self, channel=0, direction=2, threshold=1000):
         """
         This is a function to run a single waveform measurement.
         First, it runs channel_setup(channel) to set a channel on and the others off.
@@ -274,13 +274,12 @@ class Picoscope:
         :param bufchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: filename (str)
         """
-        self.channel_setup(sgnlchannel)
-        self.trigger_setup(trgchannel, direction, threshold)
+        self.channel_setup(channel)
+        self.trigger_setup(channel, direction, threshold)
         #timebase, timeInterval = self.timebase_setup()
         timebase=self.timebase
         timeInterval=self.timeInterval
-        buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
-            self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=1)
+        bufferMax, bufferMin = self.buffer_setup(channel=channel)
         nSamples = self.nSamples
 
         # Run block capture
@@ -317,7 +316,7 @@ class Picoscope:
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
         # convert ADC counts data to mV
-        adc2mVMax_sgnlch = adc2mV(buffersMax_sgnlch, self.voltrange, maxADC)
+        adc2mVMax = adc2mV(bufferMax, self.voltrange, maxADC)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
@@ -325,7 +324,7 @@ class Picoscope:
         # create array of data and save as npy file
         data = np.zeros((nSamples, 2))
         data[:, 0] = timevals
-        data[:, 1] = adc2mVMax_sgnlch
+        data[:, 1] = adc2mVMax
 
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename = './data/' + timestr + '-1.npy'
