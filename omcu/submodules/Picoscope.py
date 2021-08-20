@@ -322,15 +322,15 @@ class Picoscope:
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
 
         # create array of data and save as npy file
-        data = np.zeros((nSamples, 2))
-        data[:, 0] = timevals
-        data[:, 1] = adc2mVMax
+        # data = np.zeros((nSamples, 2))
+        # data[:, 0] = timevals
+        # data[:, 1] = adc2mVMax
+        #
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # filename = './data/' + timestr + '-1.npy'
+        # np.save(filename, data)
 
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename = './data/' + timestr + '-1.npy'
-        np.save(filename, data)
-
-        return filename, data
+        return adc2mVMax #filename, data
 
     def block_measurement(self, trgchannel=0, sgnlchannel=0, direction=2, threshold=1000, number=10):
         """
