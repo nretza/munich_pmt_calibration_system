@@ -397,13 +397,13 @@ class Picoscope:
                or filename = P.block_measurement()
         :return: plot
         """
-        data = np.load(filename)  # './data/20210622-171439-10.npy'
-        filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
-        filename_split1b = filename_split1[-1].split('.')  # ['20210622-171439-10', 'npy']
-        figname = filename_split1b[0]
-        filename_split2 = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
-        filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
-        number = int(filename_split2b[0])  # 10
+        data = np.load(filename)  # './data/20210823-103625-10-sgnl.npy'
+        filename_split1 = filename.split('/')  # ['.', 'data', '20210823-103625-10-sgnl.npy']
+        filename_split1b = filename_split1[-1].split('.')  # ['20210823-103625-10-sgnl', 'npy']
+        figname = filename_split1b[0]  # '20210823-103625-10-sgnl'
+        filename_split2 = figname.split('-')  # ['20210823', '103625', '10', 'sgnl']
+        filename_split2b = filename_split2[:3]  # ['20210823', '103625', '10']
+        number = int(filename_split2b[-1])  # 10
 
         plt.figure()
         cmap = plt.cm.viridis
