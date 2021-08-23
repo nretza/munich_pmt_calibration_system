@@ -22,8 +22,12 @@ class Picoscope:
 
         # CHANNEL SETUP
         self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
+        self.coupling_sgnl = enums.PICO_COUPLING["PICO_DC_50OHM"]
+        self.coupling_trg = enums.PICO_COUPLING["PICO_DC"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
         self.voltrange = 4  # voltage range for signal channel needs to be sufficiently low to avoid large noise band
+        self.voltrange_sgnl = 4
+        self.voltrange_trg = 9
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -50,24 +54,33 @@ class Picoscope:
         :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :return: channel: int (0, 1, 2, 3)
         """
-        # Set given channel on
+        # channel setup
+
         # handle = chandle
         # channel = channel
         # coupling = self.coupling
         # channelRange = self.voltrange
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
-        # ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling, self.voltrange, 0, self.bandwidth)
-        # ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling, self.voltrange, 0, self.bandwidth)
 
-        # channel setup
         for ch in [0, 1, 2, 3]:
-            if trgchannel == ch or sgnlchannel == ch:
-                ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
-                print("Channels on:", ch)
+            if trgchannel == ch:
+                ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling_trg, self.voltrange_trg, 0, self.bandwidth)
+                print("Trigger channel on:", ch)
+            if sgnlchannel == ch:
+                ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
+                print("Signal channel on:", ch)
             else:
                 ps.ps6000aSetChannelOff(self.chandle, ch)
                 print("Channel off:", ch)
+
+        # for ch in [0, 1, 2, 3]:
+        #     if trgchannel == ch or sgnlchannel == ch:
+        #         ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
+        #         print("Channel on:", ch)
+        #     else:
+        #         ps.ps6000aSetChannelOff(self.chandle, ch)
+        #         print("Channel off:", ch)
 
         return trgchannel, sgnlchannel
 
@@ -268,7 +281,7 @@ class Picoscope:
         timebase, timeInterval = self.timebase_setup()
         # timebase = self.timebase
         # timeInterval = self.timeInterval
-        print(timebase, timeInterval)
+        #print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
         print('Picoscope set')
@@ -346,9 +359,8 @@ class Picoscope:
 
         timestr = time.strftime("%Y%m%d-%H%M%S")
         filename = './data/' + timestr + '-' + str(number) + '.npy'
-        print(filename)
         np.save(filename, data_sgnl)
-        print('file has been saved')
+        print('file has been saved under', filename)
 
         return filename, data_sgnl, data_trg, deltaT
 
