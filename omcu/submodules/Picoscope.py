@@ -21,13 +21,12 @@ class Picoscope:
         ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
 
         # CHANNEL SETUP
-        self.coupling = enums.PICO_COUPLING["PICO_DC_50OHM"]
         self.coupling_sgnl = enums.PICO_COUPLING["PICO_DC_50OHM"]
         self.coupling_trg = enums.PICO_COUPLING["PICO_DC"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange = 4  # voltage range for signal channel needs to be sufficiently low to avoid large noise band
         self.voltrange_sgnl = 4
         self.voltrange_trg = 9
+        # voltage range for signal channel needs to be sufficiently low to avoid large noise band
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
         # 5=PICO_500MV: ±500 mV, 6=PICO_1V: ±1 V, 7=PICO_2V: ±2 V, 8=PICO_5V: ±5 V, 9=PICO_10V: ±10 V,
         # 10=PICO_20V: ±20 V (9 and 10 not for DC_50OHM)
@@ -49,20 +48,19 @@ class Picoscope:
 
     def channel_setup(self, trgchannel=0, sgnlchannel=0):
         """
-        This is a function to set a channel on and the others off.
+        This is a function to set a trigger channel and a signal channel on and the others off.
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :return: channel: int (0, 1, 2, 3)
+        :return: trgchannel, sgnlchannel: int (0, 1, 2, 3)
         """
         # channel setup
 
         # handle = chandle
         # channel = channel
-        # coupling = self.coupling
-        # channelRange = self.voltrange
+        # coupling = self.coupling_trg/sgnl
+        # channelRange = self.voltrange_trg/sgnl
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
-
 
         ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling_trg, self.voltrange_trg, 0, self.bandwidth)
         print("Trigger channel on:", trgchannel)
@@ -76,14 +74,6 @@ class Picoscope:
                 ps.ps6000aSetChannelOff(self.chandle, ch)
                 print("Channel off:", ch)
 
-        # for ch in [0, 1, 2, 3]:
-        #     if trgchannel == ch or sgnlchannel == ch:
-        #         ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
-        #         print("Channel on:", ch)
-        #     else:
-        #         ps.ps6000aSetChannelOff(self.chandle, ch)
-        #         print("Channel off:", ch)
-
         return trgchannel, sgnlchannel
 
     def channel_setup_all(self):
@@ -92,12 +82,12 @@ class Picoscope:
         :return:
         """
         for ch in [0, 1, 2, 3]:
-            ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling, self.voltrange, 0, self.bandwidth)
+            ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
 
-    def trigger_setup(self, channel=0, direction=2, threshold=1000):
+    def trigger_setup(self, trgchannel=0, direction=2, threshold=1000):
         """
         This is a function to set the trigger on the given channel. The threshold can be given in [mV].
-        :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param direction: int, default: 2 (rising edge)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
@@ -112,8 +102,8 @@ class Picoscope:
         # direction = 2 (rising)
         # delay = 0 s
         autoTriggerMicroSeconds = 1000000  # [us]
-        ps.ps6000aSetSimpleTrigger(self.chandle, 1, channel, threshold, direction, 0, autoTriggerMicroSeconds)
-        return channel, direction, threshold
+        ps.ps6000aSetSimpleTrigger(self.chandle, 1, trgchannel, threshold, direction, 0, autoTriggerMicroSeconds)
+        return trgchannel, direction, threshold
 
     def timebase_setup(self):
         """
@@ -137,8 +127,9 @@ class Picoscope:
     def buffer_setup(self, channel=0):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        One channel, one waveform.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :return:
+        :return: bufferMax, format: bufferMax = (ctypes.c_int16 * nSamples)()
         """
         # Set number of samples to be collected
         nSamples = self.nSamples
@@ -165,9 +156,11 @@ class Picoscope:
     def buffer_setup_block(self, channel=0, number=10):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        One channel, several waveforms - indicated by number.
         :param channel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param number: int (number of waveforms)
-        :return:
+        :return: buffersMax, buffersMin
+                format: ((ctypes.c_int16 * nSamples) * number)()
         """
         # Set number of samples to be collected
         nSamples = self.nSamples
@@ -200,6 +193,15 @@ class Picoscope:
         return buffersMax, buffersMin
 
     def buffer_setup_block_multi(self, trgchannel=0, sgnlchannel=0, number=10):
+        """
+        This function tells the driver to store the data unprocessed: raw mode (no downsampling).
+        One trigger channel and one signal channel, several waveforms - indicated by number
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param number: int (number of waveforms)
+        :return: buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
+                format: ((ctypes.c_int16 * nSamples) * number)()
+        """
 
         # Set number of samples to be collected
         nSamples = self.nSamples
@@ -230,22 +232,28 @@ class Picoscope:
                 ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
                                          ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
                                          downSampleMode, action)
-            if i > 0:
-                ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
-                                         ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
-                                         downSampleMode, add)
-
-        # Signal channel
-        for i in range(0, number):
-            waveform = i
-            if i == 0:
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
                                          downSampleMode, action)
             if i > 0:
+                ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
+                                         ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
+                                         downSampleMode, add)
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
                                          downSampleMode, add)
+
+        # Signal channel
+        # for i in range(0, number):
+        #     waveform = i
+        #     if i == 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
+        #                                  ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
+        #                                  downSampleMode, action)
+        #     if i > 0:
+        #         ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
+        #                                  ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
+        #                                  downSampleMode, add)
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
@@ -341,11 +349,11 @@ class Picoscope:
         # convert ADC counts data to mV
         adc2mVMax_trgch_list = np.zeros((number, nSamples))
         for i, buffers in enumerate(buffersMax_trgch):
-            adc2mVMax_trgch_list[i] = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVMax_trgch_list[i] = adc2mV(buffers, self.voltrange_trg, maxADC)
 
         adc2mVMax_sgnlch_list = np.zeros((number, nSamples))
         for i, buffers in enumerate(buffersMax_sgnlch):
-            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange, maxADC)
+            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange_sgnl, maxADC)
 
         # Create time data
         timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
