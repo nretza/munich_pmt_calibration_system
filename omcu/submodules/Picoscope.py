@@ -368,9 +368,9 @@ class Picoscope:
         data_trg[:, :, 1] = adc2mVMax_trgch_list
 
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename_sgnl = './data/' + timestr + '/' + timestr + '-sgnl-' + str(number) + '.npy'
+        filename_sgnl = './data/' + timestr + '-' + str(number) + '-sgnl.npy'
         np.save(filename_sgnl, data_sgnl)
-        filename_trg = './data/' + timestr + '/' + timestr + '-trg-' + str(number) + '.npy'
+        filename_trg = './data/' + timestr + '-' + str(number) + '-trg.npy'
         np.save(filename_trg, data_trg)
         print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
