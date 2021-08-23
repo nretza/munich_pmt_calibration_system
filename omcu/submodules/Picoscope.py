@@ -63,12 +63,15 @@ class Picoscope:
         # analogueOffset = 0 V
         # bandwidth = self.bandwidth
 
+
+        ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling_trg, self.voltrange_trg, 0, self.bandwidth)
+        print("Trigger channel on:", trgchannel)
+        ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
+        print("Signal channel on:", sgnlchannel)
+
         for ch in [0, 1, 2, 3]:
             if trgchannel == ch or sgnlchannel == ch:
-                ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling_trg, self.voltrange_trg, 0, self.bandwidth)
-                print("Trigger channel on:", ch)
-                ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
-                print("Signal channel on:", ch)
+                pass
             else:
                 ps.ps6000aSetChannelOff(self.chandle, ch)
                 print("Channel off:", ch)
