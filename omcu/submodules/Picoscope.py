@@ -64,10 +64,9 @@ class Picoscope:
         # bandwidth = self.bandwidth
 
         for ch in [0, 1, 2, 3]:
-            if trgchannel == ch:
+            if trgchannel == ch or sgnlchannel == ch:
                 ps.ps6000aSetChannelOn(self.chandle, trgchannel, self.coupling_trg, self.voltrange_trg, 0, self.bandwidth)
                 print("Trigger channel on:", ch)
-            if sgnlchannel == ch:
                 ps.ps6000aSetChannelOn(self.chandle, sgnlchannel, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
                 print("Signal channel on:", ch)
             else:
