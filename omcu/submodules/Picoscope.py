@@ -209,7 +209,6 @@ class Picoscope:
         # Create buffers
         buffersMax_trgch = ((ctypes.c_int16 * nSamples) * number)()
         buffersMin_trgch = ((ctypes.c_int16 * nSamples) * number)()
-
         buffersMax_sgnlch = ((ctypes.c_int16 * nSamples) * number)()
         buffersMin_sgnlch = ((ctypes.c_int16 * nSamples) * number)()
 
@@ -225,7 +224,6 @@ class Picoscope:
         add = enums.PICO_ACTION["PICO_ADD"]
         action = clear|add  # PICO_ACTION["PICO_CLEAR_WAVEFORM_CLEAR_ALL"] | PICO_ACTION["PICO_ADD"]
 
-        # Trigger channel
         for i in range(0, number):
             waveform = i
             if i == 0:
@@ -242,18 +240,6 @@ class Picoscope:
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
                                          downSampleMode, add)
-
-        # Signal channel
-        # for i in range(0, number):
-        #     waveform = i
-        #     if i == 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
-        #                                  ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
-        #                                  downSampleMode, action)
-        #     if i > 0:
-        #         ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
-        #                                  ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
-        #                                  downSampleMode, add)
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
@@ -426,13 +412,13 @@ class Picoscope:
         :return: plot
         """
 
-        data = np.load(filename)  # './data/20210622-171439-10.npy'
-        filename_split1 = filename.split('/')  # ['.', 'data', '20210622-171439-10.npy']
-        filename_split1b = filename_split1[-1].split('.')  # ['20210622-171439-10', 'npy']
-        figname = filename_split1b[0]
-        filename_split2 = filename.split('-')  # ['./data/20210622', '171439', '10.npy']
-        filename_split2b = filename_split2[-1].split('.')  # ['10', 'npy']
-        number = int(filename_split2b[0])  # 10
+        data = np.load(filename)  # './data/20210823-103625-10-sgnl.npy'
+        filename_split1 = filename.split('/')  # ['.', 'data', '20210823-103625-10-sgnl.npy']
+        filename_split1b = filename_split1[-1].split('.')  # ['20210823-103625-10-sgnl', 'npy']
+        figname = filename_split1b[0]  # '20210823-103625-10-sgnl'
+        filename_split2 = figname.split('-')  # ['20210823', '103625', '10', 'sgnl']
+        filename_split2b = filename_split2[:3]  # ['20210823', '103625', '10']
+        number = int(filename_split2b[-1])  # 10
 
         x = data[:, :, 0]
         y = data[:, :, 1]
