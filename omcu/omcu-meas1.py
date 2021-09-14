@@ -23,8 +23,8 @@ L.on_pulsed()
 #PSU1.settings(channel=1, voltage=5.0, current=0.1)  # values?
 #PSU1.settings(channel=2, voltage=1.1, current=0.1)  # values?
 
-file1, data1=P.block_measurement(channel=0, bufchannel=0, number=1)
-file2, data2=P.block_measurement(channel=2, bufchannel=2, number=1)
+file1, data1=P.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=1000, number=10)
+file2, data2=P.block_measurement()
 
 x1=data1[0,:,0]
 y1=data1[0,:,1]

@@ -232,7 +232,7 @@ class Picoscope:
                                          downSampleMode, action)
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
-                                         downSampleMode, action)
+                                         downSampleMode, add)
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, trgchannel, ctypes.byref(buffersMax_trgch[i]),
                                          ctypes.byref(buffersMin_trgch[i]), nSamples, dataType, waveform,
