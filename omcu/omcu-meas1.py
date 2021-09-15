@@ -4,40 +4,37 @@
 from submodules.Picoscope import Picoscope
 from submodules.PSU import PSU
 from submodules.Laser import Laser
-#from submodules.Rotation import Rotation
-#from submodules.Picoamp import Picoamp
+from submodules.Rotation import Rotation
 import matplotlib.pyplot as plt
+import time
 
-P = Picoscope()
-#PSU0 = PSU(dev="/dev/PSU_0")
-PSU1 = PSU(dev="/dev/PSU_1")
-#Rot = Rotation()
-#Pamp = Picoamp()
+ps = Picoscope()
+psu0 = PSU(dev="/dev/PSU_0")
+psu1 = PSU(dev="/dev/PSU_1")
+rot = Rotation()
 L=Laser()
 
-PSU1.on()
+psu0.settings(1, voltage=12.0, current=3.0)
+psu1.settings(1, voltage=5.0, current=0.1)
+psu1.settings(2, voltage=1.1, current=0.1)
+psu0.on()
+psu1.on()
 L.on_pulsed()
 
-#PSU0.settings(channel=1, voltage=5.0, current=0.1)  # values?
-#PSU0.settings(channel=2, voltage=5.0, current=0.1)  # values?
-#PSU1.settings(channel=1, voltage=5.0, current=0.1)  # values?
-#PSU1.settings(channel=2, voltage=1.1, current=0.1)  # values?
 
-file1, data1=P.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=1000, number=10)
-file2, data2=P.block_measurement()
+filename1, filename2, data_sgnl, data_trg, deltaT = ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=100)
 
-x1=data1[0,:,0]
-y1=data1[0,:,1]
-plt.plot(x1,y1)
-plt.show()
+for i in range(0, 50, 1):
+    rot.set_theta(i)
+    time.sleep(1)
 
-x2=data2[0,:,0]
-y2=data2[0,:,1]
-plt.plot(x2,y2)
-plt.show()
+psu0.off()
+psu1.off()
+L.off_pulsed()
 
-#Rot.go_home()  # or Rot.set_position(phi, theta), values?
-#Pamp_data = Pamp.read_ch1(100)  # value? data collection of Picoamp
+ps.plot_data(filename1)
+ps.plot_histogram(filename1, nBins=10)
 
 
-#Pico.block_measurement()  # values?
+
+#rot.go_home()  # or Rot.set_position(phi, theta), values?

@@ -24,7 +24,7 @@ class Picoscope:
         self.coupling_sgnl = enums.PICO_COUPLING["PICO_DC_50OHM"]
         self.coupling_trg = enums.PICO_COUPLING["PICO_DC"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange_sgnl = 4
+        self.voltrange_sgnl = 2
         self.voltrange_trg = 9
         # voltage range for signal channel needs to be sufficiently low to avoid large noise band
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
@@ -46,11 +46,11 @@ class Picoscope:
         self.noOfPostTriggerSamples = 240 #200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
-    def channel_setup(self, trgchannel=0, sgnlchannel=0):
+    def channel_setup(self, trgchannel=0, sgnlchannel=2):
         """
         This is a function to set a trigger channel and a signal channel on and the others off.
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 2
         :return: trgchannel, sgnlchannel: int (0, 1, 2, 3)
         """
         # channel setup
@@ -192,12 +192,12 @@ class Picoscope:
 
         return buffersMax, buffersMin
 
-    def buffer_setup_block_multi(self, trgchannel=0, sgnlchannel=0, number=10):
+    def buffer_setup_block_multi(self, trgchannel=0, sgnlchannel=2, number=10):
         """
         This function tells the driver to store the data unprocessed: raw mode (no downsampling).
         One trigger channel and one signal channel, several waveforms - indicated by number
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 2
         :param number: int (number of waveforms)
         :return: buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
                 format: ((ctypes.c_int16 * nSamples) * number)()
@@ -243,7 +243,7 @@ class Picoscope:
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
-    def block_measurement(self, trgchannel=0, sgnlchannel=0, direction=2, threshold=1000, number=10):
+    def block_measurement(self, trgchannel=0, sgnlchannel=2, direction=2, threshold=1000, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -255,7 +255,7 @@ class Picoscope:
         to store the data unprocessed.
         Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
-        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 2
         :param direction: int, default: 2 (rising)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
@@ -265,7 +265,7 @@ class Picoscope:
         """
 
         self.channel_setup(trgchannel, sgnlchannel)
-        #self.channel_setup_all()
+        # self.channel_setup_all()
 
         # Set number of memory segments
         maxSegments = ctypes.c_uint64(number)
@@ -277,7 +277,7 @@ class Picoscope:
         timebase, timeInterval = self.timebase_setup()
         # timebase = self.timebase
         # timeInterval = self.timeInterval
-        #print(timebase, timeInterval)
+        # print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
         print('Picoscope set')
@@ -458,6 +458,7 @@ class Picoscope:
 
 if __name__ == "__main__":
     ps = Picoscope()
-    file, data, deltaT = ps.block_measurement()
-    ps.plot_data(file)
+    filename1, filename2, data_sgnl, data_trg, deltaT = ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
+                                                                             threshold=2000, number=100)
+    ps.plot_data(filename2)
     ps.close_scope()

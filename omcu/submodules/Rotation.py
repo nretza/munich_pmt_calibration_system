@@ -36,6 +36,7 @@ class Rotation:
         :param theta: Float (0-360 in 5000 steps)
         """
         theta_pos = io_serial(bytes(f'goX {theta}', 'utf-8'), serial=self.serial)
+        theta_pos = theta_pos/ 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
         return theta_pos
         
     def go_home(self):
@@ -73,12 +74,17 @@ class Rotation:
         :param speed: Float (0-360 in 5000 steps)
         """
         speed_val = io_serial(bytes(f'setspeed {speed}', 'utf-8'), serial=self.serial)
+        if speed_val > 16383:
+            print('the delay might be not accurate anymore.')
+        elif speed_val > 32767:
+            print('delaytime to large for int. Will produce very short delays')
         return speed_val
 
     def get_speed(self):
         """
-        Returns the current position
+        Returns the delay time in-between single steps in milliseconds. Minimum value is 300.
         """
+
         speed_val = io_serial(bytes(f'getspeed', 'utf-8'), serial=self.serial)
         return speed_val
 
@@ -86,7 +92,10 @@ class Rotation:
         """
         Returns state of infrared sensor (on=1, off=0)
         """
-        ir_val = io_serial(bytes(f'getIR', 'utf-8'), serial=self.serial)
+        ir_val = [0,0]
+        ir_val[0] = io_serial(bytes(f'getIRY', 'utf-8'), serial=self.serial)
+        ir_val[1] = io_serial(bytes(f'getIRX', 'utf-8'), serial=self.serial)
+        # ir_val = io_serial(bytes(f'getIR', 'utf-8'), serial=self.serial)
         return ir_val
 
 
