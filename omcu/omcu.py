@@ -15,7 +15,7 @@ import argparse
 from submodules.Picoscope import Picoscope
 from submodules.PSU import PSU
 from submodules.Picoamp import Picoamp
-from submodules.Rotation import Rotation_stage
+from submodules.Rotation import Rotation
 from submodules.Laser import Laser
 from submodules.Powermeter import Powermeter
 from logging_config import setup_logging

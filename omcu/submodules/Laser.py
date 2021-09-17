@@ -220,11 +220,11 @@ class Laser:
         tm_string = self.__write_serial('tm?')  # returns string 'tune mode: manual/auto'
         print(tm_string)
         if 'auto' in tm_string:
-            tm_val = 0
-        elif 'manual' in tm_string:
             tm_val = 1
-        elif 'test' in tm_string:
+        elif 'manual' in tm_string:
             tm_val = 0
+        elif 'test' in tm_string:
+            tm_val = 3
         else:
             tm_val = 2
             print('Error: tune mode could not be determined. Try again!')
