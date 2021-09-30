@@ -65,7 +65,7 @@ class Laser:
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
         return return_str
 
-    def print_state(self):
+    def print_state(self):  #TODO: prints not whole information
         """
         This function prints system state information in the format:
         --------------------
@@ -339,13 +339,13 @@ class Laser:
         This is a function to get the laser head temperature
         :return:
         """
-        temp_ind = self.__write_serial('lht?')  #
-        print(temp_ind)
+        temp_string = self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
+        print(temp_string)
 
     def get_temp_ind(self):
         """
         This is a function to get information about the laser diode temperature indicator (good, bad)
         :return:
         """
-        temp_string = self.__write_serial('ldtemp?')  #
-        print(temp_string)
+        temp_ind = self.__write_serial('ldtemp?')  #
+        print(temp_ind)
