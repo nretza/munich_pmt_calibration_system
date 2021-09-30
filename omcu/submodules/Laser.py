@@ -340,7 +340,7 @@ class Laser:
         :return:
         """
         temp_string = self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
-        print(temp_string)
+        return temp_string
 
     def get_temp_ind(self):
         """
@@ -348,4 +348,4 @@ class Laser:
         :return:
         """
         temp_ind = self.__write_serial('ldtemp?')  #
-        print(temp_ind)
+        return temp_ind
