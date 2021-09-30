@@ -333,3 +333,19 @@ class Laser:
             cw_val = 2
             print('Error: CW laser emission state could not be determined. Try again!')
         return cw_val
+
+    def get_temp(self):
+        """
+        This is a function to get the laser head temperature
+        :return:
+        """
+        temp_ind = self.__write_serial('lht?')  #
+        print(temp_ind)
+
+    def get_temp_ind(self):
+        """
+        This is a function to get information about the laser diode temperature indicator (good, bad)
+        :return:
+        """
+        temp_string = self.__write_serial('ldtemp?')  #
+        print(temp_string)
