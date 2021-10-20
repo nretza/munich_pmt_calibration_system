@@ -39,16 +39,18 @@ timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + timestr
 os.mkdir(directory)
 delta_theta = 5
+number_theta = int(90/delta_theta)
 delta_phi = 15
-total_number = int(90/delta_theta * 360/delta_phi)
+number_phi = int(360/delta_phi)
+# total_number = int(90/delta_theta * 360/delta_phi)
 number = 1000
 nSamples = Ps.get_nSamples()
-data = np.zeros((delta_theta, delta_phi, 2, number, nSamples, 2))
-Pm_data = np.zeros((delta_theta, delta_phi))
-for i in range(0, 90, delta_theta):  # rotation in xy plane
-    Rot.set_theta(i)
-    for j in range(0, 360, delta_phi):  # rotation around PMT long axis
-        Rot.set_phi(j)
+data = np.zeros((number_theta, number_phi, 2, number, nSamples, 2))
+Pm_data = np.zeros((number_theta, number_phi))
+for i, theta in enumerate(range(0, 90, delta_theta)):  # rotation in xy plane
+    Rot.set_theta(theta)
+    for j, phi in enumerate(range(0, 360, delta_phi)):  # rotation around PMT long axis
+        Rot.set_phi(phi)
         pos = Rot.get_position()
         time.sleep(0.1)
         Pm.set_data_collection(1)  # enable data collection of Powermeter
@@ -63,7 +65,7 @@ for i in range(0, 90, delta_theta):  # rotation in xy plane
         data[i][j][1] = data_trg
         time.sleep(0.1)
 
-filename_Ps = directory + '/' + timestr + '-' + str(delta_theta) + str(delta_phi) + str(number) + '.npy'
+filename_Ps = directory + '/' + timestr + '-' + str(delta_theta) + '-' + str(delta_phi) + '-' + str(number) + '.npy'
 np.save(filename_Ps, data)
 filename_Pm = directory + '/' + timestr + '-Powermeter-data.npy'
 
