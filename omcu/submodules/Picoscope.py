@@ -48,7 +48,7 @@ class Picoscope:
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def get_nSamples(self):
-        nSamples = self.nSamples()
+        nSamples = self.nSamples
         return nSamples
 
     def channel_setup(self, trgchannel=0, sgnlchannel=2):
