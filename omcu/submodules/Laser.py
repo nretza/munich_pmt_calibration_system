@@ -11,7 +11,7 @@ class Laser:
     This is a class for the Picosecond Laser System Controller EIG2000DX
     """
 
-    def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.1):  # run sudo udevadm trigger before
+    def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.1):
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial
@@ -334,7 +334,7 @@ class Laser:
             print('Error: CW laser emission state could not be determined. Try again!')
         return cw_val
 
-    def get_temp(self):
+    def get_temp(self):  #TODO: fix
         """
         This is a function to get the laser head temperature
         :return:
@@ -342,7 +342,7 @@ class Laser:
         temp_string = self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
         return temp_string
 
-    def get_temp_ind(self):
+    def get_temp_ind(self):  #TODO: fix
         """
         This is a function to get information about the laser diode temperature indicator (good, bad)
         :return:

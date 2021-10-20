@@ -7,6 +7,7 @@ from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV
 import time
+import os
 
 
 class Picoscope:
@@ -45,6 +46,10 @@ class Picoscope:
         self.noOfPreTriggerSamples = 10 #100
         self.noOfPostTriggerSamples = 240 #200
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
+
+    def get_nSamples(self):
+        nSamples = self.nSamples()
+        return nSamples
 
     def channel_setup(self, trgchannel=0, sgnlchannel=2):
         """
@@ -353,14 +358,16 @@ class Picoscope:
         data_trg[:, :, 0] = timevals
         data_trg[:, :, 1] = adc2mVMax_trgch_list
 
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filename_sgnl = './data/' + timestr + '-' + str(number) + '-sgnl.npy'
-        np.save(filename_sgnl, data_sgnl)
-        filename_trg = './data/' + timestr + '-' + str(number) + '-trg.npy'
-        np.save(filename_trg, data_trg)
-        print('files have been saved under', filename_sgnl, 'and', filename_trg)
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # directory = 'data/' + timestr
+        # os.mkdir(directory)
+        # filename_sgnl = './data/' + timestr + '/' + timestr + '-' + str(number) + '-sgnl.npy'
+        # np.save(filename_sgnl, data_sgnl)
+        # filename_trg = './data/' + timestr + '/' + timestr + '-' + str(number) + '-trg.npy'
+        # np.save(filename_trg, data_trg)
+        # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
-        return filename_sgnl, filename_trg, data_sgnl, data_trg, deltaT
+        return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
     def adc2v(self, data, vrange=7):
         """
@@ -458,7 +465,5 @@ class Picoscope:
 
 if __name__ == "__main__":
     ps = Picoscope()
-    filename1, filename2, data_sgnl, data_trg, deltaT = ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
-                                                                             threshold=2000, number=100)
-    ps.plot_data(filename2)
+    ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=100)
     ps.close_scope()
