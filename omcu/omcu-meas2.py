@@ -65,7 +65,7 @@ for i, theta in enumerate(range(0, 90, delta_theta)):  # rotation in xy plane
         data[i][j][1] = data_trg
         time.sleep(0.1)
 
-filename_Ps = directory + '/' + timestr + '-' + str(delta_theta) + '-' + str(delta_phi) + '-' + str(number) + '.npy'
+filename_Ps = directory + '/' + timestr + '-' + str(number_theta) + '-' + str(number_phi) + '-' + str(number) + '.npy'
 np.save(filename_Ps, data)
 filename_Pm = directory + '/' + timestr + '-Powermeter-data.npy'
 
