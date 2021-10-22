@@ -29,7 +29,8 @@ class Plots:
         nSamples = self.nSamples
 
         directory = 'data/plots/' + filename_split1[1]
-        os.mkdir(directory)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
         figname = directory + '/' + filename_split1[1] + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
                   + str(number) + '-Figure.pdf'
 
