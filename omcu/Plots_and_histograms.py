@@ -66,13 +66,22 @@ class Plots:
 
         nSamples = self.nSamples
 
-        areas = []
+        x_arr = []
+        y_arr = []
         for i, n in enumerate(data):
             for j, m in enumerate(n):
                 for k, p in enumerate(m[0]):
                     x = p[:, 0]
                     y = p[:, 1]
-                    x_array = np.reshape(x, (nSamples))
-                    y_array = np.reshape(y, (nSamples))
-                    area = trapz(y_array, x_array, axis=1)
-                    areas.append(area)
+                    x_arr.append(x)
+                    y_arr.append(y)
+
+        areas = trapz(y_arr, x_arr, axis=1)
+
+        plt.figure()
+        plt.hist(areas, bins=nBins)
+        plt.ylabel('counts')
+        plt.xlabel('area [Vs]')
+
+        plt.savefig(figname)
+        plt.show()
