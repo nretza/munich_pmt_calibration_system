@@ -7,7 +7,7 @@ class Occupancy:
     def __init__(self):
         pass
 
-    def occ(self, filename='data/20211020-143911/20211020-143911-3-4-10.npy', threshold=-0.8):
+    def occ(self, filename='data/20211022-140412-1.1/20211022-140412-6-4-10.npy', threshold=-0.8):
 
         data = np.load(filename)
         filename_split1 = filename.split('/')  # ['data', '20211020-143911', '20211020-143911-3-4-10.npy']
