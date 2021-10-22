@@ -77,4 +77,4 @@ class Plots:
                     area = trapz(y_array, x_array, axis=1)
                     areas.append(area)
                     if k==0:
-                        print(x, y, 'area=', area
+                        print(x, y, 'area=', area)
