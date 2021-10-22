@@ -5,7 +5,7 @@ from submodules.Picoscope import Picoscope
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import trapz
-import os
+import scipy.constants as const
 
 
 class Plots:
@@ -72,6 +72,7 @@ class Plots:
                     y_arr.append(y)
 
         areas = trapz(y_arr, x_arr, axis=1)
+        areas_list = areas.tolist()
 
         plt.figure()
         plt.hist(areas, bins=nBins)
@@ -82,5 +83,15 @@ class Plots:
         plt.show()
 
         areas_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
-                  + str(number) + '-areas.npy'
-        np.save(areas_name, areas)
+                  + str(number) + '-areas.txt'
+        np.savetxt(areas_name, areas_list)
+
+        e = const.e
+        number_of_photons = []
+        for i in areas_list:
+            No = i/e
+            number_of_photons.append(No)
+
+        number_of_photons_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
+                  + str(number) + '-number_of_photons.txt'
+        np.savetxt(number_of_photons_name, number_of_photons)
