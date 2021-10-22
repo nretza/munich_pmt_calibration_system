@@ -72,9 +72,7 @@ class Plots:
                 for k, p in enumerate(m[0]):
                     x = p[:, 0]
                     y = p[:, 1]
-                    #x_array = np.reshape(x, (number, nSamples))
-                    #y_array = np.reshape(y, (number, nSamples))
-                    #area = trapz(y_array, x_array, axis=1)
-                    #areas.append(area)
-                    if k==0:
-                        print(x, y)
+                    x_array = np.reshape(x, (nSamples))
+                    y_array = np.reshape(y, (nSamples))
+                    area = trapz(y_array, x_array, axis=1)
+                    areas.append(area)
