@@ -66,9 +66,13 @@ class Plots:
 
         nSamples = self.nSamples
 
+        areas = []
         for i, n in enumerate(data):
             for j, m in enumerate(n):
                 for k in m[0]:
-                    x = k[:, 0]
-                    y = k[:, 1]
-                    print('i=', i, 'j=', j, x)
+                    x = k[:, :, 0]
+                    y = k[:, :, 1]
+                    x_array = np.reshape(x, (number, nSamples))
+                    y_array = np.reshape(y, (number, nSamples))
+                    area_array = trapz(y_array, x_array, axis=1)
+                    areas.append(area_array)
