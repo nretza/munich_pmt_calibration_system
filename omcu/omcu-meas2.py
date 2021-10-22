@@ -26,7 +26,8 @@ Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-Psu1.settings(2, voltage=1.1, current=0.1)  # psu for PMT, Vcontrol
+Vctrl = 1.1
+Psu1.settings(2, voltage=Vctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu0.on()
 Rot.go_home()
 Psu1.on()
@@ -36,11 +37,11 @@ L.set_tune_value(tune=700)  # value?
 L.on_pulsed()  # pulsed laser emission on
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + timestr
+directory = 'data/' + timestr + '-' + str(Vctrl)
 os.mkdir(directory)
-delta_theta = 5
+delta_theta = 15  # 5
 number_theta = int(90/delta_theta)
-delta_phi = 15
+delta_phi = 90  # value?
 number_phi = int(360/delta_phi)
 # total_number = int(90/delta_theta * 360/delta_phi)
 number = 1000
@@ -68,6 +69,7 @@ for i, theta in enumerate(range(0, 90, delta_theta)):  # rotation in xy plane
 filename_Ps = directory + '/' + timestr + '-' + str(number_theta) + '-' + str(number_phi) + '-' + str(number) + '.npy'
 np.save(filename_Ps, data)
 filename_Pm = directory + '/' + timestr + '-Powermeter-data.npy'
+np.save(filename_Pm, Pm_data)
 
 
 
