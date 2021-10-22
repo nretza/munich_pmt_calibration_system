@@ -69,8 +69,10 @@ class Plots:
         areas = []
         for i, n in enumerate(data):
             for j, m in enumerate(n):
-                for k in m[0]:
-                    x = k[:, 0]
-                    y = k[:, 1]
+                for k, p in m[0]:
+                    x = p[:, 0]
+                    y = p[:, 1]
                     area = trapz(y, x, axis=1)
                     areas.append(area)
+                    if k==0:
+                        print(x, y)
