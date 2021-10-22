@@ -69,7 +69,7 @@ class Plots:
         areas = []
         for i, n in enumerate(data):
             for j, m in enumerate(n):
-                for k, p in m[0]:
+                for k, p in enumerate(m[0]):
                     x = p[:, 0]
                     y = p[:, 1]
                     area = trapz(y, x, axis=1)
