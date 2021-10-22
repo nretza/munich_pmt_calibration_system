@@ -19,6 +19,7 @@ class Plots:
 
         filename_split1 = filename.split('/')  # ['data', '20211022-140412-1.1', '20211022-140412-6-4-10.npy']
         folder_name = filename_split1[1]
+        directory = 'data/' + folder_name
         filename_split2 = filename_split1[-1].split('-')  # ['20211020', '140412', '6', '4', '10.npy']
         filename_split3 = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split3[0])  # 10 = number of waveforms per measurement
@@ -27,16 +28,14 @@ class Plots:
         total_number = int(number_theta * number_phi)  # 24 = number of measurements
         total_number_waveforms = number * total_number  # 240
 
-        return folder_name, number, number_theta, number_phi, total_number, total_number_waveforms
+        return folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms
 
     def plot_waveforms(self, filename='data/20211022-140412-1.1/20211022-140412-6-4-10.npy'):
 
         data = np.load(filename)
-        folder_name, number, number_theta, number_phi, total_number, total_number_waveforms = self.get_info(filename)
+        folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
+            self.get_info(filename)
 
-        directory = 'data/plots/' + folder_name
-        if not os.path.exists(directory):
-            os.mkdir(directory)
         figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
                   + str(number) + '-Figure.pdf'
 
@@ -56,15 +55,11 @@ class Plots:
     def plot_histogram_charge(self, filename='data/20211022-140412-1.1/20211022-140412-6-4-10.npy', nBins=20):
 
         data = np.load(filename)
-        folder_name, number, number_theta, number_phi, total_number, total_number_waveforms = self.get_info(filename)
+        folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
+            self.get_info(filename)
 
-        directory = 'data/plots/' + folder_name
-        if not os.path.exists(directory):
-            os.mkdir(directory)
         figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
                   + str(number) + '-Histogram.pdf'
-
-        nSamples = self.nSamples
 
         x_arr = []
         y_arr = []
@@ -86,5 +81,5 @@ class Plots:
         plt.savefig(figname)
         plt.show()
 
-        areas_name = directory + '/' + folder_name + '-areas.txt'
+        areas_name = directory + '/' + folder_name + '-areas'
         np.save(areas_name, areas)
