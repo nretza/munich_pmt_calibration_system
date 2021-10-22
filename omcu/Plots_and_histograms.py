@@ -87,11 +87,11 @@ class Plots:
         np.savetxt(areas_name, areas_list)
 
         e = const.e
-        number_of_photons = []
+        number_of_electrons = []
         for i in areas_list:
-            No = i/e
-            number_of_photons.append(No)
+            No = abs(i/e)
+            number_of_electrons.append(No)
 
-        number_of_photons_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
-                  + str(number) + '-number_of_photons.txt'
-        np.savetxt(number_of_photons_name, number_of_photons)
+        number_of_electrons_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) +\
+                                   '-' + str(number) + '-number_of_electrons.txt'
+        np.savetxt(number_of_electrons_name, number_of_electrons)
