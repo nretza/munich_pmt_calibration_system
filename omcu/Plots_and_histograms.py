@@ -40,7 +40,7 @@ class Plots:
         for i, c in zip(data, colors):
             for j in i:
                 for k in j[0]:
-                    plt.plot(k[:, 0], k[:, 1], color=j[1])
+                    plt.plot(k[:, 0], k[:, 1], color=c)
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
