@@ -40,7 +40,7 @@ class Plots:
         for i, n in enumerate(data):  # n0 = data[0][:]
             for j, m in n:  # m0 = n[0] = data[0][0][:]
                 for k in m[0]:  # m[0]0 = m0[0] = data[0][0][0][:] = signal waveforms, m[1] would be trigger wfs
-                    plt.plot(k[:, 0], k[:, 1])
+                    print(k) #plt.plot(k[:, 0], k[:, 1])
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
