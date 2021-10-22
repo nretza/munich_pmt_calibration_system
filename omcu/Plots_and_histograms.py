@@ -85,3 +85,6 @@ class Plots:
 
         plt.savefig(figname)
         plt.show()
+
+        areas_name = directory + '/' + folder_name + '-areas.txt'
+        np.save(areas_name, areas)
