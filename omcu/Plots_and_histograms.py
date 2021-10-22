@@ -37,10 +37,10 @@ class Plots:
         plt.figure()
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, total_number_waveforms)))
-        for i, n in enumerate(data):  # n0 = data[0][:]
-            for j, m in n:  # m0 = n[0] = data[0][0][:]
+        for i, n in enumerate(zip(data, colors)):  # n[0]0 = data[0][:]
+            for j, m in n[0]:  # m0 = n[0][0] = data[0][0][:]
                 for k in m[0]:  # m[0]0 = m0[0] = data[0][0][0][:] = signal waveforms, m[1] would be trigger wfs
-                    print(k[:, 0], k[:, 1])
+                    plt.plot(k[:, 0], k[:, 1], color=n[1])
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
