@@ -81,5 +81,6 @@ class Plots:
         plt.savefig(figname)
         plt.show()
 
-        areas_name = directory + '/' + folder_name + '-areas'
+        areas_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
+                  + str(number) + '-areas.npy'
         np.save(areas_name, areas)
