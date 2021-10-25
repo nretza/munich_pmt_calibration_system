@@ -23,8 +23,8 @@ class Plots:
         filename_split2 = filename_split1[-1].split('-')  # ['20211020', '140412', '6', '4', '10.npy']
         filename_split3 = filename_split2[-1].split('.')  # ['10', 'npy']
         number = int(filename_split3[0])  # 10 = number of waveforms per measurement
-        number_theta = int(filename_split2[2])  # 6
-        number_phi = int(filename_split2[3])  # 4
+        number_theta = int(filename_split2[-3])  # 6
+        number_phi = int(filename_split2[-2])  # 4
         total_number = int(number_theta * number_phi)  # 24 = number of measurements
         total_number_waveforms = number * total_number  # 240
 
@@ -68,8 +68,11 @@ class Plots:
                 for k, p in enumerate(m[0]):
                     x = p[:, 0]
                     y = p[:, 1]
-                    x_arr.append(x)
-                    y_arr.append(y)
+                    for i in y:
+                        minval = np.min(i)
+                        if minval < -4:
+                            x_arr.append(x)
+                            y_arr.append(abs(y))
 
         areas = trapz(y_arr, x_arr, axis=1)
         areas_list = areas.tolist()

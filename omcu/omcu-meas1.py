@@ -22,7 +22,7 @@ PSU1.on()
 L.on_pulsed()
 
 
-filename1, filename2, data_sgnl, data_trg, deltaT = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=100)
+data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=100)
 
 for i in range(0, 50, 1):
     Rot.set_theta(i)
@@ -32,8 +32,7 @@ PSU0.off()
 PSU1.off()
 L.off_pulsed()
 
-Ps.plot_data(filename1)
-Ps.plot_histogram(filename1, nBins=10)
+
 
 
 

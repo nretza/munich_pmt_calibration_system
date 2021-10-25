@@ -77,7 +77,7 @@ class Picoscope:
                 pass
             else:
                 ps.ps6000aSetChannelOff(self.chandle, ch)
-                print("Channel off:", ch)
+                #print("Channel off:", ch)
 
         return trgchannel, sgnlchannel
 
@@ -125,8 +125,8 @@ class Picoscope:
         # resolution = resolution
         ps.ps6000aGetMinimumTimebaseStateless(self.chandle, enabledChannelFlags, ctypes.byref(timebase),
                                               ctypes.byref(timeInterval), self.resolution)
-        print("timebase = ", timebase.value)
-        print("sample interval =", timeInterval.value, "s")
+        #print("timebase = ", timebase.value)
+        #print("sample interval =", timeInterval.value, "s")
         return timebase.value, timeInterval.value
 
     def buffer_setup(self, channel=0):
@@ -285,7 +285,7 @@ class Picoscope:
         # print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
-        print('Picoscope set')
+        #print('Picoscope set')
 
         buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
             self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=number)
@@ -311,7 +311,7 @@ class Picoscope:
         check = ctypes.c_int16(0)
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
-        print('Picoscope ready')
+        #print('Picoscope ready')
 
         # Get data from scope
         # handle = chandle
@@ -326,14 +326,14 @@ class Picoscope:
 
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                   ctypes.byref(overflow))
-        print('got values')
+        #print('got values')
 
         # get max ADC value
         # handle = chandle
         minADC = ctypes.c_int16()
         maxADC = ctypes.c_int16()
         ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        print('adc limits')
+        #print('adc limits')
 
         self.stop_scope()
 
@@ -451,16 +451,16 @@ class Picoscope:
         This is a function to stop whatever the picoscope is doing.
         """
         ps.ps6000aStop(self.chandle)
-        print('Picoscope stopped')
+        #print('Picoscope stopped')
 
     def close_scope(self):
         """
         This is a function to stop whatever the picoscope is doing and close the connection to it.
         """
         ps.ps6000aStop(self.chandle)
-        print('Picoscope stopped')
+        #print('Picoscope stopped')
         ps.ps6000aCloseUnit(self.chandle)
-        print('Picoscope closed')
+        #print('Picoscope closed')
 
 
 if __name__ == "__main__":
