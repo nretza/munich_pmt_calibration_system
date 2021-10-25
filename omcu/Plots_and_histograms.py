@@ -66,8 +66,8 @@ class Plots:
         for i, n in enumerate(data):
             for j, m in enumerate(n):
                 for k, p in enumerate(m[0]):
-                    x = p[:, 0]
-                    y = p[:, 1]
+                    x = p[:, 0]*(10**9)  # convert to [s]
+                    y = p[:, 1]*(10**3)  # convert to [V]
                     for i in y:
                         minval = np.min(i)
                         if minval < -4:
