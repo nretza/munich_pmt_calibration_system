@@ -36,7 +36,7 @@ class Occupancy:
         for i in range(number):
             minval[i] = np.min(data[i].T[1])
 
-        occ = np.sum(np.where(minval < threshold, 1, 0))  # Occupancy for threshold
+        occ = np.sum(np.where(minval < threshold, 1, 0))/number  # Occupancy for threshold
         return occ
 
     def occ_old(self, file='./data/20210823-112905-10000-sgnl.npy', threshold=-4):

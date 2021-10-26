@@ -7,6 +7,7 @@ from submodules.Rotation import Rotation
 from submodules.Picoamp import Picoamp
 from submodules.Laser import Laser
 from submodules.Powermeter import Powermeter
+from Occupancy import Occupancy
 import time
 import os
 import numpy as np
@@ -19,8 +20,9 @@ Rot = Rotation()
 #Pa = Picoamp()
 L = Laser()
 #Pm = Powermeter()
+oc = Occupancy()
 
-time.sleep(300)  # wait 5 minutes so that it's dark
+#time.sleep(300)  # wait 5 minutes so that it's dark
 #Pm.set_offset()  # set offset value when it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
@@ -32,9 +34,20 @@ Psu0.on()
 Rot.go_home()
 Psu1.on()
 
-L.set_freq(f=10e3)  # value?
-L.set_tune_value(tune=720)  # value?
+f0 = 10e3
+L.set_freq(f=f0)  # value?
+tune = 710
+L.set_tune_value(tune=tune)  # value?
 L.on_pulsed()  # pulsed laser emission on
+number0 = 10000
+data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
+occ = oc.occ_data(data_sgnl, -4)
+while occ > 0.1:
+    tune = tune+1
+    L.set_tune_value(tune=tune)
+    data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
+    occ = oc.occ_data(data_sgnl, -4)
+print('Laser tune value is', tune)
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + timestr + '-' + str(Vctrl)
