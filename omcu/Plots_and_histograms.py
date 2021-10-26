@@ -30,6 +30,22 @@ class Plots:
 
         return folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms
 
+    def filter_sph_and_set_data_to_SI(self, filename='data/20211026-101255-1.1/20211026-101255-1.1-3-2-1000.npy',
+                                      threshold=-4):
+
+        data = np.load(filename)
+        x_arr = []
+        y_arr = []
+        for i, n in enumerate(data[:, :, 0, :]):  # in all waveforms
+            for m in n:
+                for j, y in enumerate(m):
+                    minval = np.min(y)
+                    if minval < threshold:
+                        x_arr.append(m[j][:, 0] * 1e-9)
+                        y_arr.append(m[j][:, 1] * 1e-3)
+
+        return x_arr, y_arr
+
     def plot_waveforms(self, filename='data/20211022-140412-1.1/20211022-140412-6-4-10.npy'):
 
         data = np.load(filename)
@@ -39,9 +55,9 @@ class Plots:
         figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
                   + str(number) + '-Figure.pdf'
 
-        plt.figure()
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, total_number_waveforms)))
+        plt.figure()
         for i, c in zip(data, colors):
             for j in i:
                 for k in j[0]:
@@ -52,49 +68,79 @@ class Plots:
         plt.savefig(figname)
         plt.show()
 
-    def plot_histogram_charge(self, filename='data/20211022-140412-1.1/20211022-140412-6-4-10.npy', nBins=20):
+    def plot_sph_waveforms(self, filename='data/20211026-101255-1.1/20211026-101255-1.1-3-2-1000.npy', threshold=-4):
 
-        data = np.load(filename)
         folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
             self.get_info(filename)
 
-        figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
-                  + str(number) + '-Histogram.pdf'
+        figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
+                  + str(number) + '-Figure-sph.pdf'
 
-        x_arr = []
-        y_arr = []
-        for i, n in enumerate(data):
-            for j, m in enumerate(n):
-                for k, p in enumerate(m[0]):
-                    x = p[:, 0]*(10**9)  # convert to [s]
-                    y = p[:, 1]*(10**3)  # convert to [V]
-                    for i in y:
-                        minval = np.min(i)
-                        if minval < -4:
-                            x_arr.append(x)
-                            y_arr.append(abs(y))
+        x_arr, y_arr = self.filter_sph_and_set_data_to_SI(filename, threshold)
 
-        areas = trapz(y_arr, x_arr, axis=1)
-        areas_list = areas.tolist()
-
+        number_new=len(y_arr)
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, number_new)))
         plt.figure()
-        plt.hist(areas, bins=nBins)
-        plt.ylabel('counts')
-        plt.xlabel('area [Vs]')
-
+        for x, y, c in zip(x_arr, y_arr, colors):
+            plt.plot(x, y, color=c)
+            plt.xlabel('Time (s)')
+            plt.ylabel('Voltage (V)')
         plt.savefig(figname)
         plt.show()
 
+    def calculate_areas(self, filename='data/20211026-101255-1.1/20211026-101255-1.1-3-2-1000.npy', threshold=-4):
+
+        folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
+            self.get_info(filename)
+
+        x_arr, y_arr = self.filter_sph_and_set_data_to_SI(filename, threshold)
+
+        areas = trapz(y_arr, x_arr, axis=1)
+
         areas_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
                   + str(number) + '-areas.txt'
-        np.savetxt(areas_name, areas_list)
+        np.savetxt(areas_name, areas)
+
+        return areas
+
+    def calculate_nr_electrons(self, filename='data/20211026-101255-1.1/20211026-101255-1.1-3-2-1000.npy', threshold=-4):
+
+        folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
+            self.get_info(filename)
+
+        areas = self.calculate_areas(filename, threshold)
 
         e = const.e
         number_of_electrons = []
-        for i in areas_list:
+        for i in areas:
             No = abs(i/e)
             number_of_electrons.append(No)
 
         number_of_electrons_name = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) +\
                                    '-' + str(number) + '-number_of_electrons.txt'
         np.savetxt(number_of_electrons_name, number_of_electrons)
+
+        for i in number_of_electrons:
+            max = np.max(i)
+
+        return max
+
+    def plot_histogram_charge(self, filename='data/20211026-101255-1.1/20211026-101255-1.1-3-2-1000.npy', threshold=-4,
+                              nBins=30):
+
+        folder_name, directory, number, number_theta, number_phi, total_number, total_number_waveforms =\
+            self.get_info(filename)
+
+        figname = directory + '/' + folder_name + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
+                  + str(number) + '-Histogram.pdf'
+
+        areas = self.calculate_areas(filename, threshold)
+
+        plt.figure()
+        plt.hist(areas, bins=nBins)
+        plt.ylabel('counts')
+        plt.xlabel('area [Vs]')
+        #TODO: Gauß fit
+        plt.savefig(figname)
+        plt.show()

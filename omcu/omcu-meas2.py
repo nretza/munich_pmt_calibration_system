@@ -47,10 +47,10 @@ while occ > 0.1:
     L.set_tune_value(tune=tune)
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, -4)
-print('Laser tune value is', tune)
-
-timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + timestr + '-' + str(Vctrl)
+print('Laser tune value is', tune, '. Occupancy is', occ*0.01, '%')
+time.sleep(300)
+timestr1 = time.strftime("%Y%m%d-%H%M%S")
+directory = 'data/' + timestr1 + '-' + str(Vctrl)
 os.mkdir(directory)
 delta_theta = 15  # 5
 thetas=np.arange(0,90.1,delta_theta)
@@ -64,6 +64,7 @@ nSamples = Ps.get_nSamples()
 data = np.zeros((number_theta, number_phi, 2, number, nSamples, 2))
 #Pm_data = np.zeros((number_theta, number_phi))
 positions=[]
+t1 = time.time()
 for i, theta in enumerate(thetas):  # rotation in xy plane
     Rot.set_theta(theta)
     print('i=', i, 'theta=', theta)
@@ -84,23 +85,22 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         data[i][j][0] = data_sgnl
         data[i][j][1] = data_trg
         time.sleep(0.1)
+t2 = time.time()
+deltaT = t2-t1
+print(deltaT)
 
-filename_Ps = directory + '/' + timestr + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
+filename_Ps = directory + '/' + timestr1 + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
               + str(number) + '.npy'
 np.save(filename_Ps, data)
 print(filename_Ps)
 #filename_Pm = directory + '/' + timestr + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
               #+ str(number) + '-Powermeter-data.npy'
 #np.save(filename_Pm, Pm_data)
-filename_pos = directory + '/' + timestr + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
-              + str(number) + '-positions.txt'
+filename_pos = directory + '/' + timestr1 + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
+               + str(number) + '-positions.txt'
 np.savetxt(filename_pos, positions)
 
 L.off_pulsed()
 Rot.go_home()
 Psu0.off()
 Psu1.off()
-
-
-
-
