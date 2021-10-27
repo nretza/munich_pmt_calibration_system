@@ -4,28 +4,41 @@
 from submodules.Picoscope import Picoscope
 from submodules.PSU import PSU
 from submodules.Rotation import Rotation
-from submodules.Picoamp import Picoamp
 from submodules.Laser import Laser
+from submodules.Picoamp import Picoamp
 from submodules.Powermeter import Powermeter
 from Occupancy import Occupancy
+from Plots_and_histograms import Plots
 import time
 import os
 import numpy as np
-import statistics as st
+import h5py
+
+PMT = 'PMT001'
+#TODO: erstelle directory für PMT folder
+timestr = time.strftime("%Y%m%d-%H%M%S")
+directory = 'data/' + PMT + '/' + timestr
+os.mkdir(directory)
+format = '.hdf5'
+filename = PMT + format
+filename_with_folder = directory + '/' + filename
+h5 = h5py.File(filename_with_folder, 'w')
 
 Ps = Picoscope()
 Psu0 = PSU(dev="/dev/PSU_0")
 Psu1 = PSU(dev="/dev/PSU_1")
 Rot = Rotation()
-#Pa = Picoamp()
 L = Laser()
-#Pm = Powermeter()
+Pm = Powermeter()
+#Pa = Picoamp()
 oc = Occupancy()
+pl = Plots()
 
-#time.sleep(300)  # wait 5 minutes so that it's dark
-#Pm.set_offset()  # set offset value when it's dark
+time.sleep(300)  # wait 5 minutes so that it's dark
+Pm.set_offset()  # set offset value when it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
+# Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
 Vctrl = 1.1
@@ -34,6 +47,7 @@ Psu0.on()
 Rot.go_home()
 Psu1.on()
 
+# Laser settings depending on occupancy
 f0 = 10e3
 L.set_freq(f=f0)  # value?
 tune = 710
@@ -49,56 +63,39 @@ while occ > 0.1:
     occ = oc.occ_data(data_sgnl, -4)
 print('Laser tune value is', tune, '. Occupancy is', occ*0.01, '%')
 time.sleep(300)
-timestr1 = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + timestr1 + '-' + str(Vctrl)
-os.mkdir(directory)
+
 delta_theta = 15  # 5
-thetas=np.arange(0,90.1,delta_theta)
-number_theta = len(thetas)
+thetas = np.arange(0, 90.1, delta_theta)
 delta_phi = 15  # value?
-phis=np.arange(0,360.,delta_phi)
-number_phi = len(phis)
-# total_number = int(90/delta_theta * 360/delta_phi)
+phis = np.arange(0, 360., delta_phi)
 number = 1000
 nSamples = Ps.get_nSamples()
-data = np.zeros((number_theta, number_phi, 2, number, nSamples, 2))
-#Pm_data = np.zeros((number_theta, number_phi))
-positions=[]
 t1 = time.time()
 for i, theta in enumerate(thetas):  # rotation in xy plane
     Rot.set_theta(theta)
-    print('i=', i, 'theta=', theta)
     for j, phi in enumerate(phis):  # rotation around PMT long axis
         Rot.set_phi(phi)
-        print('j=', j, 'phi=', phi)
         pos = Rot.get_position()
-        positions.append(pos)
+        print(pos)
         time.sleep(0.1)
-        #Pm.set_data_collection(1)  # enable data collection of Powermeter
-        #num = Pm.get_count()  # get number of collected data points
-        #Pm_data_points = Pm.get_data(num)  # returns list with data points
-        #Pm_data_points_mean = st.mean(Pm_data_points)
-        #Pm_data[i][j] = Pm_data_points_mean
+        power = Pm.get_power()
         # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
-        data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000,
+        folder_sgnl = str(theta) + '/' + str(phi) + '/signal'
+        folder_trg = str(theta) + '/' + str(phi) + '/trigger'
+        arr_sgnl = h5.create_dataset(folder_sgnl, (number, nSamples, 2), dtype='f')
+        arr_trg = h5.create_dataset(folder_trg, (number, nSamples, 2), dtype='f')
+        arr_sgnl[:], arr_trg[:] = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000,
                                                    number=number)
-        data[i][j][0] = data_sgnl
-        data[i][j][1] = data_trg
+        arr_sgnl.attrs['Vctrl'], arr_trg.attrs['Vctrl'] = Vctrl
+        arr_sgnl.attrs['Powermeter'], arr_trg.attrs['Powermeter'] = power
+        arr_sgnl.attrs['Units_voltage'], arr_trg.attrs['Units_voltage'] = 'mV'
+        arr_sgnl.attrs['Units_time'], arr_trg.attrs['Units_time'] = 'ns'
+        #TODO: mehr Attribute?
+        h5.close()
         time.sleep(0.1)
 t2 = time.time()
 deltaT = t2-t1
 print(deltaT)
-
-filename_Ps = directory + '/' + timestr1 + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
-              + str(number) + '.npy'
-np.save(filename_Ps, data)
-print(filename_Ps)
-#filename_Pm = directory + '/' + timestr + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-'\
-              #+ str(number) + '-Powermeter-data.npy'
-#np.save(filename_Pm, Pm_data)
-filename_pos = directory + '/' + timestr1 + '-' + str(Vctrl) + '-' + str(number_theta) + '-' + str(number_phi) + '-' \
-               + str(number) + '-positions.txt'
-np.savetxt(filename_pos, positions)
 
 L.off_pulsed()
 Rot.go_home()

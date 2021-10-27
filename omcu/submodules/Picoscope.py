@@ -285,7 +285,7 @@ class Picoscope:
         print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
-        print('Picoscope set')
+        #print('Picoscope set')
 
         buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch =\
             self.buffer_setup_block_multi(trgchannel=trgchannel, sgnlchannel=sgnlchannel, number=number)
