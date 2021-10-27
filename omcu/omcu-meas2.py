@@ -19,8 +19,8 @@ PMT = 'PMT001'
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
 os.mkdir(directory)
-format = '.hdf5'
-filename = PMT + format
+suf = '.hdf5'
+filename = PMT + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
