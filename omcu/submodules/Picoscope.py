@@ -282,7 +282,7 @@ class Picoscope:
         timebase, timeInterval = self.timebase_setup()
         # timebase = self.timebase
         # timeInterval = self.timeInterval
-        print(timebase, timeInterval)
+        #print(timebase, timeInterval)
 
         self.trigger_setup(trgchannel, direction, threshold)
         #print('Picoscope set')
@@ -312,7 +312,7 @@ class Picoscope:
         check = ctypes.c_int16(0)
         while ready.value == check.value:
             ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
-        print('Picoscope ready')
+        #print('Picoscope ready')
 
         # Get data from scope
         # handle = chandle
@@ -327,7 +327,7 @@ class Picoscope:
 
         ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
                                                   ctypes.byref(overflow))
-        print('got values')
+        #print('got values')
 
         # get max ADC value
         # handle = chandle

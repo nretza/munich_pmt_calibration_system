@@ -22,7 +22,6 @@ os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + suf
 filename_with_folder = directory + '/' + filename
-h5 = h5py.File(filename_with_folder, 'w')
 
 Ps = Picoscope()
 Psu0 = PSU(dev="/dev/PSU_0")
@@ -85,19 +84,21 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         time.sleep(0.1)
         power = Pm.get_power()
         # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
-        folder_sgnl = '/' + str(theta) + '/' + str(phi) + '/signal'
-        folder_trg = '/' + str(theta) + '/' + str(phi) + '/trigger'
-        arr_sgnl = h5.create_dataset(folder_sgnl, (number, nSamples, 2), dtype='f')  #TODO: ValueError: Invalid location identifier (invalid location identifier)
-        arr_trg = h5.create_dataset(folder_trg, (number, nSamples, 2), dtype='f')
-        arr_sgnl[:], arr_trg[:] = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000,
-                                                   number=number)
-        #arr_sgnl.attrs['Vctrl'], arr_trg.attrs['Vctrl'] = Vctrl
-        #arr_sgnl.attrs['Powermeter'], arr_trg.attrs['Powermeter'] = power
-        #arr_sgnl.attrs['Units_voltage'], arr_trg.attrs['Units_voltage'] = 'mV'
-        #arr_sgnl.attrs['Units_time'], arr_trg.attrs['Units_time'] = 'ns'
-        #TODO: mehr Attribute?
-        h5.close()
-        time.sleep(0.1)
+        with h5py.File(filename_with_folder, 'w') as f:
+            g = f.create_group(str(theta))
+            gg = g.create_group(str(phi))
+            data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000,
+                                                         number=number)
+            arr_sgnl = gg.create_dataset('signal', data=data_sgnl)
+            arr_trg = gg.create_dataset('trigger', data=data_trg)
+
+            arr_sgnl.attrs['Vctrl'], arr_trg.attrs['Vctrl'] = Vctrl
+            arr_sgnl.attrs['Powermeter'], arr_trg.attrs['Powermeter'] = power
+            arr_sgnl.attrs['Units_voltage'], arr_trg.attrs['Units_voltage'] = 'mV'
+            arr_sgnl.attrs['Units_time'], arr_trg.attrs['Units_time'] = 'ns'
+            #TODO: mehr Attribute?
+            f.close()
+            time.sleep(0.1)
 t2 = time.time()
 deltaT = t2-t1
 print(deltaT)
