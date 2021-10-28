@@ -305,7 +305,7 @@ class Picoscope:
                            ctypes.byref(timeIndisposedMs), 0, None, None)
         t2 = time.time()
         deltaT = t2-t1
-        print(deltaT)
+        #print(deltaT)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)

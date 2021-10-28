@@ -22,6 +22,7 @@ os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + suf
 filename_with_folder = directory + '/' + filename
+h5 = h5py.File(filename_with_folder, 'w')
 
 Ps = Picoscope()
 Psu0 = PSU(dev="/dev/PSU_0")
@@ -33,15 +34,14 @@ Pm = Powermeter()
 oc = Occupancy()
 pl = Plots()
 
-time.sleep(300)  # wait 5 minutes so that it's dark
+#time.sleep(300)  # wait 5 minutes so that it's dark
 Pm.set_offset()  # set offset value when it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
 # turn on laser for it to heat up
 L.on_pulsed()  # pulsed laser emission on
-time.sleep(1800)  # wait 30 minutes
+#time.sleep(1800)  # wait 30 minutes
 power0 = Pm.get_power()
-print('Powermeter:', power0, 'W')
 
 # Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
@@ -65,10 +65,10 @@ while occ > 0.1:
     L.set_tune_value(tune=tune)
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, -4)
-print('Laser tune value is', tune, '. Occupancy is', occ*0.01, '%')
-time.sleep(300)
+print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
+#time.sleep(300)
 
-delta_theta = 15  # 5
+delta_theta = 10  # 5
 thetas = np.arange(0, 90.1, delta_theta)
 delta_phi = 15  # value?
 phis = np.arange(0, 360., delta_phi)
@@ -84,21 +84,23 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         time.sleep(0.1)
         power = Pm.get_power()
         # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
-        with h5py.File(filename_with_folder, 'w') as f:
-            g = f.create_group(str(theta))
-            gg = g.create_group(str(phi))
-            data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000,
-                                                         number=number)
-            arr_sgnl = gg.create_dataset('signal', data=data_sgnl)
-            arr_trg = gg.create_dataset('trigger', data=data_trg)
+        arr_sgnl = h5.create_dataset(f"theta{theta}/phi{phi}/signal", (number, nSamples, 2), 'f')
+        arr_trg = h5.create_dataset(f"theta{theta}/phi{phi}/trigger", (number, nSamples, 2), 'f')
+        data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number = number)
+        arr_sgnl[:] = data_sgnl
+        arr_trg[:] = data_trg
 
-            arr_sgnl.attrs['Vctrl'], arr_trg.attrs['Vctrl'] = Vctrl
-            arr_sgnl.attrs['Powermeter'], arr_trg.attrs['Powermeter'] = power
-            arr_sgnl.attrs['Units_voltage'], arr_trg.attrs['Units_voltage'] = 'mV'
-            arr_sgnl.attrs['Units_time'], arr_trg.attrs['Units_time'] = 'ns'
-            #TODO: mehr Attribute?
-            f.close()
-            time.sleep(0.1)
+        arr_sgnl.attrs['Vctrl'] = f"Vctrl={Vctrl}"
+        arr_trg.attrs['Vctrl'] = f"Vctrl={Vctrl}"
+        arr_sgnl.attrs['Powermeter'] = f"Power={power}"
+        arr_trg.attrs['Powermeter'] = f"Power={power}"
+        arr_sgnl.attrs['Units_voltage'] = 'mV'
+        arr_trg.attrs['Units_voltage'] = 'mV'
+        arr_sgnl.attrs['Units_time'] = 'ns'
+        arr_trg.attrs['Units_time'] = 'ns'
+        #TODO: mehr Attribute?
+        time.sleep(0.1)
+h5.close()
 t2 = time.time()
 deltaT = t2-t1
 print(deltaT)
