@@ -15,8 +15,15 @@ class Analysis:
         Ps = Picoscope()
         self.nSamples = Ps.get_nSamples()
 
-    def filter_sph_and_set_data_to_SI(self, filename='./data/PMT001/test_with_attr'):
+    def filter_sph(self, filename='./data/PMT001/20211028-111907/PMT001.hdf5', threshold=-4):
 
-        with h5py.File(filename, 'r') as f:
-            for arr in f:  #TODO: add
-                pass
+        h5 = h5py.File(filename, 'r+')
+        for key in h5.keys():
+            for key2 in h5[key]:
+                dataset = h5[key][key2]['signal']
+                dataset.attrs['Passes threshold'] = np.zeros((len(dataset)))
+                for i, wf in enumerate(dataset):
+                    minval = np.min(wf)
+                    if minval < threshold:
+                        dataset.attrs['Passes threshold'][i] = 1  #TODO: fix
+
