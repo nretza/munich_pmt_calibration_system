@@ -9,16 +9,19 @@ import scipy.constants as const
 import h5py
 from Waveform import Waveform
 
+#from Data_analysis import Analysis as Al
+#data2910 = Al('./data/PMT001/20211029.../PMT001.hdf5')
+
 class Analysis:
 
-    def __init__(self):
-
+    def __init__(self, filename='./data/PMT001/20211028-114024/PMT001.hdf5'):
+        self.filename = filename
         Ps = Picoscope()
         self.nSamples = Ps.get_nSamples()
 
-    def calculate_gain_sph(self, filename='./data/PMT001/20211028-114024/PMT001.hdf5', threshold=-4):
+    def calculate_gain_sph(self, threshold=-4):
 
-        h5 = h5py.File(filename, 'r+')
+        h5 = h5py.File(self.filename, 'r+')
         wfs = []
         for key in h5.keys():
             for key2 in h5[key]:
@@ -31,3 +34,7 @@ class Analysis:
                         wfs.append(wf_object)
 
         return wfs
+
+    def plot_hist_gain(self, threshold=-4):
+
+        wf_list = self.calculate_gain_sph(threshold)
