@@ -11,6 +11,7 @@ from Waveform import Waveform
 
 #from Data_analysis import Analysis as Al
 #data2910 = Al('./data/PMT001/20211029.../PMT001.hdf5')
+#data2910.calculate_gain_sph(threshold)
 
 class Analysis:
 
