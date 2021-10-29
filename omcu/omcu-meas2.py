@@ -38,11 +38,6 @@ pl = Plots()
 Pm.set_offset()  # set offset value when it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
-# turn on laser for it to heat up
-L.on_pulsed()  # pulsed laser emission on
-#time.sleep(1800)  # wait 30 minutes
-power0 = Pm.get_power()
-
 # Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
@@ -51,24 +46,28 @@ Psu1.settings(2, voltage=Vctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu0.on()
 Rot.go_home()
 Psu1.on()
+time.sleep(3600)
 
 # Laser settings depending on occupancy
+L.on_pulsed()  # pulsed laser emission on
+time.sleep(300)
 f0 = 10e3
 L.set_freq(f=f0)  # value?
 tune = 710
 L.set_tune_value(tune=tune)  # value?
 number0 = 10000
+threshold = -4
 data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
-occ = oc.occ_data(data_sgnl, -4)
+occ = oc.occ_data(data_sgnl, threshold)
 while occ > 0.1:
     tune = tune+1
     L.set_tune_value(tune=tune)
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
-    occ = oc.occ_data(data_sgnl, -4)
+    occ = oc.occ_data(data_sgnl, threshold)
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-delta_theta = 10  # 5
+delta_theta = 15  # 5
 thetas = np.arange(0, 90.1, delta_theta)
 delta_phi = 15  # value?
 phis = np.arange(0, 360., delta_phi)
