@@ -334,13 +334,15 @@ class Laser:
             print('Error: CW laser emission state could not be determined. Try again!')
         return cw_val
 
-    def get_temp(self):  #TODO: fix
+    def get_temp(self):
         """
         This is a function to get the laser head temperature
         :return:
         """
-        temp_string = self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
-        return temp_string
+        self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
+        temp_string = self.serial.readline()
+        temp_float = float(temp_string[23:28])
+        return temp_float
 
     def get_temp_ind(self):  #TODO: fix
         """

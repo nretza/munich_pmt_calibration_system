@@ -14,16 +14,6 @@ import os
 import numpy as np
 import h5py
 
-PMT = 'PMT001'
-#TODO: erstelle directory für PMT folder
-timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr
-os.mkdir(directory)
-suf = '.hdf5'
-filename = PMT + suf
-filename_with_folder = directory + '/' + filename
-h5 = h5py.File(filename_with_folder, 'w')
-
 Ps = Picoscope()
 Psu0 = PSU(dev="/dev/PSU_0")
 Psu1 = PSU(dev="/dev/PSU_1")
@@ -35,7 +25,6 @@ oc = Occupancy()
 pl = Plots()
 
 #time.sleep(300)  # wait 5 minutes so that it's dark
-Pm.set_offset()  # set offset value when it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
 # Psu settings
@@ -47,6 +36,19 @@ Psu0.on()
 Rot.go_home()
 Psu1.on()
 time.sleep(3600)
+
+Laser_temp = L.get_temp()
+Pm.set_offset()  # set offset value when it's dark
+
+PMT = 'PMT001'
+#TODO: erstelle directory für PMT folder
+timestr = time.strftime("%Y%m%d-%H%M%S")
+directory = 'data/' + PMT + '/' + timestr
+os.mkdir(directory)
+suf = '.hdf5'
+filename = PMT + suf
+filename_with_folder = directory + '/' + filename
+h5 = h5py.File(filename_with_folder, 'w')
 
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
@@ -67,9 +69,9 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-delta_theta = 15  # 5
+delta_theta = 10  # 5
 thetas = np.arange(0, 90.1, delta_theta)
-delta_phi = 15  # value?
+delta_phi = 5  # value?
 phis = np.arange(0, 360., delta_phi)
 number = 1000
 nSamples = Ps.get_nSamples()
@@ -81,6 +83,7 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         pos = Rot.get_position()
         print(pos)
         time.sleep(0.1)
+        Laser_temp = L.get_temp()
         power = Pm.get_power()
         # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
         arr_sgnl = h5.create_dataset(f"theta{theta}/phi{phi}/signal", (number, nSamples, 2), 'f')
@@ -93,6 +96,8 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         arr_trg.attrs['Vctrl'] = f"Vctrl={Vctrl}"
         arr_sgnl.attrs['Powermeter'] = f"Power={power}"
         arr_trg.attrs['Powermeter'] = f"Power={power}"
+        arr_sgnl.attrs['Laser temperature'] = f"Laser temp={Laser_temp}"
+        arr_trg.attrs['Laser temperature'] = f"Laser temp={Laser_temp}"
         arr_sgnl.attrs['Units_voltage'] = 'mV'
         arr_trg.attrs['Units_voltage'] = 'mV'
         arr_sgnl.attrs['Units_time'] = 'ns'
