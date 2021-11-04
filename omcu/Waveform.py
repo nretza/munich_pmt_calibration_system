@@ -17,7 +17,7 @@ class Waveform:
         print(self.theta,self.phi)
 
     def calculate_gain(self):
-        self.area = trapz(self.y*1e-3, self.x*1e-9)
+        self.area = trapz(abs(self.y*1e-3), abs(self.x*1e-9))
         self.gain = self.area/const.e
 
     def plot_wf(self):

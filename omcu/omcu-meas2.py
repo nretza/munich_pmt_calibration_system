@@ -69,9 +69,9 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-delta_theta = 10  # 5
+delta_theta = 1  # 5
 thetas = np.arange(0, 90.1, delta_theta)
-delta_phi = 5  # value?
+delta_phi = 90  # value?
 phis = np.arange(0, 360., delta_phi)
 number = 1000
 nSamples = Ps.get_nSamples()
