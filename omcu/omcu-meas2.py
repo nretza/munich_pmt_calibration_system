@@ -57,7 +57,7 @@ f0 = 10e3
 L.set_freq(f=f0)  # value?
 tune = 710
 L.set_tune_value(tune=tune)  # value?
-number0 = 10000
+number0 = 100000
 threshold = -4
 data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
 occ = oc.occ_data(data_sgnl, threshold)
@@ -69,15 +69,21 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-delta_theta = 5  # 5
+delta_theta = 6  # 5
 thetas = np.arange(0, 90.1, delta_theta)
-delta_phi = 15  # value?
-phis = np.arange(0, 360., delta_phi)
-number = 1000
+#delta_phi = 15  # value?
+#phis = np.arange(0, 360., delta_phi)
+number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
 for i, theta in enumerate(thetas):  # rotation in xy plane
     Rot.set_theta(theta)
+    n_phi_steps = 36 * np.sin(np.radians(theta))
+    delta_phi = min(360 / n_phi_steps, 90)
+    if theta==0:
+        phis = [0]
+    else:
+        phis = np.arange(0, 360., delta_phi)
     for j, phi in enumerate(phis):  # rotation around PMT long axis
         Rot.set_phi(phi)
         pos = Rot.get_position()
