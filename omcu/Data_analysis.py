@@ -36,6 +36,14 @@ class Analysis:
 
         return wfs
 
-    def plot_hist_gain(self, threshold=-4):
+    def plot_hist_gain(self, wf_list, nbins=100):
 
-        wf_list = self.calculate_gain_sph(threshold)
+        gains = []
+        for i in wf_list:
+            gains.append(i.gain)
+
+        plt.figure()
+        plt.hist(gains,bins=nbins)
+        plt.ylabel('counts')
+        plt.xlabel('gain')
+        plt.show()
