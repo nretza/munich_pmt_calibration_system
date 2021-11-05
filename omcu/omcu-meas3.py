@@ -5,7 +5,6 @@ from submodules.Picoscope import Picoscope
 from submodules.PSU import PSU
 from submodules.Rotation import Rotation
 from submodules.Laser import Laser
-from submodules.Picoamp import Picoamp
 from submodules.Powermeter import Powermeter
 from Occupancy import Occupancy
 import time
@@ -19,11 +18,7 @@ Psu1 = PSU(dev="/dev/PSU_1")
 Rot = Rotation()
 L = Laser()
 Pm = Powermeter()
-#Pa = Picoamp()
 oc = Occupancy()
-
-#time.sleep(300)  # wait 5 minutes so that it's dark
-#Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
 # Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
@@ -68,7 +63,7 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-Vctrl = np.arange(0, 1.61, 0.1)
+Vctrl = np.arange(0, 1.7, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
@@ -77,7 +72,6 @@ for V in Vctrl:
     print('Vctrl =', V)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
-    # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
     arr_sgnl = h5.create_dataset(f"Vctrl{V}/signal", (number, nSamples, 2), 'f')
     arr_trg = h5.create_dataset(f"Vctrl{V}/trigger", (number, nSamples, 2), 'f')
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
