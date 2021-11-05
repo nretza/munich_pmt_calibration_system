@@ -313,7 +313,7 @@ class Powermeter:
         :return: float
         """
         power_string = self.__write_serial(b'PM:P?\r\n')  # returns the power in the selected units
-        print("The power is:", power_string)
+        #print("The power is:", power_string)
         power = float(power_string)
         return power
 

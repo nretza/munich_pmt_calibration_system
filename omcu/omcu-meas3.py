@@ -8,7 +8,6 @@ from submodules.Laser import Laser
 from submodules.Picoamp import Picoamp
 from submodules.Powermeter import Powermeter
 from Occupancy import Occupancy
-from Plots_and_histograms import Plots
 import time
 import os
 import numpy as np
@@ -22,18 +21,18 @@ L = Laser()
 Pm = Powermeter()
 #Pa = Picoamp()
 oc = Occupancy()
-pl = Plots()
 
 #time.sleep(300)  # wait 5 minutes so that it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
 
 # Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
+Psu0.on()
+Rot.go_home()
+Psu0.off()
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
 V0ctrl = 1.1
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
-Psu0.on()
-Rot.go_home()
 Psu1.on()
 time.sleep(3600)
 
@@ -52,7 +51,7 @@ h5 = h5py.File(filename_with_folder, 'w')
 
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
-time.sleep(300)
+#time.sleep(300)
 f0 = 10e3
 L.set_freq(f=f0)  # value?
 tune = 710
@@ -69,23 +68,26 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-Vctrl = np.arange(0, 10.1, 0.1)
+Vctrl = np.arange(0, 1.61, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
 for V in Vctrl:
     Psu1.settings(2, voltage=V, current=0.1)
+    print('Vctrl =', V)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
     # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
-    arr_sgnl = h5.create_dataset(f"theta0.0/phi0.0/signal", (number, nSamples, 2), 'f')
-    arr_trg = h5.create_dataset(f"theta0.0/phi0.0/trigger", (number, nSamples, 2), 'f')
+    arr_sgnl = h5.create_dataset(f"Vctrl{V}/signal", (number, nSamples, 2), 'f')
+    arr_trg = h5.create_dataset(f"Vctrl{V}/trigger", (number, nSamples, 2), 'f')
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
     arr_sgnl[:] = data_sgnl
     arr_trg[:] = data_trg
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
     arr_trg.attrs['Vctrl'] = f"{V}"
+    arr_sgnl.attrs['Position'] = 'Home'
+    arr_trg.attrs['Position'] = 'Home'
     arr_sgnl.attrs['Powermeter'] = f"{power}"
     arr_trg.attrs['Powermeter'] = f"{power}"
     arr_sgnl.attrs['Laser temperature'] = f"{Laser_temp}"
@@ -99,9 +101,7 @@ for V in Vctrl:
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
-print(deltaT)
+print(deltaT/60)
 
 L.off_pulsed()
-Rot.go_home()
-Psu0.off()
 Psu1.off()

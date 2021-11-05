@@ -8,7 +8,6 @@ from submodules.Laser import Laser
 from submodules.Picoamp import Picoamp
 from submodules.Powermeter import Powermeter
 from Occupancy import Occupancy
-from Plots_and_histograms import Plots
 import time
 import os
 import numpy as np
@@ -22,7 +21,6 @@ L = Laser()
 Pm = Powermeter()
 #Pa = Picoamp()
 oc = Occupancy()
-pl = Plots()
 
 #time.sleep(300)  # wait 5 minutes so that it's dark
 #Pa_data_dark = Pa.read_ch1(100)  # value? data collection of Picoamp
@@ -113,7 +111,7 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
-print(deltaT)
+print(deltaT/60)
 
 L.off_pulsed()
 Rot.go_home()
