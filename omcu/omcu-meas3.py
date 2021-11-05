@@ -30,8 +30,8 @@ pl = Plots()
 # Psu settings
 Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-Vctrl = 1.1
-Psu1.settings(2, voltage=Vctrl, current=0.1)  # psu for PMT, Vcontrol
+V0ctrl = 1.1
+Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu0.on()
 Rot.go_home()
 Psu1.on()
@@ -69,47 +69,33 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-delta_theta = 6  # 5
-thetas = np.arange(0, 90.1, delta_theta)
-#delta_phi = 15  # value?
-#phis = np.arange(0, 360., delta_phi)
+Vctrl = np.arange(0, 10.1, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
-for i, theta in enumerate(thetas):  # rotation in xy plane
-    Rot.set_theta(theta)
-    n_phi_steps = 36 * np.sin(np.radians(theta))
-    delta_phi = min(360 / n_phi_steps, 90)
-    if theta==0:
-        phis = [0]
-    else:
-        phis = np.arange(0, 360., delta_phi)
-    for j, phi in enumerate(phis):  # rotation around PMT long axis
-        Rot.set_phi(phi)
-        pos = Rot.get_position()
-        print(pos)
-        time.sleep(0.1)
-        Laser_temp = L.get_temp()
-        power = Pm.get_power()
-        # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
-        arr_sgnl = h5.create_dataset(f"theta{theta}/phi{phi}/signal", (number, nSamples, 2), 'f')
-        arr_trg = h5.create_dataset(f"theta{theta}/phi{phi}/trigger", (number, nSamples, 2), 'f')
-        data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
-        arr_sgnl[:] = data_sgnl
-        arr_trg[:] = data_trg
+for V in Vctrl:
+    Psu1.settings(2, voltage=V, current=0.1)
+    Laser_temp = L.get_temp()
+    power = Pm.get_power()
+    # Pa_data = Pa.read_ch1(100)  # value? data collection of Picoamp
+    arr_sgnl = h5.create_dataset(f"theta0.0/phi0.0/signal", (number, nSamples, 2), 'f')
+    arr_trg = h5.create_dataset(f"theta0.0/phi0.0/trigger", (number, nSamples, 2), 'f')
+    data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
+    arr_sgnl[:] = data_sgnl
+    arr_trg[:] = data_trg
 
-        arr_sgnl.attrs['Vctrl'] = f"{Vctrl}"
-        arr_trg.attrs['Vctrl'] = f"{Vctrl}"
-        arr_sgnl.attrs['Powermeter'] = f"{power}"
-        arr_trg.attrs['Powermeter'] = f"{power}"
-        arr_sgnl.attrs['Laser temperature'] = f"{Laser_temp}"
-        arr_trg.attrs['Laser temperature'] = f"{Laser_temp}"
-        arr_sgnl.attrs['Units_voltage'] = 'mV'
-        arr_trg.attrs['Units_voltage'] = 'mV'
-        arr_sgnl.attrs['Units_time'] = 'ns'
-        arr_trg.attrs['Units_time'] = 'ns'
-        #TODO: mehr Attribute?
-        time.sleep(0.1)
+    arr_sgnl.attrs['Vctrl'] = f"{V}"
+    arr_trg.attrs['Vctrl'] = f"{V}"
+    arr_sgnl.attrs['Powermeter'] = f"{power}"
+    arr_trg.attrs['Powermeter'] = f"{power}"
+    arr_sgnl.attrs['Laser temperature'] = f"{Laser_temp}"
+    arr_trg.attrs['Laser temperature'] = f"{Laser_temp}"
+    arr_sgnl.attrs['Units_voltage'] = 'mV'
+    arr_trg.attrs['Units_voltage'] = 'mV'
+    arr_sgnl.attrs['Units_time'] = 'ns'
+    arr_trg.attrs['Units_time'] = 'ns'
+    #TODO: mehr Attribute?
+    time.sleep(0.1)
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
