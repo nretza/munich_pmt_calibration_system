@@ -8,9 +8,10 @@ import scipy.constants as const
 from scipy.integrate import quad
 
 class Waveform:
-    def __init__(self, theta, phi, y, x):
+    def __init__(self, theta, phi, Vctrl, y, x):
         self.theta = theta
         self.phi = phi
+        self.Vctrl = Vctrl
         self.y = y
         self.x = x
 

@@ -4,8 +4,6 @@
 from submodules.Picoscope import Picoscope
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import trapz
-import scipy.constants as const
 import h5py
 from Waveform import Waveform
 
@@ -30,7 +28,7 @@ class Analysis:
                 for i, wf in enumerate(dataset):
                     minval = np.min(wf[:,1])
                     if minval < threshold:
-                        wf_object = Waveform(key,key2,wf[:,1],wf[:,0])
+                        wf_object = Waveform(key, key2, dataset.attrs['Vctrl'], wf[:, 1], wf[:, 0])
                         wf_object.calculate_gain()
                         wfs.append(wf_object)
 
@@ -47,3 +45,35 @@ class Analysis:
         plt.ylabel('counts')
         plt.xlabel('gain')
         plt.show()
+
+    def plot_wfs(self, wf_list):
+
+        x = []
+        y = []
+
+        for i in wf_list:
+            x.append(i.x)
+            y.append(i.y)
+
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, len(x))))
+        plt.figure()
+        for i, j, c in zip(x, y, colors):
+            plt.plot(i, j, color=c)
+
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        plt.show()
+
+    def plot_gain_hv(self, wf_list):
+
+        gains = []
+        Vctrl = []
+        for i in wf_list:
+            gains.append(i.gain)
+            Vctrl.append(i.Vctrl)
+
+        plt.figure()
+        plt.plot(Vctrl, gains)
+        plt.show()
+

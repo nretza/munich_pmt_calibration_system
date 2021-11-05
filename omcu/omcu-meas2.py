@@ -98,12 +98,12 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         arr_sgnl[:] = data_sgnl
         arr_trg[:] = data_trg
 
-        arr_sgnl.attrs['Vctrl'] = f"Vctrl={Vctrl}"
-        arr_trg.attrs['Vctrl'] = f"Vctrl={Vctrl}"
-        arr_sgnl.attrs['Powermeter'] = f"Power={power}"
-        arr_trg.attrs['Powermeter'] = f"Power={power}"
-        arr_sgnl.attrs['Laser temperature'] = f"Laser temp={Laser_temp}"
-        arr_trg.attrs['Laser temperature'] = f"Laser temp={Laser_temp}"
+        arr_sgnl.attrs['Vctrl'] = f"{Vctrl}"
+        arr_trg.attrs['Vctrl'] = f"{Vctrl}"
+        arr_sgnl.attrs['Powermeter'] = f"{power}"
+        arr_trg.attrs['Powermeter'] = f"{power}"
+        arr_sgnl.attrs['Laser temperature'] = f"{Laser_temp}"
+        arr_trg.attrs['Laser temperature'] = f"{Laser_temp}"
         arr_sgnl.attrs['Units_voltage'] = 'mV'
         arr_trg.attrs['Units_voltage'] = 'mV'
         arr_sgnl.attrs['Units_time'] = 'ns'
