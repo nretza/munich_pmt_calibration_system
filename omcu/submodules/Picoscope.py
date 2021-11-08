@@ -25,7 +25,7 @@ class Picoscope:
         self.coupling_sgnl = enums.PICO_COUPLING["PICO_DC_50OHM"]
         self.coupling_trg = enums.PICO_COUPLING["PICO_DC"]
         # PICO_AC = 0, PICO_DC = 1, PICO_DC_50OHM = 50
-        self.voltrange_sgnl = 2
+        self.voltrange_sgnl = 3
         self.voltrange_trg = 9
         # voltage range for signal channel needs to be sufficiently low to avoid large noise band
         # 0=PICO_10MV: ±10 mV, 1=PICO_20MV: ±20 mV, 2=PICO_50MV: ±50 mV, 3=PICO_100MV: ±100 mV, 4=PICO_200MV: ±200 mV,
