@@ -63,7 +63,7 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-Vctrl = np.arange(0, 1.7, 0.1)
+Vctrl = np.arange(0.1, 1.7, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
