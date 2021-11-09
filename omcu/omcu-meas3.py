@@ -29,7 +29,7 @@ Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
 V0ctrl = 1.1
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
-time.sleep(3600)
+#time.sleep(3600)
 
 Laser_temp = L.get_temp()
 Pm.set_offset()  # set offset value when it's dark
