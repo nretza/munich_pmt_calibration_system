@@ -26,7 +26,7 @@ Psu0.on()
 Rot.go_home()
 Psu0.off()
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-V0ctrl = 1.1
+V0ctrl = 0.8
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 #time.sleep(3600)
@@ -63,7 +63,7 @@ while occ > 0.1:
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 #time.sleep(300)
 
-Vctrl = np.arange(0.1, 1.7, 0.1)
+Vctrl = np.arange(0.8, 1.7, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
@@ -72,14 +72,24 @@ for V in Vctrl:
     print('Vctrl =', V)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
-    arr_sgnl = h5.create_dataset(f"Vctrl{V}/signal", (number, nSamples, 2), 'f')
-    arr_trg = h5.create_dataset(f"Vctrl{V}/trigger", (number, nSamples, 2), 'f')
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
-    arr_sgnl[:] = data_sgnl
-    arr_trg[:] = data_trg
+    occ = oc.occ_data(data_sgnl, threshold)
+    data_sgnl_filt = []
+    data_trg_filt = []
+    for i, wf in enumerate(data_sgnl):
+        minval = np.min(wf[:, 1])
+        if minval < threshold:
+            data_sgnl_filt.append(wf)
+            data_trg_filt.append(data_trg[i])
+    arr_sgnl = h5.create_dataset(f"Vctrl{V}/signal", (len(data_sgnl_filt), nSamples, 2), 'f')
+    arr_trg = h5.create_dataset(f"Vctrl{V}/trigger", (len(data_trg_filt), nSamples, 2), 'f')
+    arr_sgnl[:] = data_sgnl_filt
+    arr_trg[:] = data_trg_filt
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
     arr_trg.attrs['Vctrl'] = f"{V}"
+    arr_sgnl.attrs['Occupancy'] = f"{occ}"
+    arr_trg.attrs['Occupancy'] = f"{occ}"
     arr_sgnl.attrs['Position'] = 'Home'
     arr_trg.attrs['Position'] = 'Home'
     arr_sgnl.attrs['Powermeter'] = f"{power}"
