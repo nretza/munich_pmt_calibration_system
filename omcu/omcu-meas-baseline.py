@@ -37,7 +37,7 @@ filename = PMT + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
-threshold = 0
+threshold = 0 #todo: check if it works
 Vctrl = np.arange(0.8, 1.7, 0.1)
 number = 1000
 nSamples = Ps.get_nSamples()
@@ -64,7 +64,7 @@ for V in Vctrl:
     arr_trg.attrs['Units_voltage'] = 'mV'
     arr_sgnl.attrs['Units_time'] = 'ns'
     arr_trg.attrs['Units_time'] = 'ns'
-    #TODO: mehr Attribute?
+    Ps.stop_scope()
     time.sleep(0.1)
 h5.close()
 t2 = time.time()
