@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 from Waveform import Waveform
+import statistics as stat
 
 #from Data_analysis import Analysis as Al
 #data2910 = Al('./data/PMT001/20211029.../PMT001.hdf5')
@@ -18,7 +19,22 @@ class Analysis:
         Ps = Picoscope()
         self.nSamples = Ps.get_nSamples()
 
-    def calculate_gain_sph(self, threshold=-4):
+    def calculate_gain_sph(self, threshold=-3):
+
+        h5 = h5py.File(self.filename, 'r+')
+        wfs = []
+        for key in h5.keys():
+            dataset = h5[key]['signal']
+            for i, wf in enumerate(dataset):
+                minval = np.min(wf[:,1])
+                if minval < threshold:
+                    wf_object = Waveform('theta0.0', 'phi0.0', dataset.attrs['Vctrl'], wf[:, 1], wf[:, 0])
+                    wf_object.calculate_gain()
+                    wfs.append(wf_object)
+
+        return wfs
+
+    def calculate_gain_sph_different_positions(self, threshold=-3):
 
         h5 = h5py.File(self.filename, 'r+')
         wfs = []
@@ -41,25 +57,20 @@ class Analysis:
             gains.append(i.gain)
 
         plt.figure()
+        plt.subplot(2, 1, 1)
         plt.hist(gains,bins=nbins)
+        plt.yscale('log')
         plt.ylabel('counts')
         plt.xlabel('gain')
         plt.show()
 
     def plot_wfs(self, wf_list):
 
-        x = []
-        y = []
-
-        for i in wf_list:
-            x.append(i.x)
-            y.append(i.y)
-
         cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, len(x))))
+        colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
         plt.figure()
-        for i, j, c in zip(x, y, colors):
-            plt.plot(i, j, color=c)
+        for i, c in zip(wf_list, colors):
+            plt.plot(i.x, i.y, color=c)
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
@@ -69,11 +80,32 @@ class Analysis:
 
         gains = []
         Vctrl = []
+        HV = []
+        data = {}
         for i in wf_list:
             gains.append(i.gain)
-            Vctrl.append(i.Vctrl)
+            v = "{:.1f}".format(float(i.Vctrl))
+            Vctrl.append(v)
+            hv = "{:.0f}".format(float(i.Vctrl) * 1e3)
+            HV.append(hv)
+            data.setdefault(hv, []).append(i.gain)
+
+        means = {}
+        for key in data.keys():
+            mean = stat.mean(data[key])
+            means.setdefault(key, []).append(mean)
 
         plt.figure()
-        plt.plot(Vctrl, gains)
+        plt.subplot(2, 1, 1)
+        for key in means.keys():
+            if key == '0':
+                pass
+            else:
+                plt.plot(key, means[key], '.', color='blue')
+        plt.yscale('log')
+        plt.ylabel('gain')
+        plt.xlabel('HV [V]')
         plt.show()
+
+        return means
 

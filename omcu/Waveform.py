@@ -21,6 +21,3 @@ class Waveform:
     def calculate_gain(self):
         self.area = trapz(abs(self.y*1e-3), self.x*1e-9)
         self.gain = self.area/const.e
-
-    def plot_wf(self):
-            pass
