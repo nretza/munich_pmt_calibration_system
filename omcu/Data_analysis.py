@@ -19,22 +19,24 @@ class Analysis:
         Ps = Picoscope()
         self.nSamples = Ps.get_nSamples()
 
-    def calculate_gain_sph(self, threshold=-3):
+    def get_wfs(self, threshold=-2):
 
         h5 = h5py.File(self.filename, 'r+')
         wfs = []
         for key in h5.keys():
             dataset = h5[key]['signal']
             for i, wf in enumerate(dataset):
-                minval = np.min(wf[:,1])
+                y_corr = wf[:, 1] + 0.1
+                minval = np.min(y_corr)
                 if minval < threshold:
-                    wf_object = Waveform('theta0.0', 'phi0.0', dataset.attrs['Vctrl'], wf[:, 1], wf[:, 0])
+                    Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
+                    wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 0], y_corr, minval)
                     wf_object.calculate_gain()
                     wfs.append(wf_object)
 
         return wfs
 
-    def calculate_gain_sph_different_positions(self, threshold=-3):
+    def get_wfs_different_positions(self, threshold=-2):
 
         h5 = h5py.File(self.filename, 'r+')
         wfs = []
@@ -42,27 +44,62 @@ class Analysis:
             for key2 in h5[key]:
                 dataset = h5[key][key2]['signal']
                 for i, wf in enumerate(dataset):
+                    y_corr = wf[:, 1] + 0.1
                     minval = np.min(wf[:,1])
                     if minval < threshold:
-                        wf_object = Waveform(key, key2, dataset.attrs['Vctrl'], wf[:, 1], wf[:, 0])
+                        Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
+                        wf_object = Waveform(key, key2, Vctrl, wf[:, 0], y_corr, minval)
                         wf_object.calculate_gain()
                         wfs.append(wf_object)
 
         return wfs
 
-    def plot_hist_gain(self, wf_list, nbins=100):
+    def plot_hist_ampl(self, wf_list, limit=800):
 
-        gains = []
+        amplitudes = {}
         for i in wf_list:
-            gains.append(i.gain)
+            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
+            amplitudes.setdefault(hv, []).append(i.min)
 
-        plt.figure()
-        plt.subplot(2, 1, 1)
-        plt.hist(gains,bins=nbins)
-        plt.yscale('log')
-        plt.ylabel('counts')
-        plt.xlabel('gain')
-        plt.show()
+        for key in amplitudes:
+
+            if key < limit:
+                pass
+            else:
+                plt.figure()
+                plt.subplot(2, 1, 1)
+                nbins = int(0.01 * len(amplitudes[key]))
+                y, x, _ = plt.hist(amplitudes[key], bins=nbins)
+                plt.yscale('log')
+                plt.ylabel('counts')
+                plt.xlabel('amplitude [mV]')
+                plt.title(f"Amplitude Histogram for HV={key}V")
+                plt.show()
+                print('Maximum at x=', x[np.where(y == y.max())])
+                print('Number of bins:', nbins)
+
+    def plot_hist_gain(self, wf_list, limit=800):
+
+        gains = {}
+        for i in wf_list:
+            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
+            gains.setdefault(hv, []).append(i.gain)
+
+        for key in gains:
+
+            if key < limit:
+                pass
+            else:
+                plt.figure()
+                plt.subplot(2, 1, 1)
+                nbins = int(0.01 * len(gains[key]))
+                y, x, _ = plt.hist(gains[key], bins=nbins)
+                plt.yscale('log')
+                plt.ylabel('counts')
+                plt.xlabel('gain')
+                plt.title(f"Gain Histogram for HV={key}V")
+                plt.show()
+                print('Number of bins:', nbins)
 
     def plot_wfs(self, wf_list):
 
@@ -76,7 +113,7 @@ class Analysis:
         plt.ylabel('Voltage (mV)')
         plt.show()
 
-    def plot_gain_hv(self, wf_list):
+    def plot_gain_hv(self, wf_list, limit=800):
 
         gains = []
         Vctrl = []
@@ -86,7 +123,7 @@ class Analysis:
             gains.append(i.gain)
             v = "{:.1f}".format(float(i.Vctrl))
             Vctrl.append(v)
-            hv = "{:.0f}".format(float(i.Vctrl) * 1e3)
+            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
             HV.append(hv)
             data.setdefault(hv, []).append(i.gain)
 
@@ -98,13 +135,13 @@ class Analysis:
         plt.figure()
         plt.subplot(2, 1, 1)
         for key in means.keys():
-            if key == '0':
+            if key < limit:
                 pass
             else:
                 plt.plot(key, means[key], '.', color='blue')
         plt.yscale('log')
-        plt.ylabel('gain')
-        plt.xlabel('HV [V]')
+        plt.ylabel('gain', style='normal')
+        plt.xlabel('HV [V]', style='normal')
         plt.show()
 
         return means
