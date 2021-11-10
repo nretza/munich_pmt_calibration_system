@@ -39,7 +39,7 @@ filename = PMT + 'baseline' + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
-threshold = 1
+threshold = 0
 Vctrl = np.arange(0.8, 1.6, 0.1)
 number = 1000
 nSamples = Ps.get_nSamples()
@@ -47,27 +47,20 @@ t1 = time.time()
 for V in Vctrl:
     Psu1.settings(2, voltage=V, current=0.1)
     print('Vctrl =', V)
-    data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=threshold, number=number)
+    data_sgnl = Ps.block_measurement_one_ch(channel=2, direction=2, threshold=threshold, number=number)
     occ = oc.occ_data(data_sgnl, threshold)
     arr_sgnl = h5.create_dataset(f"Vctrl{V}/signal", (number, nSamples, 2), 'f')
-    arr_trg = h5.create_dataset(f"Vctrl{V}/trigger", (number, nSamples, 2), 'f')
     arr_sgnl[:] = data_sgnl
-    arr_trg[:] = data_trg
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
-    arr_trg.attrs['Vctrl'] = f"{V}"
     arr_sgnl.attrs['Occupancy'] = f"{occ}"
-    arr_trg.attrs['Occupancy'] = f"{occ}"
     arr_sgnl.attrs['Position'] = 'Home'
-    arr_trg.attrs['Position'] = 'Home'
     arr_sgnl.attrs['Baseline'] = 'yes'
-    arr_trg.attrs['Baseline'] = 'yes'
     arr_sgnl.attrs['Units_voltage'] = 'mV'
-    arr_trg.attrs['Units_voltage'] = 'mV'
     arr_sgnl.attrs['Units_time'] = 'ns'
-    arr_trg.attrs['Units_time'] = 'ns'
     Ps.stop_scope()
     time.sleep(0.1)
+
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
