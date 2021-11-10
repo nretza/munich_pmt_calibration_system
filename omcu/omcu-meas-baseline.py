@@ -25,20 +25,22 @@ Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
 V0ctrl = 0.8
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
-time.sleep(1800)
+#time.sleep(1800)
+time.sleep(300)
 
-PMT = 'PMT001'
+PMT = 'PMT-Hamamatsu-R15458-DM14218'
+os.mkdir('data/' + PMT)
 #TODO: erstelle directory für PMT folder
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
 os.mkdir(directory)
 suf = '.hdf5'
-filename = PMT + suf
+filename = PMT + 'baseline' + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
 threshold = 1
-Vctrl = np.arange(0.8, 1.7, 0.1)
+Vctrl = np.arange(0.8, 1.6, 0.1)
 number = 1000
 nSamples = Ps.get_nSamples()
 t1 = time.time()

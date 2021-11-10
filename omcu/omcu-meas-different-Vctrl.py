@@ -34,16 +34,6 @@ Psu1.on()
 Laser_temp = L.get_temp()
 Pm.set_offset()  # set offset value when it's dark
 
-PMT = 'PMT001'
-#TODO: erstelle directory für PMT folder
-timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr
-os.mkdir(directory)
-suf = '.hdf5'
-filename = PMT + suf
-filename_with_folder = directory + '/' + filename
-h5 = h5py.File(filename_with_folder, 'w')
-
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
 time.sleep(300)
@@ -59,9 +49,18 @@ while occ > 0.1:
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, threshold)
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
-#time.sleep(300)
 
-Vctrl = np.arange(0.8, 1.7, 0.1)
+PMT = 'PMT-Hamamatsu-R15458-DM14218'
+#TODO: erstelle directory für PMT folder
+timestr = time.strftime("%Y%m%d-%H%M%S")
+directory = 'data/' + PMT + '/' + timestr
+os.mkdir(directory)
+suf = '.hdf5'
+filename = PMT + '-Vctrl-' + suf
+filename_with_folder = directory + '/' + filename
+h5 = h5py.File(filename_with_folder, 'w')
+
+Vctrl = np.arange(0.8, 1.6, 0.1)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
