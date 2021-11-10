@@ -370,6 +370,119 @@ class Picoscope:
 
         return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
+    def block_measurement_one_ch(self, channel=2, direction=2, threshold=1000, number=10):
+        """
+        This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
+        parameter number.
+        First, it runs channel_setup(channel) to set a channel on and the others off.
+        Then, it runs trigger_setup(trgchannel, direction, threshold) which sets the trigger to a rising edge at the
+        given value [mV].
+        Then, it runs timebase_setup() to get the fastest available timebase.
+        Then, it runs buffer_multi_setup(bufchannel, number) to setup the buffer
+        to store the data unprocessed.
+        Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
+        :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
+        :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 2
+        :param direction: int, default: 2 (rising)
+        PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
+        PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
+        :param threshold: int [mV] trigger value, default value: 1000 mV
+        :param number: int (number of waveforms)
+        :return: filename
+        """
+
+        self.channel_setup(channel)
+        # self.channel_setup_all()
+
+        # Set number of memory segments
+        maxSegments = ctypes.c_uint64(number)
+        ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+
+        # Set number of captures
+        ps.ps6000aSetNoOfCaptures(self.chandle, number)
+
+        timebase, timeInterval = self.timebase_setup()
+        # timebase = self.timebase
+        # timeInterval = self.timeInterval
+        #print(timebase, timeInterval)
+
+        self.trigger_setup(channel, direction, threshold)
+        #print('Picoscope set')
+
+        buffersMax, buffersMin = self.buffer_setup_block(channel=channel, number=number)
+
+        nSamples = self.nSamples
+
+        # Run block capture
+        # handle = chandle
+        # timebase = timebase
+        timeIndisposedMs = ctypes.c_double(0)
+        # segmentIndex = 0
+        # lpReady = None   Using IsReady rather than a callback
+        # pParameter = None
+
+        t1 = time.time()
+        ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
+                           ctypes.byref(timeIndisposedMs), 0, None, None)
+        t2 = time.time()
+        deltaT = t2-t1
+        #print(deltaT)
+
+        # Check for data collection to finish using ps6000aIsReady
+        ready = ctypes.c_int16(0)
+        check = ctypes.c_int16(0)
+        while ready.value == check.value:
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+        #print('Picoscope ready')
+
+        # Get data from scope
+        # handle = chandle
+        # startIndex = 0
+        noOfSamples = ctypes.c_uint64(nSamples)
+        # segmentIndex = 0
+        end = number-1
+        # downSampleRatio = 1
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
+        # Creates an overflow location for each segment
+        overflow = (ctypes.c_int16 * number)()
+
+        ps.ps6000aGetValuesBulk(self.chandle, 0, ctypes.byref(noOfSamples), 0, end, 1, downSampleMode,
+                                                  ctypes.byref(overflow))
+        #print('got values')
+
+        # get max ADC value
+        # handle = chandle
+        minADC = ctypes.c_int16()
+        maxADC = ctypes.c_int16()
+        ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
+        #print('adc limits')
+
+        self.stop_scope()
+
+        # convert ADC counts data to mV
+        adc2mVMax_list = np.zeros((number, nSamples))
+        for i, buffers in enumerate(buffersMax):
+            adc2mVMax_list[i] = adc2mV(buffers, self.voltrange_sgnl, maxADC)
+
+        # Create time data
+        timevals = np.linspace(0, nSamples * timeInterval * 1000000000, nSamples)
+
+        # create array of data and save as npy file
+        data = np.zeros((number, nSamples, 2))
+        data[:, :, 0] = timevals
+        data[:, :, 1] = adc2mVMax_list
+
+        # timestr = time.strftime("%Y%m%d-%H%M%S")
+        # directory = 'data/' + timestr
+        # os.mkdir(directory)
+        # filename_sgnl = './data/' + timestr + '/' + timestr + '-' + str(number) + '-sgnl.npy'
+        # np.save(filename_sgnl, data_sgnl)
+        # filename_trg = './data/' + timestr + '/' + timestr + '-' + str(number) + '-trg.npy'
+        # np.save(filename_trg, data_trg)
+        # print('files have been saved under', filename_sgnl, 'and', filename_trg)
+
+        return data
+
     def adc2v(self, data, vrange=7):
         """
         This function converts adc data to values in V
