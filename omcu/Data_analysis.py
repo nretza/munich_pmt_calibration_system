@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # Author:  Laura Winter <evalaura.winter@tum.de>
 
-from submodules.Picoscope import Picoscope
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
@@ -16,8 +15,6 @@ class Analysis:
 
     def __init__(self, filename='./data/PMT001/20211028-114024/PMT001.hdf5'):
         self.filename = filename
-        Ps = Picoscope()
-        self.nSamples = Ps.get_nSamples()
 
     def get_wfs(self, threshold=-2):
 
