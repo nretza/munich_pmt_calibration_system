@@ -26,7 +26,7 @@ Psu0.on()
 Rot.go_home()
 Psu0.off()
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-V0ctrl = 0.8
+V0ctrl = 1.3
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 #time.sleep(3600)
@@ -46,12 +46,10 @@ h5 = h5py.File(filename_with_folder, 'w')
 
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
-#time.sleep(300)
-f0 = 10e3
-L.set_freq(f=f0)  # value?
+time.sleep(300)
 tune = 710
 L.set_tune_value(tune=tune)  # value?
-number0 = 100000
+number0 = 10000
 threshold = -2
 data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
 occ = oc.occ_data(data_sgnl, threshold)
