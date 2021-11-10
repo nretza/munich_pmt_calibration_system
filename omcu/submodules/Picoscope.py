@@ -96,7 +96,7 @@ class Picoscope:
         :param direction: int, default: 2 (rising edge)
         PICO_ABOVE = PICO_INSIDE = 0, PICO_BELOW = PICO_OUTSIDE = 1, PICO_RISING = PICO_ENTER = PICO_NONE = 2,
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
-        :param threshold: int [mV] trigger value, default value: 1000 mV
+        :param threshold: float [mV] trigger value, default value: 1000 mV
         :return: channel (int), direction (int), threshold(int) [mV]
         """
         # Set simple trigger on the given channel, [thresh] mV rising with 1 ms autotrigger

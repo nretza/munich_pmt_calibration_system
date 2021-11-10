@@ -52,7 +52,7 @@ L.set_freq(f=f0)  # value?
 tune = 710
 L.set_tune_value(tune=tune)  # value?
 number0 = 100000
-threshold = -3
+threshold = -2
 data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
 occ = oc.occ_data(data_sgnl, threshold)
 while occ > 0.1:

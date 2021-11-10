@@ -37,7 +37,7 @@ filename = PMT + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
-threshold = 0 #todo: check if it works
+threshold = -0.1
 Vctrl = np.arange(0.8, 1.7, 0.1)
 number = 1000
 nSamples = Ps.get_nSamples()
