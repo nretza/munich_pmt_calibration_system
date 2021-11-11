@@ -23,3 +23,6 @@ class Waveform:
         self.area = trapz(abs(self.y*1e-3), abs(self.x*1e-9))
         self.charge = self.area/50
         self.gain = self.charge/const.e
+
+    def mean(self):
+        self.mean = np.mean(self.y)

@@ -17,25 +17,45 @@ class Analysis:
     def __init__(self, filename='./data/PMT001/20211028-114024/PMT001.hdf5'):
         self.filename = filename
 
-    def get_wfs(self, threshold=-2):
+    def get_baseline_mean(self):
 
         h5 = h5py.File(self.filename, 'r+')
         wfs = []
         for key in h5.keys():
             dataset = h5[key]['signal']
             for i, wf in enumerate(dataset):
-                y_corr = wf[:, 1] + 0.1
+                Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
+                wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 1], wf[:, 0])
+                wf_object.mean()
+                wfs.append(wf_object)
+
+        means = []
+        for i in wfs:
+            means.append(i.mean)
+
+        total_mean = np.mean(means)
+        std = np.std(means)
+
+        return total_mean, std
+
+    def get_wfs(self, baseline=0.1):
+
+        h5 = h5py.File(self.filename, 'r+')
+        wfs = []
+        for key in h5.keys():
+            dataset = h5[key]['signal']
+            for i, wf in enumerate(dataset):
+                y_corr = wf[:, 1] + baseline
                 minval = np.min(y_corr)
-                if minval < threshold:
-                    Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
-                    wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 0], y_corr, minval)
-                    wf_object.calculate_gain()
-                    wfs.append(wf_object)
+                Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
+                wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 0], y_corr, minval)
+                wf_object.calculate_gain()
+                wfs.append(wf_object)
         h5.close()
 
         return wfs
 
-    def get_wfs_different_positions(self, threshold=-2):
+    def get_wfs_different_positions(self, baseline=0.1):
 
         h5 = h5py.File(self.filename, 'r+')
         wfs = []
@@ -43,13 +63,13 @@ class Analysis:
             for key2 in h5[key]:
                 dataset = h5[key][key2]['signal']
                 for i, wf in enumerate(dataset):
-                    y_corr = wf[:, 1] + 0.1
+                    y_corr = wf[:, 1] + baseline
                     minval = np.min(wf[:, 1])
-                    if minval < threshold:
-                        Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
-                        wf_object = Waveform(key, key2, Vctrl, wf[:, 0], y_corr, minval)
-                        wf_object.calculate_gain()
-                        wfs.append(wf_object)
+                    Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
+                    wf_object = Waveform(key, key2, Vctrl, wf[:, 0], y_corr, minval)
+                    wf_object.calculate_gain()
+                    wfs.append(wf_object)
+        h5.close()
 
         return wfs
 
