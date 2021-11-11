@@ -7,9 +7,10 @@ import h5py
 from Waveform import Waveform
 import statistics as stat
 
-#from Data_analysis import Analysis as Al
-#data2910 = Al('./data/PMT001/20211029.../PMT001.hdf5')
-#data2910.calculate_gain_sph(threshold)
+
+# from Data_analysis import Analysis as Al
+# data2910 = Al('./data/PMT001/20211029.../PMT001.hdf5')
+# data2910.calculate_gain_sph(threshold)
 
 class Analysis:
 
@@ -30,6 +31,7 @@ class Analysis:
                     wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 0], y_corr, minval)
                     wf_object.calculate_gain()
                     wfs.append(wf_object)
+        h5.close()
 
         return wfs
 
@@ -42,7 +44,7 @@ class Analysis:
                 dataset = h5[key][key2]['signal']
                 for i, wf in enumerate(dataset):
                     y_corr = wf[:, 1] + 0.1
-                    minval = np.min(wf[:,1])
+                    minval = np.min(wf[:, 1])
                     if minval < threshold:
                         Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
                         wf_object = Waveform(key, key2, Vctrl, wf[:, 0], y_corr, minval)
@@ -142,4 +144,3 @@ class Analysis:
         plt.show()
 
         return means
-

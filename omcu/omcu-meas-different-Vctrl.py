@@ -29,7 +29,7 @@ Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
 V0ctrl = 1.3
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
-#time.sleep(3600)
+#time.sleep(1800)
 
 Laser_temp = L.get_temp()
 Pm.set_offset()  # set offset value when it's dark
@@ -37,30 +37,20 @@ Pm.set_offset()  # set offset value when it's dark
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
 time.sleep(300)
-tune = 710
-L.set_tune_value(tune=tune)  # value?
-number0 = 10000
+
 threshold = -2
-data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
-occ = oc.occ_data(data_sgnl, threshold)
-while occ > 0.1:
-    tune = tune+1
-    L.set_tune_value(tune=tune)
-    data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
-    occ = oc.occ_data(data_sgnl, threshold)
-print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
 
 PMT = 'PMT-Hamamatsu-R15458-DM14218'
-#TODO: erstelle directory für PMT folder
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
 os.mkdir(directory)
 suf = '.hdf5'
-filename = PMT + '-Vctrl-' + suf
+filename = PMT + '-Vctrl' + str(threshold) + 'mV'+ suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
 Vctrl = np.arange(0.8, 1.6, 0.1)
+number0 = 10000
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
@@ -69,8 +59,20 @@ for V in Vctrl:
     print('Vctrl =', V)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
+    tune = 710
+    L.set_tune_value(tune=tune)
+    data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
+    occ = oc.occ_data(data_sgnl, threshold)
+    while occ > 0.08:
+        tune = tune+1
+        L.set_tune_value(tune=tune)
+        data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
+        occ = oc.occ_data(data_sgnl, threshold)
+    print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number)
     occ = oc.occ_data(data_sgnl, threshold)
+    print('Measurement done. Occupancy is', occ*100, '%')
+
     data_sgnl_filt = []
     data_trg_filt = []
     for i, wf in enumerate(data_sgnl):
@@ -99,6 +101,7 @@ for V in Vctrl:
     arr_trg.attrs['Units_time'] = 'ns'
     #TODO: mehr Attribute?
     time.sleep(0.1)
+
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
