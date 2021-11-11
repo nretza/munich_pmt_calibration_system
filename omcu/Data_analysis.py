@@ -25,7 +25,7 @@ class Analysis:
             dataset = h5[key]['signal']
             for i, wf in enumerate(dataset):
                 Vctrl = "{:.1f}".format(float(dataset.attrs['Vctrl']))
-                wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 1], wf[:, 0])
+                wf_object = Waveform('theta0.0', 'phi0.0', Vctrl, wf[:, 0], wf[:, 1], np.min(wf[:, 1]))
                 wf_object.mean()
                 wfs.append(wf_object)
 
