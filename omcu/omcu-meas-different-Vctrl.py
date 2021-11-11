@@ -40,7 +40,7 @@ time.sleep(300)
 
 threshold = -2
 
-PMT = 'PMT-Hamamatsu-R15458-DM14218'
+PMT = 'PMT-Hamamatsu-R14689_BC0499'
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
 os.mkdir(directory)
@@ -105,7 +105,7 @@ for V in Vctrl:
 h5.close()
 t2 = time.time()
 deltaT = t2-t1
-print(deltaT/60)
+print(deltaT/60, 'min')
 
 L.off_pulsed()
 Psu1.off()
