@@ -73,6 +73,8 @@ class Analysis:
                 plt.ylabel('Counts')
                 plt.xlabel('Amplitude [mV]')
                 plt.title(f"Amplitude Histogram for HV={key}V")
+                figname = self.filename + '-hist-ampl-' + str(key) + 'V.pdf'
+                plt.savefig(figname)
                 plt.show()
                 print('Maximum at x=', x[np.where(y == y.max())])
                 print('Number of bins:', nbins)
@@ -97,6 +99,8 @@ class Analysis:
                 plt.ylabel('Counts')
                 plt.xlabel('Gain')
                 plt.title(f"Gain Histogram for HV={key}V")
+                figname = self.filename + '-hist-gain-' + str(key) + 'V.pdf'
+                plt.savefig(figname)
                 plt.show()
                 print('Number of bins:', nbins)
 
@@ -110,6 +114,8 @@ class Analysis:
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
+        figname = self.filename + '-waveforms.pdf'
+        plt.savefig(figname)
         plt.show()
 
     def plot_gain_hv(self, wf_list, limit=800):
@@ -141,6 +147,8 @@ class Analysis:
         plt.yscale('log')
         plt.ylabel('gain', style='normal')
         plt.xlabel('HV [V]', style='normal')
+        figname = self.filename + '-gain-hv.pdf'
+        plt.savefig(figname)
         plt.show()
 
         return means
