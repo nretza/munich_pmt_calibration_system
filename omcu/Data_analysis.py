@@ -77,7 +77,7 @@ class Analysis:
 
         amplitudes = {}
         for i in wf_list:
-            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
+            hv = int("{:.0f}".format(float(i.Vctrl) * 250))
             amplitudes.setdefault(hv, []).append(i.min)
 
         for key in amplitudes:
@@ -103,7 +103,7 @@ class Analysis:
 
         gains = {}
         for i in wf_list:
-            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
+            hv = int("{:.0f}".format(float(i.Vctrl) * 250))
             gains.setdefault(hv, []).append(i.gain)
 
         for key in gains:
@@ -148,7 +148,7 @@ class Analysis:
             gains.append(i.gain)
             v = "{:.1f}".format(float(i.Vctrl))
             Vctrl.append(v)
-            hv = int("{:.0f}".format(float(i.Vctrl) * 1e3))
+            hv = int("{:.0f}".format(float(i.Vctrl) * 250))
             HV.append(hv)
             data.setdefault(hv, []).append(i.gain)
 

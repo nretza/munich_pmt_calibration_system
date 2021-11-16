@@ -22,14 +22,14 @@ Psu0.on()
 Rot.go_home()
 Psu0.off()
 Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-V0ctrl = 0.8
+V0ctrl = 3.6  # HV_out = Vctrl*250
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 time.sleep(1800)
 
 threshold = 0
 
-PMT = 'PMT-Hamamatsu-R14689_BC0499'
+PMT = 'PMT-ET-9323KB_404'
 os.mkdir('data/' + PMT)
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
@@ -39,7 +39,7 @@ filename = PMT + '-baseline' + str(threshold) + 'mV' + suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
-Vctrl = np.arange(0.8, 1.6, 0.1)
+Vctrl = np.arange(3.6, 5.21, 0.4)
 number = 1000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
@@ -52,6 +52,8 @@ for V in Vctrl:
     arr_sgnl[:] = data_sgnl
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
+    HV = V*250
+    arr_sgnl.attrs['HV'] = f"{HV}"
     arr_sgnl.attrs['Occupancy'] = f"{occ}"
     arr_sgnl.attrs['Threshold'] = f"{threshold}"
     arr_sgnl.attrs['Position'] = 'Home'

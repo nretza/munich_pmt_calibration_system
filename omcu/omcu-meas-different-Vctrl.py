@@ -25,8 +25,8 @@ Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
 Psu0.on()
 Rot.go_home()
 Psu0.off()
-Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-V0ctrl = 1.3
+Psu1.settings(1, voltage=12.0, current=3.0)  # psu for PMT, Vcc
+V0ctrl = 5.0  # HV_out = Vctrl*250
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 #time.sleep(1800)
@@ -40,7 +40,7 @@ time.sleep(300)
 
 threshold = -2
 
-PMT = 'PMT-Hamamatsu-R14689_BC0499'
+PMT = 'PMT-ET-9323KB_404'
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr
 os.mkdir(directory)
@@ -49,7 +49,7 @@ filename = PMT + '-Vctrl' + str(threshold) + 'mV'+ suf
 filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
-Vctrl = np.arange(0.8, 1.6, 0.1)
+Vctrl = np.arange(3.6, 5.21, 0.4)
 number0 = 10000
 number = 100000
 nSamples = Ps.get_nSamples()
@@ -86,19 +86,15 @@ for V in Vctrl:
     arr_trg[:] = data_trg_filt
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
-    arr_trg.attrs['Vctrl'] = f"{V}"
+    HV = V*250
+    arr_sgnl.attrs['HV'] = f"{HV}"
     arr_sgnl.attrs['Occupancy'] = f"{occ}"
-    arr_trg.attrs['Occupancy'] = f"{occ}"
     arr_sgnl.attrs['Position'] = 'Home'
-    arr_trg.attrs['Position'] = 'Home'
     arr_sgnl.attrs['Powermeter'] = f"{power}"
-    arr_trg.attrs['Powermeter'] = f"{power}"
     arr_sgnl.attrs['Laser temperature'] = f"{Laser_temp}"
     arr_trg.attrs['Laser temperature'] = f"{Laser_temp}"
     arr_sgnl.attrs['Units_voltage'] = 'mV'
-    arr_trg.attrs['Units_voltage'] = 'mV'
     arr_sgnl.attrs['Units_time'] = 'ns'
-    arr_trg.attrs['Units_time'] = 'ns'
     #TODO: mehr Attribute?
     time.sleep(0.1)
 
