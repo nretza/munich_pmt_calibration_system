@@ -94,11 +94,12 @@ class Analysis:
             print('Maximum at x=', x[np.where(y == y.max())])
             print('Number of bins:', nbins)
 
-    def plot_hist_gain(self, wf_list):
+    def plot_hist_gain(self, wf_list, threshold=-2):
 
         gains = {}
         for i in wf_list:
-            gains.setdefault(int(i.HV), []).append(i.gain)
+            if i.min < threshold:
+                gains.setdefault(int(i.HV), []).append(i.gain)
 
         for key in gains:
             plt.figure()
@@ -109,22 +110,24 @@ class Analysis:
             plt.ylabel('Counts')
             plt.xlabel('Gain')
             plt.title(f"Gain Histogram for HV={key}V")
-            figname = self.filename + '-hist-gain-' + str(key) + 'V.pdf'
+            figname = self.filename + '-hist-gain-' + str(key) + 'V-threshold' + str(threshold) + 'mV.pdf'
             plt.savefig(figname)
             plt.show()
             print('Number of bins:', nbins)
 
-    def plot_wfs(self, wf_list):
+    def plot_wfs(self, wf_list, threshold=-2):
 
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
         plt.figure()
         for i, c in zip(wf_list, colors):
-            plt.plot(i.x, i.y, color=c)
+            minval = np.min(i.y)
+            if minval < threshold:
+                plt.plot(i.x, i.y, color=c)
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
-        figname = self.filename + '-waveforms.pdf'
+        figname = self.filename + '-waveforms-threshold' + str(threshold) + 'mV.pdf'
         plt.savefig(figname)
         plt.show()
 

@@ -27,10 +27,10 @@ Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 time.sleep(1800)
 
-PMT = 'PMT-ET-9323KB_404'
+PMT = 'PMT-Hamamatsu-R14689_BC0499'
 # os.mkdir('data/' + PMT)
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/baseA/' + timestr + '-baseline'
+directory = 'data/' + PMT + '/' + timestr + '-baseline'
 os.mkdir(directory)
 suf = '.hdf5'
 
@@ -47,7 +47,7 @@ for t in threshold:
     t1 = time.time()
     for V in Vctrl:
         Psu1.settings(2, voltage=V, current=0.1)
-        HV = int(V*250)
+        HV = int(round(V*250))
         print('Vctrl =', V, ', HV =', HV)
         time.sleep(0.1)
         data_sgnl = Ps.block_measurement_one_ch(channel=2, direction=2, threshold=t, number=number)

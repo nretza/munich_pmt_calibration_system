@@ -3,7 +3,7 @@
 
 from submodules.Picoscope import Picoscope
 from submodules.PSU import PSU
-from submodules.Rotation import Rotation
+#from submodules.Rotation import Rotation
 from submodules.Laser import Laser
 from submodules.Powermeter import Powermeter
 from Occupancy import Occupancy
@@ -40,9 +40,9 @@ time.sleep(300)
 
 threshold = -2
 
-PMT = 'PMT-ET-9323KB_404'
+PMT = 'PMT-Hamamatsu-R14689_BC0499'
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/baseA/' + timestr + '-variableHV'
+directory = 'data/' + PMT + '/' + timestr + '-variableHV'
 os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + '-variableHV-with-threshold' + str(threshold) + 'mV' + suf
@@ -56,22 +56,22 @@ nSamples = Ps.get_nSamples()
 t1 = time.time()
 for V in Vctrl:
     Psu1.settings(2, voltage=V, current=0.1)
-    HV = int(V*250)
+    HV = int(round(V*250))
     print('Vctrl =', V, 'HV =', HV)
     time.sleep(0.1)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
-    tune = 710
+    tune = 650
     L.set_tune_value(tune=tune)
     data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, threshold)
     while occ < 0.01:
-        tune = tune-1
+        tune = tune-5
         L.set_tune_value(tune=tune)
         data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
         occ = oc.occ_data(data_sgnl, threshold)
     while occ > 0.08:
-        tune = tune+1
+        tune = tune+5
         L.set_tune_value(tune=tune)
         data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
         occ = oc.occ_data(data_sgnl, threshold)
