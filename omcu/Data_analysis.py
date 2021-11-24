@@ -14,7 +14,7 @@ import statistics as stat
 
 class Analysis:
 
-    def __init__(self, filename='./data/PMT001/20211028-114024/PMT001.hdf5'):
+    def __init__(self, filename):
         self.filename = filename
 
     def get_baseline_mean(self):
@@ -78,12 +78,18 @@ class Analysis:
         amplitudes = {}
         for i in wf_list:
             amplitudes.setdefault(int(i.HV), []).append(i.min)
+        amplitudes2 = {}
+        for i in sorted(amplitudes):
+            amplitudes2[i] = amplitudes[i]
 
-        for key in amplitudes:
+        for key in amplitudes2:
+            nr_entries = len(amplitudes2[key])
+            nbins = int(nr_entries / 100)
+
             plt.figure()
             plt.subplot(2, 1, 1)
-            nbins = int(0.01 * len(amplitudes[key]))
-            y, x, _ = plt.hist(amplitudes[key], bins=nbins)
+
+            y, x, _ = plt.hist(amplitudes2[key], bins=nbins)
             plt.yscale('log')
             plt.ylabel('Counts')
             plt.xlabel('Amplitude [mV]')
@@ -92,7 +98,9 @@ class Analysis:
             plt.savefig(figname)
             plt.show()
             print('Maximum at x=', x[np.where(y == y.max())])
-            print('Number of bins:', nbins)
+            print('Number of entries', nr_entries, ', Number of bins:', nbins)
+
+        return amplitudes2
 
     def plot_hist_gain(self, wf_list, threshold=-2):
 
@@ -100,29 +108,34 @@ class Analysis:
         for i in wf_list:
             if i.min < threshold:
                 gains.setdefault(int(i.HV), []).append(i.gain)
+        gains2 = {}
+        for i in sorted(gains):
+            gains2[i] = gains[i]
 
-        for key in gains:
+        for key in gains2:
+            nr_entries = len(gains2[key])
+            nbins = int(nr_entries / 100)
+
             plt.figure()
             plt.subplot(2, 1, 1)
-            nbins = int(0.01 * len(gains[key]))
-            y, x, _ = plt.hist(gains[key], bins=nbins)
+            y, x, _ = plt.hist(gains2[key], bins=nbins)
             plt.yscale('log')
             plt.ylabel('Counts')
             plt.xlabel('Gain')
+            plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
             plt.title(f"Gain Histogram for HV={key}V")
             figname = self.filename + '-hist-gain-' + str(key) + 'V-threshold' + str(threshold) + 'mV.pdf'
             plt.savefig(figname)
             plt.show()
-            print('Number of bins:', nbins)
+            print('Number of entries', nr_entries, ', Number of bins:', nbins)
 
-    def plot_wfs(self, wf_list, threshold=-2):
+    def plot_wfs(self, wf_list, threshold=-2):  # todo: select HV
 
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
         plt.figure()
         for i, c in zip(wf_list, colors):
-            minval = np.min(i.y)
-            if minval < threshold:
+            if i.min < threshold:
                 plt.plot(i.x, i.y, color=c)
 
         plt.xlabel('Time (ns)')
@@ -131,26 +144,80 @@ class Analysis:
         plt.savefig(figname)
         plt.show()
 
-    def plot_gain_hv(self, wf_list):
+    def plot_wfs_mask(self, wf_list, threshold=-2):  # todo: select HV
 
-        data = {}
-        for i in wf_list:
-            data.setdefault(int(i.HV), []).append(i.gain)
-
-        means = {}
-        for key in data.keys():
-            mean = stat.mean(data[key])
-            means.setdefault(key, []).append(mean)
-
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
         plt.figure()
-        plt.subplot(2, 1, 1)
-        for key in means.keys():
-            plt.plot(key, means[key], '.', color='blue')
-        plt.yscale('log')
-        plt.ylabel('gain', style='normal')
-        plt.xlabel('HV [V]', style='normal')
-        figname = self.filename + '-gain-hv.pdf'
+        for i, c in zip(wf_list, colors):
+            if i.min < threshold:
+                plt.plot(i.x[i.mask], i.y[i.mask], color=c)
+
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        figname = self.filename + '-waveforms-mask-threshold' + str(threshold) + 'mV.pdf'
         plt.savefig(figname)
         plt.show()
 
+    def plot_gain_hv(self, wf_list, threshold=-2):
+
+        data = {}
+        for i in wf_list:
+            if i.min < threshold:
+                data.setdefault(int(i.HV), []).append(i.gain)
+        data2 = {}
+        for i in sorted(data):
+            data2[i] = data[i]
+
+        means = {}
+        for key in data2.keys():
+            means[key] = stat.mean(data2[key])
+
+        x = list(means.keys())
+        y = list(means.values())
+
+        x = np.array(x, dtype=float)
+        y = np.array(y, dtype=float)
+
+        p, V = np.polyfit(x, np.log(y), 1, w=np.sqrt(y), cov=True)
+        b = p[0]
+        a = p[1]
+        print('a =', a, 'with var =', V[0][0])
+        print('b =', b, 'with var =', V[1][1])
+        print('fit curve: y = exp(a) * exp(b*x)')
+
+        def fit_fn(x, a, b):
+            return np.exp(a) * np.exp(b * i)
+
+        fit = []
+        for i in x:
+            fit.append(fit_fn(x, a, b))
+
+        plt.figure()
+        plt.subplot(2, 1, 1)
+        plt.plot(x, y, 'yo', label="Data")
+        plt.plot(x, fit, '--k', label="Fitted Curve")
+        plt.legend()
+        plt.yscale('log')
+        plt.ylabel('gain')
+        plt.xlabel('HV [V]')
+        plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
+        figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
+        plt.savefig(figname)
+        plt.show()
+
+        for key in means:
+            print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
+
+        def interp_x_from_y(input, x, y):
+            return np.interp(input, y, x)
+
+        hv1 = interp_x_from_y(1e6, x, y)
+        hv2 = interp_x_from_y(5e6, x, y)
+        hv3 = interp_x_from_y(1e7, x, y)
+        print('HV for gain = 1e6 is:', hv1, 'V')
+        print('HV for gain = 5e6 is:', hv2, 'V')
+        print('HV for gain = 1e7 is:', hv3, 'V')
+
         return means
+
