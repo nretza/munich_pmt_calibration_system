@@ -83,11 +83,13 @@ class Analysis:
             amplitudes2[i] = amplitudes[i]
 
         for key in amplitudes2:
+
             nr_entries = len(amplitudes2[key])
             if nr_entries <= 1000:
-                nbins = int(nr_entries/50)
+                nbins = int(nr_entries / 50)
             else:
-                nbins = int(nr_entries/100)
+                nbins = int(nr_entries / 100)
+            # nbins=10
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -116,11 +118,13 @@ class Analysis:
             gains2[i] = gains[i]
 
         for key in gains2:
+
             nr_entries = len(gains2[key])
             if nr_entries <= 1000:
-                nbins = int(nr_entries/50)
+                nbins = int(nr_entries / 50)
             else:
-                nbins = int(nr_entries/100)
+                nbins = int(nr_entries / 100)
+            # nbins=10
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -195,10 +199,6 @@ class Analysis:
         def fit_fn(x, a, b):
             return np.exp(a) * np.exp(b * x)
 
-        fit = []
-        for i in x:
-            fit.append(fit_fn(x, a, b))
-
         plt.figure()
         plt.subplot(2, 1, 1)
         plt.plot(x, y, 'yo', label="Data")
@@ -207,7 +207,7 @@ class Analysis:
         plt.yscale('log')
         plt.ylabel('Gain')
         plt.xlabel('HV [V]')
-        plt.title(f"Gain of PMT-ET-9323KB_411-baseB")
+        plt.title(f"Gain of PMT xy")
         figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         plt.savefig(figname)
         plt.show()
@@ -215,7 +215,7 @@ class Analysis:
         for key in means:
             print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
 
-        xx = np.linspace(500, 2000, 100000)
+        xx = np.linspace(500, 2500, 100000)
         yy = fit_fn(xx, a, b)
         hvs = {}
         for key in [1e6, 5e6, 1e7]:
@@ -226,4 +226,5 @@ class Analysis:
         np.savetxt(filename, hvs_arr, header='gain HV [V]')
 
         return means
+
 
