@@ -27,10 +27,10 @@ Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
 time.sleep(1800)
 
-PMT = 'PMT-Hamamatsu-R14689_BC0499'
+PMT = 'PMT-Hamamatsu-R15458-DM05949'
 # os.mkdir('data/' + PMT)
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr + '-baseline'
+directory = 'data/' + PMT + '/' + timestr + '-withoutMolton-baseline'
 os.mkdir(directory)
 suf = '.hdf5'
 

@@ -201,23 +201,14 @@ class Analysis:
         plt.yscale('log')
         plt.ylabel('gain')
         plt.xlabel('HV [V]')
-        plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
-        figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
-        plt.savefig(figname)
+        #plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
+        #figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
+        #plt.savefig(figname)
         plt.show()
 
         for key in means:
             print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
 
-        def interp_x_from_y(input, x, y):
-            return np.interp(input, y, x)
-
-        hv1 = interp_x_from_y(1e6, x, y)
-        hv2 = interp_x_from_y(5e6, x, y)
-        hv3 = interp_x_from_y(1e7, x, y)
-        print('HV for gain = 1e6 is:', hv1, 'V')
-        print('HV for gain = 5e6 is:', hv2, 'V')
-        print('HV for gain = 1e7 is:', hv3, 'V')
 
         return means
 

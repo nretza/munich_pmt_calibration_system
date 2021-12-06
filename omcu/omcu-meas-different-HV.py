@@ -28,7 +28,7 @@ oc = Occupancy()
 Psu1.settings(1, voltage=12.0, current=3.0)  # psu for PMT, Vcc
 V0ctrl = 3.6  # HV_out = Vctrl*250
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
-Psu1.on()
+#Psu1.on()
 #time.sleep(1800)
 
 Laser_temp = L.get_temp()
@@ -40,9 +40,9 @@ time.sleep(300)
 
 threshold = -2
 
-PMT = 'PMT-Hamamatsu-R14689_BC0499'
+PMT = 'PMT-Hamamatsu-R15458-DM05949'
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr + '-variableHV'
+directory = 'data/' + PMT + '/' + timestr + '-withoutMolton-after5hoursintheDark-variableHV'
 os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + '-variableHV-with-threshold' + str(threshold) + 'mV' + suf
@@ -61,11 +61,11 @@ for V in Vctrl:
     time.sleep(0.1)
     Laser_temp = L.get_temp()
     power = Pm.get_power()
-    tune = 650
+    tune = 710
     L.set_tune_value(tune=tune)
     data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, threshold)
-    while occ < 0.01:
+    while occ < 0.02:
         tune = tune-5
         L.set_tune_value(tune=tune)
         data_sgnl, _ = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
