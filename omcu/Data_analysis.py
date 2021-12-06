@@ -207,22 +207,20 @@ class Analysis:
         plt.yscale('log')
         plt.ylabel('Gain')
         plt.xlabel('HV [V]')
-<<<<<<< HEAD
+
         #plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
         #figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         #plt.savefig(figname)
-=======
+
         plt.title(f"Gain of PMT xy")
         figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         plt.savefig(figname)
->>>>>>> d9352d6a3c851f786b4eb9f955737df5b1728386
         plt.show()
 
         for key in means:
             print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
 
-<<<<<<< HEAD
-=======
+
         xx = np.linspace(500, 2500, 100000)
         yy = fit_fn(xx, a, b)
         hvs = {}
@@ -232,7 +230,6 @@ class Analysis:
         hvs_arr = list(hvs.items())
         filename = self.filename + '-gain-hv-threshold' + str(threshold) + '.txt'
         np.savetxt(filename, hvs_arr, header='gain HV [V]')
->>>>>>> d9352d6a3c851f786b4eb9f955737df5b1728386
 
         return means
 
