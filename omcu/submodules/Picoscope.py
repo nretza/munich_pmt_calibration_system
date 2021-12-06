@@ -44,7 +44,7 @@ class Picoscope:
         # PICO_BW_500MHZ = 500000000
 
         self.noOfPreTriggerSamples = 100
-        self.noOfPostTriggerSamples = 1000000 #240
+        self.noOfPostTriggerSamples = 900 #240
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def get_nSamples(self):
@@ -405,8 +405,6 @@ class Picoscope:
         # timeInterval = self.timeInterval
         #print(timebase, timeInterval)
 
-        #self.trigger_setup(channel, direction, threshold)
-        #print('Picoscope set')
 
         buffersMax, buffersMin = self.buffer_setup_block(channel=channel, number=number)
 
@@ -420,12 +418,8 @@ class Picoscope:
         # lpReady = None   Using IsReady rather than a callback
         # pParameter = None
 
-        t1 = time.time()
         ps.ps6000aRunBlock(self.chandle, self.noOfPreTriggerSamples, self.noOfPostTriggerSamples, timebase,
                            ctypes.byref(timeIndisposedMs), 0, None, None)
-        t2 = time.time()
-        deltaT = t2-t1
-        #print(deltaT)
 
         # Check for data collection to finish using ps6000aIsReady
         ready = ctypes.c_int16(0)
