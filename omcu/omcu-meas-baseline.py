@@ -32,7 +32,7 @@ filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
 Vctrl = np.arange(3.6, 5.6, 0.4)
-number = 1000
+number = 10000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
 for V in Vctrl:
