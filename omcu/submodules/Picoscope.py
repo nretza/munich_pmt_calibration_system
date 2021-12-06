@@ -370,7 +370,7 @@ class Picoscope:
 
         return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
-    def block_measurement_one_ch(self, channel=2, direction=2, threshold=0, number=10):
+    def block_measurement_one_ch(self, channel=2, number=10):
         """
         This is a function to run a block measurement. Several waveforms are stored. The number is indicated with the
         parameter number.
@@ -405,7 +405,7 @@ class Picoscope:
         # timeInterval = self.timeInterval
         #print(timebase, timeInterval)
 
-        self.trigger_setup(channel, direction, threshold)
+        #self.trigger_setup(channel, direction, threshold)
         #print('Picoscope set')
 
         buffersMax, buffersMin = self.buffer_setup_block(channel=channel, number=number)
