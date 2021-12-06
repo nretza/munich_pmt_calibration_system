@@ -83,8 +83,13 @@ class Analysis:
             amplitudes2[i] = amplitudes[i]
 
         for key in amplitudes2:
+
             nr_entries = len(amplitudes2[key])
-            nbins = int(nr_entries / 100)
+            if nr_entries <= 1000:
+                nbins = int(nr_entries / 50)
+            else:
+                nbins = int(nr_entries / 100)
+            # nbins=10
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -113,8 +118,13 @@ class Analysis:
             gains2[i] = gains[i]
 
         for key in gains2:
+
             nr_entries = len(gains2[key])
-            nbins = int(nr_entries / 100)
+            if nr_entries <= 1000:
+                nbins = int(nr_entries / 50)
+            else:
+                nbins = int(nr_entries / 100)
+            # nbins=10
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -187,28 +197,43 @@ class Analysis:
         print('fit curve: y = exp(a) * exp(b*x)')
 
         def fit_fn(x, a, b):
-            return np.exp(a) * np.exp(b * i)
-
-        fit = []
-        for i in x:
-            fit.append(fit_fn(x, a, b))
+            return np.exp(a) * np.exp(b * x)
 
         plt.figure()
         plt.subplot(2, 1, 1)
         plt.plot(x, y, 'yo', label="Data")
-        plt.plot(x, fit, '--k', label="Fitted Curve")
+        plt.plot(x, fit_fn(x, a, b), '--k', label="Fitted Curve")
         plt.legend()
         plt.yscale('log')
-        plt.ylabel('gain')
+        plt.ylabel('Gain')
         plt.xlabel('HV [V]')
+<<<<<<< HEAD
         #plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
         #figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         #plt.savefig(figname)
+=======
+        plt.title(f"Gain of PMT xy")
+        figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
+        plt.savefig(figname)
+>>>>>>> d9352d6a3c851f786b4eb9f955737df5b1728386
         plt.show()
 
         for key in means:
             print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
 
+<<<<<<< HEAD
+=======
+        xx = np.linspace(500, 2500, 100000)
+        yy = fit_fn(xx, a, b)
+        hvs = {}
+        for key in [1e6, 5e6, 1e7]:
+            hvs[key] = xx[np.argmin(np.abs(yy - key))]
+            print('HV for gain = ', key / 1e6, '1e6', 'is', hvs[key])
+        hvs_arr = list(hvs.items())
+        filename = self.filename + '-gain-hv-threshold' + str(threshold) + '.txt'
+        np.savetxt(filename, hvs_arr, header='gain HV [V]')
+>>>>>>> d9352d6a3c851f786b4eb9f955737df5b1728386
 
         return means
+
 
