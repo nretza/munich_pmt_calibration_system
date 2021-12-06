@@ -50,7 +50,7 @@ for t in threshold:
         HV = int(round(V*250))
         print('Vctrl =', V, ', HV =', HV)
         time.sleep(0.1)
-        data_sgnl = Ps.block_measurement_one_ch(channel=2, direction=2, threshold=t, number=number)
+        data_sgnl = Ps.block_measurement_one_ch(channel=2, number=number)
         occ = oc.occ_data(data_sgnl, t)
         arr_sgnl = h5.create_dataset(f"HV{HV}/signal", (number, nSamples, 2), 'f')
         arr_sgnl[:] = data_sgnl
