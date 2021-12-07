@@ -18,11 +18,14 @@ Psu1.settings(1, voltage=12.0, current=3.0)  # psu for PMT, Vcc
 V0ctrl = 3.6  # HV_out = Vctrl*250
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
+t0 = time.strftime("%Y%m%d-%H%M%S")
+print(t0, 'Psu on, wait 30 minutes now')
 time.sleep(1800)
 
-PMT = 'PMT-Hamamatsu-R15458-DM14218'
+PMT = 'PMT-Hamamatsu-R14374-KM39696'
 # os.mkdir('data/' + PMT)
 timestr = time.strftime("%Y%m%d-%H%M%S")
+print(timestr)
 directory = 'data/' + PMT + '/' + timestr + '-withoutTrigger-baseline'
 os.mkdir(directory)
 suf = '.hdf5'
@@ -58,4 +61,5 @@ t2 = time.time()
 deltaT = t2-t1
 print(deltaT, 's')
 
-Psu1.off()
+#Psu1.off()
+Ps.close_scope()

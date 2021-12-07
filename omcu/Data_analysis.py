@@ -222,7 +222,7 @@ class Analysis:
         plt.ylabel('Gain')
         plt.xlabel('HV [V]')
 
-        #plt.title(f"Gain of PMT <name>")
+        # plt.title(f"Gain of PMT <name>")
         figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         plt.savefig(figname)
         plt.show()
@@ -242,7 +242,7 @@ class Analysis:
 
         return means
 
-    def get_dark_rate(self, wf_list):
+    def get_dark_rate(self, wf_list, threshold=-2, width=3):
 
         data = {}
         for i in wf_list:
@@ -255,3 +255,63 @@ class Analysis:
         nHV = len(data2)
         n = len(wf_list)/nHV
 
+        peaks_dic = {}
+        no_peaks_dic = {}
+        for i, wf in enumerate(wf_list):
+            peaks = find_peaks(-wf.y, height=-threshold, width=width)
+            if len(peaks[0]) > 0:
+                dic = {}
+                dic.setdefault(i, []).append(peaks)
+                dic.setdefault(i, []).append(wf)
+                peaks_dic.setdefault(wf.HV, []).append(dic)
+            else:
+                no_peaks_dic.setdefault(wf.HV, []).append(wf)
+
+        peaks_dic2 = {}
+        for i in sorted(peaks_dic):
+            peaks_dic2[i] = peaks_dic[i]
+
+        no_peaks_dic2 = {}
+        for i in sorted(no_peaks_dic):
+            no_peaks_dic2[i] = no_peaks_dic[i]
+
+        dark_rate = {}
+        for key in peaks_dic2:
+            count = 0
+            widths = 0.0
+            for i, peak in enumerate(peaks_dic2[key]):
+                for key2 in peaks_dic2[key][i]:
+                    l = len(peaks_dic2[key][i][key2][0][0])
+                    count += l
+                    for w in peaks_dic2[key][i][key2][0][1]['widths']:
+                        widths += w
+            time = (T*n-widths*1e-9)
+            rate = count/time
+            dark_rate.setdefault(key, []).append(count)
+            dark_rate.setdefault(key, []).append(time)
+            dark_rate.setdefault(key, []).append(rate)
+
+        dark_rate_arr = list(dark_rate.items())
+        filename = self.filename + '-dark-rate-threshold' + str(threshold) + 'mV-width' + str(width) + 'ns.txt'
+        np.savetxt(filename, dark_rate_arr, header='HV [V], counts, time [s], dark rate [Hz]')
+
+        return peaks_dic2, no_peaks_dic2
+
+    def plot_peaks(self, peaks_dic, threshold=-2, width=3):
+
+        for key in peaks_dic:
+            plt.figure()
+            for i in range(5):
+                for j in peaks_dic[key][i]:
+                    plt.plot(peaks_dic[key][i][j][-1].x, peaks_dic[key][i][j][-1].y, 'green')  # or also color bar?
+                    for k in peaks_dic[key][i][j][0][0]:
+                        plt.plot(peaks_dic[key][i][j][-1].x[k], peaks_dic[key][i][j][-1].y[k], 'yo')
+            plt.xlabel('Time (ns)')
+            plt.ylabel('Voltage (mV)')
+            plt.title(f"Waveforms for HV={key}V")
+            plt.axhline(y=-threshold, color='red', linestyle='--')
+            plt.show()
+
+            figname = self.filename + '-waveforms-peaks-threshold' + str(threshold) + 'mV-width' + str(width) + '.pdf'
+            plt.savefig(figname)
+            plt.show()

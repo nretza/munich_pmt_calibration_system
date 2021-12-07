@@ -39,7 +39,7 @@ time.sleep(360)
 
 threshold = -2
 
-PMT = 'PMT-Hamamatsu-R15458-DM14218'
+PMT = 'PMT-Hamamatsu-R14374-KM39696'
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr + '-variableHV'
 os.mkdir(directory)
@@ -112,3 +112,4 @@ print(deltaT/60, 'min')
 
 L.off_pulsed()
 Psu1.off()
+Ps.close_scope()
