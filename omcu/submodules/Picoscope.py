@@ -44,7 +44,7 @@ class Picoscope:
         # PICO_BW_500MHZ = 500000000
 
         self.noOfPreTriggerSamples = 100
-        self.noOfPostTriggerSamples = 300
+        self.noOfPostTriggerSamples = 250
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def get_nSamples(self):

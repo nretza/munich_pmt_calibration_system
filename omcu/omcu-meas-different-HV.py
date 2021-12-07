@@ -28,13 +28,12 @@ oc = Occupancy()
 Psu1.settings(1, voltage=12.0, current=3.0)  # psu for PMT, Vcc
 V0ctrl = 3.6  # HV_out = Vctrl*250
 Psu1.settings(2, voltage=V0ctrl, current=0.1)  # psu for PMT, Vcontrol
-#Psu1.on()
-#time.sleep(1800)
+Psu1.on()
+time.sleep(300)
 
 Laser_temp = L.get_temp()
 Pm.set_offset()  # set offset value when it's dark
 
-# Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
 time.sleep(360)
 
