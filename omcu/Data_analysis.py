@@ -6,6 +6,7 @@ import numpy as np
 import h5py
 from Waveform import Waveform
 import statistics as stat
+from scipy.signal import find_peaks
 
 
 # from Data_analysis import Analysis as Al
@@ -134,35 +135,53 @@ class Analysis:
             plt.savefig(figname)
             plt.show()
 
-    def plot_wfs(self, wf_list, threshold=-2):  # todo: select HV
+    def plot_wfs(self, wf_list, threshold=-2):
+
+        data = {}
+        for i in wf_list:
+            data.setdefault(int(i.HV), []).append(i)
+        data2 = {}
+        for i in sorted(data):
+            data2[i] = data[i]
 
         cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
-        plt.figure()
-        for i, c in zip(wf_list, colors):
-            if i.min < threshold:
-                plt.plot(i.x, i.y, color=c)
+        for key in data2:
+            colors = iter(cmap(np.linspace(0, 0.7, len(data2[key]))))
+            plt.figure()
+            for i, c in zip(data2[key], colors):
+                if i.min < threshold:
+                    plt.plot(i.x, i.y, color=c)
 
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
-        figname = self.filename + '-waveforms-threshold' + str(threshold) + 'mV.pdf'
-        plt.savefig(figname)
-        plt.show()
+            plt.xlabel('Time (ns)')
+            plt.ylabel('Voltage (mV)')
+            plt.title(f"Waveforms for HV={key}V")
+            figname = self.filename + '-waveforms-at-' + str(key) + 'V-threshold' + str(threshold) + 'mV.pdf'
+            plt.savefig(figname)
+            plt.show()
 
-    def plot_wfs_mask(self, wf_list, threshold=-2):  # todo: select HV
+    def plot_wfs_mask(self, wf_list, threshold=-2):
+
+        data = {}
+        for i in wf_list:
+            data.setdefault(int(i.HV), []).append(i)
+        data2 = {}
+        for i in sorted(data):
+            data2[i] = data[i]
 
         cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, len(wf_list))))
-        plt.figure()
-        for i, c in zip(wf_list, colors):
-            if i.min < threshold:
-                plt.plot(i.x[i.mask], i.y[i.mask], color=c)
+        for key in data2:
+            colors = iter(cmap(np.linspace(0, 0.7, len(data2[key]))))
+            plt.figure()
+            for i, c in zip(data2[key], colors):
+                if i.min < threshold:
+                    plt.plot(i.x[i.mask], i.y[i.mask], color=c)
 
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
-        figname = self.filename + '-waveforms-mask-threshold' + str(threshold) + 'mV.pdf'
-        plt.savefig(figname)
-        plt.show()
+            plt.xlabel('Time (ns)')
+            plt.ylabel('Voltage (mV)')
+            plt.title(f"Waveforms for HV={key}V")
+            figname = self.filename + '-waveforms-at-' + str(key) + 'V-mask-threshold' + str(threshold) + 'mV.pdf'
+            plt.savefig(figname)
+            plt.show()
 
     def plot_gain_hv(self, wf_list, threshold=-2):
 
@@ -223,4 +242,16 @@ class Analysis:
 
         return means
 
+    def get_dark_rate(self, wf_list):
+
+        data = {}
+        for i in wf_list:
+            data.setdefault(int(i.HV), []).append(i)
+        data2 = {}
+        for i in sorted(data):
+            data2[i] = data[i]
+
+        T = wf_list[0].x[-1]
+        nHV = len(data2)
+        n = len(wf_list)/nHV
 

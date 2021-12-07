@@ -39,7 +39,7 @@ time.sleep(360)
 
 threshold = -2
 
-PMT = 'PMT-Hamamatsu-R15458-DM05949'
+PMT = 'PMT-Hamamatsu-R15458-DM14218'
 timestr = time.strftime("%Y%m%d-%H%M%S")
 directory = 'data/' + PMT + '/' + timestr + '-variableHV'
 os.mkdir(directory)
