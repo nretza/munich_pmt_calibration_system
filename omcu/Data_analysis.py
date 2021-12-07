@@ -86,10 +86,9 @@ class Analysis:
 
             nr_entries = len(amplitudes2[key])
             if nr_entries <= 1000:
-                nbins = int(nr_entries / 50)
+                nbins = int(nr_entries/50)
             else:
-                nbins = int(nr_entries / 100)
-            # nbins=10
+                nbins = int(nr_entries/100)
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -102,8 +101,6 @@ class Analysis:
             figname = self.filename + '-hist-ampl-' + str(key) + 'V.pdf'
             plt.savefig(figname)
             plt.show()
-            print('Maximum at x=', x[np.where(y == y.max())])
-            print('Number of entries', nr_entries, ', Number of bins:', nbins)
 
         return amplitudes2
 
@@ -121,10 +118,9 @@ class Analysis:
 
             nr_entries = len(gains2[key])
             if nr_entries <= 1000:
-                nbins = int(nr_entries / 50)
+                nbins = int(nr_entries/50)
             else:
-                nbins = int(nr_entries / 100)
-            # nbins=10
+                nbins = int(nr_entries/100)
 
             plt.figure()
             plt.subplot(2, 1, 1)
@@ -137,7 +133,6 @@ class Analysis:
             figname = self.filename + '-hist-gain-' + str(key) + 'V-threshold' + str(threshold) + 'mV.pdf'
             plt.savefig(figname)
             plt.show()
-            print('Number of entries', nr_entries, ', Number of bins:', nbins)
 
     def plot_wfs(self, wf_list, threshold=-2):  # todo: select HV
 
@@ -208,18 +203,13 @@ class Analysis:
         plt.ylabel('Gain')
         plt.xlabel('HV [V]')
 
-        #plt.title(f"Gain of PMT-Hamamatsu-R15458-DM14218")
-        #figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
-        #plt.savefig(figname)
-
-        plt.title(f"Gain of PMT xy")
+        #plt.title(f"Gain of PMT <name>")
         figname = self.filename + '-gain-hv-threshold' + str(threshold) + '.pdf'
         plt.savefig(figname)
         plt.show()
 
         for key in means:
             print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
-
 
         xx = np.linspace(500, 2500, 100000)
         yy = fit_fn(xx, a, b)

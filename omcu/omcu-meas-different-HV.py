@@ -36,13 +36,13 @@ Pm.set_offset()  # set offset value when it's dark
 
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
-time.sleep(300)
+time.sleep(360)
 
 threshold = -2
 
 PMT = 'PMT-Hamamatsu-R15458-DM05949'
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr + '-withoutMolton-after5hoursintheDark-variableHV'
+directory = 'data/' + PMT + '/' + timestr + '-variableHV'
 os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + '-variableHV-with-threshold' + str(threshold) + 'mV' + suf

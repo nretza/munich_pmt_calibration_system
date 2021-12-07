@@ -20,7 +20,7 @@ class Waveform:
         print(self.theta,self.phi)
 
     def calculate_gain(self):
-        self.mask = (self.x > 200) & (self.x < 220) # maybe more dynamic
+        self.mask = (self.x > 200) & (self.x < 220)  # maybe more dynamic
         self.area = trapz(abs(self.y[self.mask]*1e-3), abs(self.x[self.mask]*1e-9))
         self.charge = self.area/50
         self.gain = self.charge/const.e
