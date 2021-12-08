@@ -146,11 +146,12 @@ class Analysis:
 
         cmap = plt.cm.viridis
         for key in data2:
-            colors = iter(cmap(np.linspace(0, 0.7, len(data2[key]))))
+            colors = iter(cmap(np.linspace(0, 0.7, 10)))
             plt.figure()
-            for i, c in zip(data2[key], colors):
-                if i.min < threshold:
-                    plt.plot(i.x, i.y, color=c)
+            for i in range(10):
+                for wf, c in zip(data2[key], colors):
+                    if wf.min < threshold:
+                        plt.plot(wf.x, wf.y, color=c)
 
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
@@ -170,11 +171,12 @@ class Analysis:
 
         cmap = plt.cm.viridis
         for key in data2:
-            colors = iter(cmap(np.linspace(0, 0.7, len(data2[key]))))
+            colors = iter(cmap(np.linspace(0, 0.7, 10)))
             plt.figure()
-            for i, c in zip(data2[key], colors):
-                if i.min < threshold:
-                    plt.plot(i.x[i.mask], i.y[i.mask], color=c)
+            for i in range(10):
+                for wf, c in zip(data2[key], colors):
+                    if wf.min < threshold:
+                        plt.plot(wf.x[wf.mask], wf.y[wf.mask], color=c)
 
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
@@ -244,15 +246,8 @@ class Analysis:
 
     def get_dark_rate(self, wf_list, threshold=-2, width=3):
 
-        data = {}
-        for i in wf_list:
-            data.setdefault(int(i.HV), []).append(i)
-        data2 = {}
-        for i in sorted(data):
-            data2[i] = data[i]
-
-        T = wf_list[0].x[-1]
-        nHV = len(data2)
+        T = wf_list[0].x[-1]*1e-9
+        nHV = 5
         n = len(wf_list)/nHV
 
         peaks_dic = {}
@@ -270,7 +265,6 @@ class Analysis:
         peaks_dic2 = {}
         for i in sorted(peaks_dic):
             peaks_dic2[i] = peaks_dic[i]
-
         no_peaks_dic2 = {}
         for i in sorted(no_peaks_dic):
             no_peaks_dic2[i] = no_peaks_dic[i]
@@ -285,17 +279,16 @@ class Analysis:
                     count += l
                     for w in peaks_dic2[key][i][key2][0][1]['widths']:
                         widths += w
-            time = (T*n-widths*1e-9)
+            time = (T * n - widths * 1e-9)
             rate = count/time
-            dark_rate.setdefault(key, []).append(count)
-            dark_rate.setdefault(key, []).append(time)
-            dark_rate.setdefault(key, []).append(rate)
-
+            print(key, n, count, time, rate)
+            dark_rate[key] = rate
         dark_rate_arr = list(dark_rate.items())
         filename = self.filename + '-dark-rate-threshold' + str(threshold) + 'mV-width' + str(width) + 'ns.txt'
-        np.savetxt(filename, dark_rate_arr, header='HV [V], counts, time [s], dark rate [Hz]')
+        fmt = '%d', '%1.9f'
+        np.savetxt(filename, dark_rate_arr, header='HV [V], dark rate [Hz]', fmt=fmt)
 
-        return peaks_dic2, no_peaks_dic2
+        return peaks_dic, no_peaks_dic
 
     def plot_peaks(self, peaks_dic, threshold=-2, width=3):
 
