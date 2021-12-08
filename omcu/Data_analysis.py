@@ -302,7 +302,7 @@ class Analysis:
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
             plt.title(f"Waveforms for HV={key}V")
-            plt.axhline(y=-threshold, color='red', linestyle='--')
+            plt.axhline(y=threshold, color='red', linestyle='--')
             plt.show()
 
             figname = self.filename + '-waveforms-peaks-threshold' + str(threshold) + 'mV-width' + str(width) + '.pdf'
