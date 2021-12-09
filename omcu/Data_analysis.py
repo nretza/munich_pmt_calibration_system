@@ -229,9 +229,6 @@ class Analysis:
         plt.savefig(figname)
         plt.show()
 
-        for key in means:
-            print(key, 'V:', 'gain =', float(means[key]) / 1e7, '10^7')
-
         xx = np.linspace(500, 2500, 100000)
         yy = fit_fn(xx, a, b)
         hvs = {}
@@ -292,19 +289,25 @@ class Analysis:
 
     def plot_peaks(self, peaks_dic, threshold=-2, width=3):
 
-        for key in peaks_dic:
+        peaks_dic2 = {}
+        for i in sorted(peaks_dic):
+            peaks_dic2[i] = peaks_dic[i]
+
+        cmap = plt.cm.viridis
+        for key in peaks_dic2:
             plt.figure()
-            for i in range(5):
-                for j in peaks_dic[key][i]:
-                    plt.plot(peaks_dic[key][i][j][-1].x, peaks_dic[key][i][j][-1].y, 'green')  # or also color bar?
-                    for k in peaks_dic[key][i][j][0][0]:
-                        plt.plot(peaks_dic[key][i][j][-1].x[k], peaks_dic[key][i][j][-1].y[k], 'yo')
+            colors = iter(cmap(np.linspace(0, 0.7, 10)))
+            for i in range(10):
+                for j, c in zip(peaks_dic2[key][i], colors):
+                    plt.plot(peaks_dic2[key][i][j][-1].x, peaks_dic2[key][i][j][-1].y, color=c)
+                    for k in peaks_dic2[key][i][j][0][0]:
+                        plt.plot(peaks_dic2[key][i][j][-1].x[k], peaks_dic2[key][i][j][-1].y[k], 'yo')
             plt.xlabel('Time (ns)')
             plt.ylabel('Voltage (mV)')
             plt.title(f"Waveforms for HV={key}V")
-            plt.axhline(y=threshold, color='red', linestyle='--')
-            plt.show()
+            plt.axhline(y=threshold, color='olive', linestyle='--')
 
-            figname = self.filename + '-waveforms-peaks-threshold' + str(threshold) + 'mV-width' + str(width) + '.pdf'
+            figname = self.filename + '-waveforms-peaks-at' + str(key) + 'V-threshold' + str(threshold) + 'mV-width' +\
+                      str(width) + '.pdf'
             plt.savefig(figname)
             plt.show()
