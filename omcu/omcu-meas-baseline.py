@@ -22,11 +22,11 @@ t0 = time.strftime("%Y%m%d-%H%M%S")
 print(t0, 'Psu on, wait 30 minutes now')
 time.sleep(1800)
 
-PMT = 'PMT-Hamamatsu-R14374-KM39696'
+PMT = 'PMT-ET-9323KB_404'
 # os.mkdir('data/' + PMT)
 timestr = time.strftime("%Y%m%d-%H%M%S")
 print(timestr)
-directory = 'data/' + PMT + '/' + timestr + '-withoutTrigger-baseline'
+directory = 'data/' + PMT + '/baseB/' + timestr + '-withoutTrigger-baseline'
 os.mkdir(directory)
 suf = '.hdf5'
 
@@ -35,25 +35,29 @@ filename_with_folder = directory + '/' + filename
 h5 = h5py.File(filename_with_folder, 'w')
 
 Vctrl = np.arange(3.6, 5.6, 0.4)
+#HV = np.arange(1000, 1600, 100)
 number = 100000
 nSamples = Ps.get_nSamples()
 t1 = time.time()
 for V in Vctrl:
+#for hv in HV:
     Psu1.settings(2, voltage=V, current=0.1)
-    HV = int(round(V*250))
-    print('Vctrl =', V, ', HV =', HV)
+    hv = int(round(V*250))
+    print('HV =', hv)
     time.sleep(0.1)
     data_sgnl = Ps.block_measurement_one_ch(channel=2, number=number)
-    arr_sgnl = h5.create_dataset(f"HV{HV}/signal", (number, nSamples, 2), 'f')
+    arr_sgnl = h5.create_dataset(f"HV{hv}/signal", (number, nSamples, 2), 'f')
     arr_sgnl[:] = data_sgnl
 
     arr_sgnl.attrs['Vctrl'] = f"{V}"
-    arr_sgnl.attrs['HV'] = f"{HV}"
+    arr_sgnl.attrs['HV'] = f"{hv}"
     arr_sgnl.attrs['Position'] = 'Home'
     arr_sgnl.attrs['Baseline'] = 'yes'
     arr_sgnl.attrs['Units_voltage'] = 'mV'
     arr_sgnl.attrs['Units_time'] = 'ns'
     Ps.stop_scope()
+    #print('set HV to', hv+100)
+    #time.sleep(30)
     time.sleep(0.1)
 
 h5.close()
