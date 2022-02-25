@@ -7,7 +7,6 @@ from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV
 import time
-import os
 
 
 class Picoscope:
@@ -258,7 +257,6 @@ class Picoscope:
         Then, it runs timebase_setup() to get the fastest available timebase.
         Then, it runs buffer_multi_setup(bufchannel, number) to setup the buffer
         to store the data unprocessed.
-        Then a multi waveform measurement is taken und written into a file (.npy) in the folder data.
         :param trgchannel: int: 0=A, 1=B, 2=C, 3=D, default: 0
         :param sgnlchannel: int: 0=A, 1=B, 2=C, 3=D, default: 2
         :param direction: int, default: 2 (rising)
@@ -266,7 +264,7 @@ class Picoscope:
         PICO_FALLING = PICO_EXIT = 3, PICO_RISING_OR_FALLING = PICO_ENTER_OR_EXIT = 4
         :param threshold: int [mV] trigger value, default value: 1000 mV
         :param number: int (number of waveforms)
-        :return: filename
+        :return: data_sgnl, data_trg
         """
 
         self.channel_setup(trgchannel, sgnlchannel)
