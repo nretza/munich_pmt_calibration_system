@@ -25,6 +25,8 @@ def io_serial(cmd, delay=0.1, serial=serial):
             if serial.in_waiting > 0:
                 string = str(serial.read(size=serial.in_waiting)[:-2], 'utf-8')
                 split_str = string.split(sep)
+                #print(string)
+                #print(split_str)
                 if split_str[0] == '0':
                     ret = float(split_str[1])
                 else:
@@ -33,4 +35,8 @@ def io_serial(cmd, delay=0.1, serial=serial):
                 
                 break
             time.sleep(delay)
+            #if serial.isOpen(): print('ok')
+            #else:  print('not ok')
+            #print(serial.in_waiting)
+            #print('wait')
         return ret

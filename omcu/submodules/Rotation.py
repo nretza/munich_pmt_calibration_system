@@ -21,6 +21,8 @@ class Rotation:
                                         parity=serial.PARITY_NONE,
                                         timeout=2
                                         )
+        #if self.serial.isOpen(): print('ok')
+        #else:  print('not ok')
 
     def set_phi(self, phi):
         """
