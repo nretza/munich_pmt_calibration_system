@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # Author:  Laura Winter <evalaura.winter@tum.de>
 
-from submodules.Picoscope import Picoscope
-from submodules.PSU import PSU
-from submodules.Laser import Laser
-from submodules.Rotation import Rotation
+from devices.Picoscope import Picoscope
+from devices.PSU import PSU
+from devices.Laser import Laser
+from devices.Rotation import Rotation
 import time
 
 

@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 # Author:  Laura Winter <evalaura.winter@tum.de>
 
-from submodules.Picoscope import Picoscope
-from submodules.PSU import PSU
+from devices.Picoscope import Picoscope
+from devices.PSU import PSU
 #from submodules.Rotation import Rotation
-from submodules.Laser import Laser
-from submodules.Powermeter import Powermeter
-from Occupancy import Occupancy
+from devices.Laser import Laser
+from devices.Powermeter import Powermeter
+from omcu.util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

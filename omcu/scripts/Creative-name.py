@@ -1,19 +1,19 @@
 #!/usr/bin/python3
 # Author:  Laura Winter <evalaura.winter@tum.de>
 
-from submodules.Picoscope import Picoscope
-from submodules.PSU import PSU
-from submodules.Rotation import Rotation
-from submodules.Laser import Laser
-from submodules.Powermeter import Powermeter
-from Occupancy import Occupancy
+from omcu.devices.Picoscope import Picoscope
+from omcu.devices.PSU import PSU
+from omcu.devices.Rotation import Rotation
+from omcu.devices.Laser import Laser
+from omcu.devices.Powermeter import Powermeter
+from omcu.util.Occupancy import Occupancy
 import time
 import os
 import numpy as np
 import h5py
 
 Ps = Picoscope()
-Psu0 = PSU(dev="/dev/PSU_0")
+#Psu0 = PSU(dev="/dev/PSU_0")
 Psu1 = PSU(dev="/dev/PSU_1")
 Rot = Rotation()
 L = Laser()
@@ -21,14 +21,14 @@ Pm = Powermeter()
 oc = Occupancy()
 
 # Psu settings
-Psu0.settings(1, voltage=12.0, current=3.0)  # psu for rotation stage
-Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
-Vctrl = 1.1
-Psu1.settings(2, voltage=Vctrl, current=0.1)  # psu for PMT, Vcontrol
-Psu0.on()
-Rot.go_home()
+Psu1.settings(1, voltage=12.0, current=1.5)  # psu for rotation stage
+#Psu1.settings(1, voltage=5.0, current=0.1)  # psu for PMT, Vcc
+#Vctrl = 1.1
+#Psu1.settings(2, voltage=Vctrl, current=0.1)  # psu for PMT, Vcontrol
 Psu1.on()
-time.sleep(3600)
+Rot.go_home()
+#Psu1.on()
+#time.sleep(1200)
 
 Laser_temp = L.get_temp()
 Pm.set_offset()  # set offset value when it's dark
@@ -36,7 +36,7 @@ Pm.set_offset()  # set offset value when it's dark
 PMT = 'PMT001'
 #TODO: erstelle directory für PMT folder
 timestr = time.strftime("%Y%m%d-%H%M%S")
-directory = 'data/' + PMT + '/' + timestr
+directory = 'data1/' + PMT + '/' + timestr
 os.mkdir(directory)
 suf = '.hdf5'
 filename = PMT + suf
@@ -45,12 +45,12 @@ h5 = h5py.File(filename_with_folder, 'w')
 
 # Laser settings depending on occupancy
 L.on_pulsed()  # pulsed laser emission on
-time.sleep(300)
+time.sleep(3)
 f0 = 10e3
 L.set_freq(f=f0)  # value?
 tune = 710
 L.set_tune_value(tune=tune)  # value?
-number0 = 100000
+number0 = 10000
 threshold = -3
 data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
 occ = oc.occ_data(data_sgnl, threshold)
@@ -60,10 +60,12 @@ while occ > 0.1:
     data_sgnl, data_trg = Ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=number0)
     occ = oc.occ_data(data_sgnl, threshold)
 print('Laser tune value is', tune, '. Occupancy is', occ*100, '%')
-#time.sleep(300)
+time.sleep(1200)
 
-delta_theta = 30  # 6
-thetas = np.arange(0, 90.1, delta_theta)
+delta_theta = 5  # 6, 30
+#thetas = [0]
+phis = [0]
+thetas = np.arange(0, 95, delta_theta)
 #delta_phi = 15  # value?
 #phis = np.arange(0, 360., delta_phi)
 number = 100000
@@ -71,14 +73,14 @@ nSamples = Ps.get_nSamples()
 t1 = time.time()
 for i, theta in enumerate(thetas):  # rotation in xy plane
     Rot.set_theta(theta)
-    n_phi_steps = 36 * np.sin(np.radians(theta))
-    delta_phi = min(360 / n_phi_steps, 90)
-    if theta==0:
-        phis = [0]
-    else:
-        phis = np.arange(0, 360., delta_phi)
+#    n_phi_steps = 36 * np.sin(np.radians(theta))
+#    delta_phi = min(360 / n_phi_steps, 90)
+#    if theta==0:
+#        phis = [0]
+#    else:
+#        phis = np.arange(0, 360., delta_phi)
     for j, phi in enumerate(phis):  # rotation around PMT long axis
-        Rot.set_phi(phi)
+#        Rot.set_phi(phi)
         pos = Rot.get_position()
         print(pos)
         time.sleep(0.1)
@@ -98,8 +100,8 @@ for i, theta in enumerate(thetas):  # rotation in xy plane
         arr_sgnl[:] = data_sgnl_filt
         arr_trg[:] = data_trg_filt
 
-        arr_sgnl.attrs['Vctrl'] = f"{Vctrl}"
-        arr_trg.attrs['Vctrl'] = f"{Vctrl}"
+        #arr_sgnl.attrs['Vctrl'] = f"{Vctrl}"
+        #arr_trg.attrs['Vctrl'] = f"{Vctrl}"
         arr_sgnl.attrs['Occupancy'] = f"{occ}"
         arr_trg.attrs['Occupancy'] = f"{occ}"
         arr_sgnl.attrs['Powermeter'] = f"{power}"
@@ -119,5 +121,5 @@ print(deltaT/60)
 
 L.off_pulsed()
 Rot.go_home()
-Psu0.off()
+#Psu0.off()
 Psu1.off()

@@ -2,7 +2,7 @@
 import serial
 import logging
 
-from .Serial2 import io_serial
+from omcu.devices.Serial2 import io_serial
 
 
 class Rotation:

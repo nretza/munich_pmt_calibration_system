@@ -3,7 +3,7 @@ import logging
 import serial
 import time
 
-from .SimSerial import SimSerial
+from omcu.devices.SimSerial import SimSerial
 
 
 class Powermeter:

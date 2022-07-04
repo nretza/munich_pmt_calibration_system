@@ -12,14 +12,14 @@ sys.path.append('/home/canada/munich_pmt_calibration_system/omcu')
 # Import the sys-system python modules of this master-control software.
 import argparse
 
-from submodules.Picoscope import Picoscope
-from submodules.PSU import PSU
-from submodules.Picoamp import Picoamp
-from submodules.Rotation import Rotation
-from submodules.Laser import Laser
-from submodules.Powermeter import Powermeter
-from logging_config import setup_logging
-from config import Config
+from omcu.devices.Picoscope import Picoscope
+from omcu.devices.PSU import PSU
+from omcu.devices.Picoamp import Picoamp
+from omcu.devices.Rotation import Rotation
+from omcu.devices.Laser import Laser
+from omcu.devices.Powermeter import Powermeter
+from omcu.util.logging_config import setup_logging
+from omcu.util.config import Config
 
 # set up the logging module with format, assign Handler, ...
 setup_logging(to_console=True,

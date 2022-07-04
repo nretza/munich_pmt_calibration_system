@@ -4,13 +4,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py
-from Waveform import Waveform
+import math
+
+from scipy import optimize
 from scipy.signal import find_peaks
 from scipy.signal import argrelextrema
 import scipy.constants as const
-from scipy import optimize
 from scipy.interpolate import UnivariateSpline as US
-import math
+
+from omcu.util.Waveform import Waveform
+
 
 
 class Analysis:
