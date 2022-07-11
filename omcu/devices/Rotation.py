@@ -2,14 +2,31 @@
 import serial
 import logging
 
-from omcu.devices.Serial2 import io_serial
+from omcu.devices.io_serial import io_serial
 
 
 class Rotation:
     """
     Class for the rotation stage consisting of 2 stepper motors
+    
+    This is a Singleton - google it!
     """
+
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Rotation()
+        return cls._instance
+
     def __init__(self, dev="/dev/Rotation",  delay=.1):
+
+        if Rotation._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Rotation._instance = self
+
         self.logger = logging.getLogger(type(self).__name__)
         serial_connection = serial.Serial
         self.delay = delay  # set default delay

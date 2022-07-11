@@ -9,9 +9,26 @@ from omcu.devices.SimSerial import SimSerial
 class Laser:
     """
     This is a class for the Picosecond Laser System Controller EIG2000DX
+    
+    This is a Singleton - google it!
     """
 
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Laser()
+        return cls._instance
+
     def __init__(self, dev="/dev/Laser_control", simulating=False, delay=.1):
+
+        if Laser._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Laser._instance = self
+
+            
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial

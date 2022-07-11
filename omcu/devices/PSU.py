@@ -43,9 +43,62 @@ class PSU(gpd3303s.GPD3303S):
         self.enableOutput(False)
         self.state = False
 
+class PSU0(PSU):
+    
+    """
+    PSU0 implemented as Singleton child class of PSU
+    """
 
-if __name__ == "__main__":
-    P0 = PSU(dev="/dev/PSU_0")
-    P0.setVoltage(1, 10.0)
-    print(P0.getVoltageOutput(1))
+    _instance = None
 
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = PSU0()
+        return cls._instance
+
+    def __init__(self, dev="/dev/PSU_0"):
+
+        if PSU0._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            PSU0._instance = self
+
+        super().__init__()
+        self.state = False
+        self.open(dev)
+        self.enableOutput(False)
+        self.setCurrent(1, 3.0)
+        self.setCurrent(2, .1)
+        self.setVoltage(1, 12.0)
+        self.setVoltage(2, 3.6)
+
+class PSU1(PSU):
+
+    """
+    PSU1 implemented as Singleton child class of PSU
+    """
+
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = PSU1()
+        return cls._instance
+
+    def __init__(self, dev="/dev/PSU_1"):
+
+        if PSU1._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            PSU1._instance = self
+
+        super().__init__()
+        self.state = False
+        self.open(dev)
+        self.enableOutput(False)
+        self.setCurrent(1, 3.0)
+        self.setCurrent(2, .1)
+        self.setVoltage(1, 12.0)
+        self.setVoltage(2, 3.6)

@@ -7,9 +7,25 @@ import numpy as np
 class Picoamp:
     """
     This is a class for the Keithley 6482 Picoamperemeter
+
+    This is a Singleton - google it!
     """
 
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Picoamp()
+        return cls._instance
+
     def __init__(self, dev="/dev/Picoamp"):
+
+        if Picoamp._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Picoamp._instance = self
+
         self.serial = serial.Serial(dev,
                                     baudrate=57600,
                                     bytesize=serial.EIGHTBITS,

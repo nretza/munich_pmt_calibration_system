@@ -9,9 +9,25 @@ from omcu.devices.SimSerial import SimSerial
 class Powermeter:
     """
     This is a class for the Newport Optical Powermeter Model 2936-R
+    
+    This is a Singleton - google it!
     """
 
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Powermeter()
+        return cls._instance
+
     def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.1):
+
+        if Powermeter._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Powermeter._instance = self
+
         self.logger = logging.getLogger(type(self).__name__)
 
         # select if Serial or SimSerial

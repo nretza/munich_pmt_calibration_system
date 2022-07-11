@@ -12,9 +12,25 @@ import time
 class Picoscope:
     """
     This is a class for the PicoTech Picoscope 6424E
+    
+    This is a Singleton - google it!
     """
 
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Picoscope()
+        return cls._instance
+
     def __init__(self):
+
+        if Picoscope._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Picoscope._instance = self
+
         self.chandle = ctypes.c_int16()
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
