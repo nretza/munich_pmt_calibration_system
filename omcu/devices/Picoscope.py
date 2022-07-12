@@ -2,6 +2,7 @@
 import ctypes
 import numpy as np
 from numpy import trapz
+from devices.device import device
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ from picosdk.functions import adc2mV
 import time
 
 
-class Picoscope:
+class Picoscope(device):
     """
     This is a class for the PicoTech Picoscope 6424E
     
@@ -30,6 +31,8 @@ class Picoscope:
             raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
         else:
             Picoscope._instance = self
+
+        super().__init__()
 
         self.chandle = ctypes.c_int16()
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]

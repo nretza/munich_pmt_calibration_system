@@ -8,7 +8,7 @@ class PSU(gpd3303s.GPD3303S):
     It is important that the udev rules allow access to the current user.
     """
 
-    def __init__(self, dev="/dev/PSU_1"):  # PSU_0 or PSU_1
+    def __init__(self, dev):
         """
         This is the init function for the power supply device
         :param dev: device path, use: dev="/dev/PSU_0" or dev="/dev/PSU_1"
@@ -43,6 +43,9 @@ class PSU(gpd3303s.GPD3303S):
         self.enableOutput(False)
         self.state = False
 
+    def is_on(self):
+        return self.state
+
 class PSU0(PSU):
     
     """
@@ -64,14 +67,14 @@ class PSU0(PSU):
         else:
             PSU0._instance = self
 
-        super().__init__()
-        self.state = False
-        self.open(dev)
-        self.enableOutput(False)
-        self.setCurrent(1, 3.0)
-        self.setCurrent(2, .1)
-        self.setVoltage(1, 12.0)
-        self.setVoltage(2, 3.6)
+        super().__init__(dev)
+        #self.state = False
+        #self.open(dev)
+        #self.enableOutput(False)
+        #self.setCurrent(1, 3.0)
+        #self.setCurrent(2, .1)
+        #self.setVoltage(1, 12.0)
+        #self.setVoltage(2, 3.6)
 
 class PSU1(PSU):
 
@@ -94,11 +97,11 @@ class PSU1(PSU):
         else:
             PSU1._instance = self
 
-        super().__init__()
-        self.state = False
-        self.open(dev)
-        self.enableOutput(False)
-        self.setCurrent(1, 3.0)
-        self.setCurrent(2, .1)
-        self.setVoltage(1, 12.0)
-        self.setVoltage(2, 3.6)
+        super().__init__(dev)
+        #self.state = False
+        #self.open(dev)
+        #self.enableOutput(False)
+        #self.setCurrent(1, 3.0)
+        #self.setCurrent(2, .1)
+        #self.setVoltage(1, 12.0)
+        #self.setVoltage(2, 3.6)

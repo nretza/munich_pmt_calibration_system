@@ -2,11 +2,9 @@
 import logging
 import serial
 import time
+from omcu.devices.device import serial_device
 
-from omcu.devices.SimSerial import SimSerial
-
-
-class Laser:
+class Laser(serial_device):
     """
     This is a class for the Picosecond Laser System Controller EIG2000DX
     
@@ -28,25 +26,7 @@ class Laser:
         else:
             Laser._instance = self
 
-            
-        self.logger = logging.getLogger(type(self).__name__)
-
-        # select if Serial or SimSerial
-        if simulating:
-            serial_connection = SimSerial
-            self.delay = .01  # set default delay
-        else:
-            serial_connection = serial.Serial
-            self.delay = delay  # set default delay
-
-        # initialise Serial or SimSerial
-        self.serial = serial_connection(dev,
-                                        baudrate=19200,
-                                        parity=serial.PARITY_NONE,
-                                        stopbits=serial.STOPBITS_ONE,
-                                        bytesize=serial.EIGHTBITS,
-                                        timeout=2
-                                        )
+        super().__init__(dev=dev, simulating=simulating, delay=delay)
 
         self.off_pulsed()  # pulsed laser emission OFF
         self.set_trig_edge(1)  # trigger edge: rising
@@ -56,31 +36,6 @@ class Laser:
         self.set_freq(10e3)  # frequency = 10 kHZ
         self.off_cw()  # CW laser emission OFF
 
-    def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
-        """
-
-        PARAMETERS
-        ----------
-        cmd: Str, bytes, optional
-        delay: float or None, optional
-        line_ending: bytes, optional
-        """
-        if delay is None:
-            delay = self.delay
-
-        if type(cmd) is str:
-            cmd = cmd.encode()
-
-        if not cmd.endswith(line_ending):
-            cmd += line_ending
-
-        self.serial.write(cmd)
-        time.sleep(delay)
-
-        return_str = self.serial.readline().decode()
-
-        self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-        return return_str
 
     def print_state(self):  #TODO: prints not whole information
         """
@@ -98,13 +53,7 @@ class Laser:
         ext. frequency:	         0 Hz
         trigger level:	     +0.00 V
         """
-        self.__write_serial('state?')
-        s = ''
-        while self.serial.inWaiting():
-            try:
-                s += self.serial.read().decode()
-            except:
-                pass
+        s = self.serial_io('state?', multi_line=True)
         print(s)
 
     def on_pulsed(self):
@@ -112,7 +61,7 @@ class Laser:
         This function enables the pulsed laser emission (laser on)
         :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
-        self.__write_serial('ld=1')  # enables pulsed laser emission
+        self.serial_io('ld=1')  # enables pulsed laser emission
         return self.get_ld()
 
     def off_pulsed(self):
@@ -120,7 +69,7 @@ class Laser:
         This function disables the pulsed laser emission (laser off)
         :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
-        self.__write_serial('ld=0')  # disables pulsed laser emission
+        self.serial_io('ld=0')  # disables pulsed laser emission
         return self.get_ld()
 
     def get_ld(self):
@@ -128,7 +77,7 @@ class Laser:
         This is a function to get information about the pulsed laser emission state
         :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
-        ld_string = self.__write_serial('ld?')  # returns string 'pulsed laser emission: off/on'
+        ld_string = self.serial_io('ld?')  # returns string 'pulsed laser emission: off/on'
         print(ld_string)
         if 'off' in ld_string:
             ld_val = 0
@@ -147,7 +96,7 @@ class Laser:
         :param te: trigger edge (falling 0, rising 1)
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
-        self.__write_serial(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (falling 0, rising 1)
+        self.serial_io(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (falling 0, rising 1)
         return self.get_trig_edge()
 
     def get_trig_edge(self):
@@ -155,7 +104,7 @@ class Laser:
         This is a function to get information about the set trigger edge
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
-        te_string = self.__write_serial('te?')  # returns string 'trigger edge: falling/rising'
+        te_string = self.serial_io('te?')  # returns string 'trigger edge: falling/rising'
         print(te_string)
         if 'falling' in te_string:
             te_val = 0
@@ -174,7 +123,7 @@ class Laser:
         :param ts: trigger source (internal 0, ext. adjustable 1, ext. TTL 2)
         :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
-        self.__write_serial(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
+        self.serial_io(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
         # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
@@ -183,7 +132,7 @@ class Laser:
         This is a function to get information about the set trigger source
         :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
-        ts_string = self.__write_serial('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
+        ts_string = self.serial_io('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
         print(ts_string)
         if 'internal' in ts_string:
             ts_val = 0
@@ -204,7 +153,7 @@ class Laser:
         :param tl: trigger level (-4800...+4800 mV)
         :return: float: trigger level (-4.80...+4.80 V)
         """
-        self.__write_serial(f'tl={tl}', line_ending=b'\n')  # sets trigger level to tl (-4800...+4800 mV)
+        self.serial_io(f'tl={tl}', line_ending=b'\n')  # sets trigger level to tl (-4800...+4800 mV)
         return self.get_trig_level()
 
     def get_trig_level(self):
@@ -212,7 +161,7 @@ class Laser:
         This is a function to get information about the set trigger level
         :return: float: trigger level (-4.80...+4.80 V)
         """
-        tl_string = self.__write_serial('tl?')  # returns string 'trigger level: +0.00 V'
+        tl_string = self.serial_io('tl?')  # returns string 'trigger level: +0.00 V'
         print(tl_string)
         if 'test' in tl_string:
             tl_val = 0
@@ -226,7 +175,7 @@ class Laser:
         :param tm: tune mode (manual 0, auto 1)
         :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
-        self.__write_serial(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (manual 0, auto 1)
+        self.serial_io(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (manual 0, auto 1)
         return self.get_tune_mode()
 
     def get_tune_mode(self):
@@ -234,7 +183,7 @@ class Laser:
         This is a function to get information about the set tune mode
         :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
-        tm_string = self.__write_serial('tm?')  # returns string 'tune mode: manual/auto'
+        tm_string = self.serial_io('tm?')  # returns string 'tune mode: manual/auto'
         print(tm_string)
         if 'auto' in tm_string:
             tm_val = 1
@@ -254,10 +203,10 @@ class Laser:
         :param tune: tune value (0...1000, where 1000=100 %)
         :return: float: tune value (0...100.0 %)
         """
-        self.__write_serial('tm=0')  # sets tune mode to manual
+        self.serial_io('tm=0')  # sets tune mode to manual
         tune_mode_0 = self.get_tune_mode()
         print(tune_mode_0)
-        self.__write_serial(f'tune={tune}', line_ending=b'\n')  # sets tune value to tune (0...1000, where 1000=100 %)
+        self.serial_io(f'tune={tune}', line_ending=b'\n')  # sets tune value to tune (0...1000, where 1000=100 %)
         return self.get_tune_value()
 
     def get_tune_value(self):
@@ -265,7 +214,7 @@ class Laser:
         This is a function to get information about the set tune value
         :return: float: tune value (0...100.0 %)
         """
-        tune_string = self.__write_serial('tune?')  # returns string 'tune value: 70.00 %'
+        tune_string = self.serial_io('tune?')  # returns string 'tune value: 70.00 %'
         print(tune_string)
         if 'test' in tune_string:
             tune_val = 0
@@ -279,7 +228,7 @@ class Laser:
         :param f: frequency (25...125000000 Hz)
         :return: str: 'int. frequency: 100 Hz'
         """
-        self.__write_serial(f'f={f}', line_ending=b'\n')  # sets frequency to f (25...125000000)
+        self.serial_io(f'f={f}', line_ending=b'\n')  # sets frequency to f (25...125000000)
         return self.get_freq()
 
     def get_freq(self):
@@ -287,7 +236,7 @@ class Laser:
         This is a function to get information about the set frequency
         :return: float: frequency (25...125000000 Hz)
         """
-        freq_string = self.__write_serial('f?')  # returns string 'int. frequency: 100 Hz'
+        freq_string = self.serial_io('f?')  # returns string 'int. frequency: 100 Hz'
         print(freq_string)
         if 'test' in freq_string:
             freq = 0
@@ -301,7 +250,7 @@ class Laser:
         :param cwl: CW laser output power (0...100 %)
         :return: float: CW laser output power (0...100 %)
         """
-        self.__write_serial(f'cwl={cwl}', line_ending=b'\n')  # sets CW laser output power (0...100)
+        self.serial_io(f'cwl={cwl}', line_ending=b'\n')  # sets CW laser output power (0...100)
         return self.get_cwl()
 
     def get_cwl(self):
@@ -309,7 +258,7 @@ class Laser:
         This is a function to get information about the CW laser output power value
         :return: float: CW laser output power (0...100 %)
         """
-        cwl_string = self.__write_serial('cwl?')  # returns string 'CW output power: 0 %'
+        cwl_string = self.serial_io('cwl?')  # returns string 'CW output power: 0 %'
         print(cwl_string)
         if 'test' in cwl_string:
             cwl_val = 0
@@ -322,7 +271,7 @@ class Laser:
         This is a function to enable the CW laser emission
         :return: int: 1 = on, (2 = something went wrong)
         """
-        self.__write_serial('cw=1')  # enables CW laser emission
+        self.serial_io('cw=1')  # enables CW laser emission
         return self.get_cw()
 
     def off_cw(self):
@@ -330,7 +279,7 @@ class Laser:
         This is a function to disable the CW laser emission
         :return: int: 0 = off, (2 = something went wrong)
         """
-        self.__write_serial('cw=0')  # disables CW laser emission
+        self.serial_io('cw=0')  # disables CW laser emission
         return self.get_cw()
 
     def get_cw(self):
@@ -338,7 +287,7 @@ class Laser:
         This is a function to get information about the CW laser emission state
         :return: int: 0 = off, 1 = on, (2 = something went wrong)
         """
-        cw_string = self.__write_serial('cw?')  # returns string 'CW laser emission: off/on'
+        cw_string = self.serial_io('cw?')  # returns string 'CW laser emission: off/on'
         print(cw_string)
         if 'off' in cw_string:
             cw_val = 0
@@ -356,9 +305,8 @@ class Laser:
         This is a function to get the laser head temperature
         :return:
         """
-        self.serial.write(b'lht?\r\n')  # self.__write_serial('lht?')  #
-        temp_string = self.serial.readline()
-        temp_float = float(temp_string[23:28])
+        temp_str = self.serial_io('lht?')
+        temp_float = float(temp_str[23:28])
         return temp_float
 
     def get_temp_ind(self):  #TODO: fix
@@ -366,5 +314,5 @@ class Laser:
         This is a function to get information about the laser diode temperature indicator (good, bad)
         :return:
         """
-        temp_ind = self.__write_serial('ldtemp?')  #
+        temp_ind = self.serial_io('ldtemp?')  #
         return temp_ind

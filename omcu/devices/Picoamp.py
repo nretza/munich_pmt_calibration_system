@@ -3,8 +3,10 @@ import serial
 import time
 import numpy as np
 
+from devices.device import serial_device
 
-class Picoamp:
+
+class Picoamp(serial_device):
     """
     This is a class for the Keithley 6482 Picoamperemeter
 
@@ -26,82 +28,50 @@ class Picoamp:
         else:
             Picoamp._instance = self
 
-        self.serial = serial.Serial(dev,
-                                    baudrate=57600,
-                                    bytesize=serial.EIGHTBITS,
-                                    parity=serial.PARITY_NONE,
-                                    timeout=2
-                                    )
+        super().__init__(dev=dev)
+
         startup = ['*RST', 'SENS:CURR:RANG:AUTO ON', 'SENS2:CURR:RANG:AUTO ON', 'SYST:AZER ON', 'SYST:AZER OFF']
         for i in startup:
-            self.serial.write(str.encode('%s\r' % i))
-            # print('\t%s' %i)
+            self.serial_io(i)
             time.sleep(1.0)
 
+    #legacy support
     def read_ch1(self, ncal):
-        """
-        This is a function to read out channel 1 of the Picoamperemter
-        :param ncal: Take ncal measurements and then stop
-        :return: val = np.array([])
-        """
-        self.serial.write(str.encode('FORM:ELEM CURR1'))
-        comms = []
-        i = 1
-        comms.append(str.encode('TRIG:DEL 0\n'))
-        comms.append(str.encode('ARM:COUN %s\n' % ncal))
-        comms.append(str.encode('INIT\n'))
-        comms.append(str.encode('READ?\n'))
-        for comm in comms:
-            # print('\t' + comm[:-1].decode("utf-8") )
-            self.serial.write(comm)
-            time.sleep(.1)
-        line = self.serial.readline()
-        # print(line)
-        val = np.array([])
-        try:
-            for x in line.decode('utf8').split(',')[::2]:
-                val = np.append(val, [float(x)])
-        except:
-            print("\tMeasurement failed, trying again...")
-            i += 1
-            if i >= 50:
-                return np.nan, np.nan
-        print('\tPhotodiode current Ch1: %s A' % val)
-        # mean = np.mean(val)
-        # std  = np.std(val) / np.sqrt(ncal)
-        return val
+        return self.read_ch(1, ncal)
 
+    #legacy support
     def read_ch2(self, ncal):
+        return self.read_ch(2, ncal)
+
+
+    def read_ch(self, ch, ncal):
         """
-        This is a function to read out channel 2 of the Picoamperemter
+        This is a function to read out a channel of the Picoamperemter
         :param ncal: Take ncal measurements and then stop
         :return: val = np.array([])
         """
-        self.serial.write(str.encode('FORM:ELEM CURR2'))
+
+        assert ch in (1,2)
+
+        self.serial_io(f'FORM:ELEM CURR{ch}')
         comms = []
         i = 1
-        comms.append(str.encode('TRIG:DEL 0\n'))
-        comms.append(str.encode('ARM:COUN %s\n' % ncal))
-        comms.append(str.encode('INIT\n'))
-        comms.append(str.encode('READ?\n'))
+        comms.append('TRIG:DEL 0')
+        comms.append('ARM:COUN %s' % ncal)
+        comms.append('INIT')
+        comms.append('READ?')
         for comm in comms:
-            # print('\t' + comm[:-1].decode("utf-8") )
-            self.serial.write(comm)
-            time.sleep(.1)
-        line = self.serial.readline()
-        # print(line)
+            line = self.serial_io(comm)
         val = np.array([])
         try:
-            for x in line.decode('utf8').split(',')[::2]:
+            for x in line.split(',')[::2]:
                 val = np.append(val, [float(x)])
         except:
             print("\tMeasurement failed, trying again...")
             i += 1
             if i >= 50:
                 return np.nan, np.nan
-        print('\tPhotodiode current Ch2: %s A' % val)
+        print(f'\tPhotodiode current Ch{ch}: {val} A' % val)
         # mean = np.mean(val)
         # std  = np.std(val) / np.sqrt(ncal)
         return val
-
-

@@ -1,11 +1,7 @@
 #!/usr/bin/python3
-import serial
-import logging
+from devices.device import serial_device
 
-from omcu.devices.io_serial import io_serial
-
-
-class Rotation:
+class Rotation(serial_device):
     """
     Class for the rotation stage consisting of 2 stepper motors
     
@@ -20,51 +16,40 @@ class Rotation:
             cls._instance = Rotation()
         return cls._instance
 
-    def __init__(self, dev="/dev/Rotation",  delay=.1):
+    def __init__(self, dev="/dev/Rotation",  delay=0.1):
 
         if Rotation._instance:
             raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
         else:
             Rotation._instance = self
 
-        self.logger = logging.getLogger(type(self).__name__)
-        serial_connection = serial.Serial
-        self.delay = delay  # set default delay
-
-        # initialise Serial or SimSerial
-        self.serial = serial_connection(dev,
-                                        baudrate=9600,  #TODO: change baudrate back, this is currently in the ardunio code!
-                                        bytesize=serial.EIGHTBITS,
-                                        parity=serial.PARITY_NONE,
-                                        timeout=2
-                                        )
-        #if self.serial.isOpen(): print('ok')
-        #else:  print('not ok')
+        super().__init__(dev, delay=delay)
 
     def set_phi(self, phi):
         """
         Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param phi: Float (0-360 in 5000 steps)
         """
-        phi_pos = io_serial(bytes(f'goY {phi}', 'utf-8'), serial=self.serial)
-        return phi_pos
+        phi_pos = self.serial_io(f'goY {phi}', wait_for=": ").split(':')[1]
+        return float(phi_pos)
 
     def set_theta(self, theta):
         """
         Controls the lower stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param theta: Float (0-360 in 5000 steps)
         """
-        theta_pos = io_serial(bytes(f'goX {theta}', 'utf-8'), serial=self.serial)
-        theta_pos = theta_pos/ 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
-        return theta_pos
+        theta_pos = self.serial_io(f'goX {theta}', wait_for=": ").split(':')[1]
+        return float(theta_pos) / 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
         
     def go_home(self):
         """
         Sends the Rotation stage to home position.
         """
-        home_pos = [0, 0]
-        home_pos[0] = io_serial(bytes(f'goHomeY', 'utf-8'), serial=self.serial)
-        home_pos[1] = io_serial(bytes(f'goHomeX', 'utf-8'), serial=self.serial)
+        home_pos = [0,0]
+        hpY = self.serial_io(f'goHomeY', wait_for=": ").split(':')[1]
+        hpX = self.serial_io(f'goHomeX', wait_for=": ").split(':')[1]
+        home_pos[0] = float(hpY)
+        home_pos[1] = float(hpX)
         return home_pos
 
     def set_position(self, phi, theta):
@@ -83,8 +68,10 @@ class Rotation:
         Returns the current position
         """
         pos = [0, 0]
-        pos[0] = io_serial(bytes(f'getPositionY', 'utf-8'), serial=self.serial)
-        pos[1] = io_serial(bytes(f'getPositionX', 'utf-8'), serial=self.serial)
+        posY = self.serial_io(f'getPositionY', wait_for=": ").split(':')[1]
+        posX = self.serial_io(f'getPositionX', wait_for=": ").split(':')[1]
+        pos[0] = float(posY)
+        pos[1] = float(posX)
         return pos
 
     def set_speed(self, speed):
@@ -92,7 +79,8 @@ class Rotation:
         sets the delay time in-between single steps in milliseconds. Minimum value is 300.
         :param speed: Float (0-360 in 5000 steps)
         """
-        speed_val = io_serial(bytes(f'setspeed {speed}', 'utf-8'), serial=self.serial)
+        speed_str = self.serial_io(f'setspeed {speed}', wait_for=": ").split(':')[1]
+        speed_val = float(speed_str)
         if speed_val > 16383:
             print('the delay might be not accurate anymore.')
         elif speed_val > 32767:
@@ -104,7 +92,8 @@ class Rotation:
         Returns the delay time in-between single steps in milliseconds. Minimum value is 300.
         """
 
-        speed_val = io_serial(bytes(f'getspeed', 'utf-8'), serial=self.serial)
+        speed_str = self.serial_io('getspeed', wait_for=": ").split(':')[1]
+        speed_val = float(speed_str)
         return speed_val
 
     def get_ir(self):
@@ -112,13 +101,8 @@ class Rotation:
         Returns state of infrared sensor (on=1, off=0)
         """
         ir_val = [0,0]
-        ir_val[0] = io_serial(bytes(f'getIRY', 'utf-8'), serial=self.serial)
-        ir_val[1] = io_serial(bytes(f'getIRX', 'utf-8'), serial=self.serial)
-        # ir_val = io_serial(bytes(f'getIR', 'utf-8'), serial=self.serial)
+        irY = self.serial_io('getIRY', wait_for=": ").split(':')[1]
+        irX = self.self.serial_io('getIRX', wait_for=": ").split(':')[1]
+        ir_val[0] = float(irY)
+        ir_val[1] = float(irX)
         return ir_val
-
-
-if __name__ == "__main__":
-    rs = Rotation()
-    rs.go_home()
-    print('Rotation stage is at home')

@@ -2,11 +2,9 @@
 import logging
 import serial
 import time
+from omcu.devices.device import serial_device
 
-from omcu.devices.SimSerial import SimSerial
-
-
-class Powermeter:
+class Powermeter(serial_device):
     """
     This is a class for the Newport Optical Powermeter Model 2936-R
     
@@ -28,23 +26,8 @@ class Powermeter:
         else:
             Powermeter._instance = self
 
-        self.logger = logging.getLogger(type(self).__name__)
+        super().__init__(dev=dev, simulating=simulating, delay=delay)
 
-        # select if Serial or SimSerial
-        if simulating:
-            serial_connection = SimSerial
-            self.delay = .01  # set default delay
-        else:
-            serial_connection = serial.Serial
-            self.delay = delay  # set default delay
-
-        # initialise Serial or SimSerial
-        self.serial = serial_connection(dev,
-                                        baudrate=38400,
-                                        bytesize=serial.EIGHTBITS,
-                                        parity=serial.PARITY_NONE,
-                                        timeout=2
-                                        )
         self.set_echo(0)  # Echo off !!!
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
         self.set_channel(1)  # Power meter channel 1
@@ -54,31 +37,6 @@ class Powermeter:
         self.set_interval(1)  # all measurements taken are put in the data store buffer
         self.set_run(1)  # enable data acquisition
 
-    def __write_serial(self, cmd, delay=None, line_ending=b'\r\n'):  # "__" : private function for this class
-        """
-
-        PARAMETERS
-        ----------
-        cmd: Str, bytes, optional
-        delay: float or None, optional
-        line_ending: bytes, optional
-        """
-        if delay is None:
-            delay = self.delay
-
-        if type(cmd) is str:
-            cmd = cmd.encode()
-
-        if not cmd.endswith(line_ending):
-            cmd += line_ending
-
-        self.serial.write(cmd)
-        time.sleep(delay)
-
-        while True:
-            return_str = self.serial.readline().decode()
-            self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-            return return_str
 
     def set_echo(self, state):
         """
@@ -87,11 +45,12 @@ class Powermeter:
         sent to the power meter are echoed back over the interface.
         When the echo mode is disabled (normal mode) the power meter does not generate a prompt or echo character
         back over the interface.
-        !!! Do not use state = 1 (echo on) !!! The __write_serial function cannot handle this
+        !!! Do not use state = 1 (echo on) !!! The serial_io function cannot handle this
         :param state: int (0 = echo off, 1 = echo on)
         :return: int: 0 = echo off, 1 = echo on
         """
-        self.__write_serial(str.encode(f'ECHO {state}\r\n'))
+
+        self.serial_io(f'ECHO {state}')
         return self.get_echo()
 
     def get_echo(self):
@@ -99,8 +58,8 @@ class Powermeter:
         This is a function to get information about the echo set
         :return: int: 0 = echo off, 1 = echo on
         """
-        echo_string = self.__write_serial(b'echo?\r\n')  # returns the set echo (0,1)
-        print("The echo status is:", echo_string, "(0 = echo off, 1 = echo on, which should not be used here!")
+        echo_string = self.serial_io('echo?')  # returns the set echo (0,1)
+        print(f"The echo status is: {echo_string} (0 = echo off, 1 = echo on, which should not be used here!")
         echo = int(echo_string)
         return echo
 
@@ -112,7 +71,7 @@ class Powermeter:
         :param lamb: int (wavelength in nm)
         :return: int: selected wavelength in nm
         """
-        self.__write_serial(str.encode(f'PM:L {lamb}\r\n'))
+        self.serial_io(f'PM:L {lamb}')
         return self.get_lambda()
 
     def get_lambda(self):
@@ -120,8 +79,8 @@ class Powermeter:
         This is a function to get information about the selected wavelength
         :return: int: selected wavelength in nm
         """
-        lamb_string = self.__write_serial(b'PM:L?\r\n')  # returns the selected wavelength in nm
-        print("The selected wavelength in nm is:", lamb_string)
+        lamb_string = self.serial_io('PM:L?')  # returns the selected wavelength in nm
+        print(f"The selected wavelength in nm is: {lamb_string}")
         lamb = int(lamb_string)
         return lamb
 
@@ -131,7 +90,7 @@ class Powermeter:
         :param ch: 1/2 (power meter channel)
         :return: int: 1/2 (selected power meter channel)
         """
-        self.__write_serial(str.encode(f'PM:CHAN {ch}\r\n'))  # power meter channel
+        self.serial_io(f'PM:CHAN {ch}')  # power meter channel
         return self.get_channel()
 
     def get_channel(self):
@@ -139,8 +98,8 @@ class Powermeter:
         This is a function to get information about the selected power meter channel
         :return: int: 1/2 (selected power meter channel)
         """
-        chan_string = self.__write_serial(b'PM:CHAN?\r\n')  # returns the selected power meter channel
-        print("The selected power meter channel is:", chan_string)
+        chan_string = self.serial_io('PM:CHAN?')  # returns the selected power meter channel
+        print(f"The selected power meter channel is: {chan_string}")
         chan = int(chan_string)
         return chan
 
@@ -152,7 +111,7 @@ class Powermeter:
         :param buf: int (0 = fixed size, 1 = ring buffer)
         :return: int: 0 = fixed size, 1 = ring buffer
         """
-        self.__write_serial(str.encode(f'PM:DS:BUF {buf}\r\n'))  # buffer behavior
+        self.serial_io(f'PM:DS:BUF {buf}')  # buffer behavior
         return self.get_buffer()
 
     def get_buffer(self):
@@ -160,8 +119,8 @@ class Powermeter:
         This is a function to get information about the selected buffer behavior
         :return: int: 0 = fixed size, 1 = ring buffer
         """
-        buff_string = self.__write_serial(b'PM:DS:BUF?\r\n')  # returns the selected buffer behavior
-        print("The selected buffer behavior is:", buff_string, "(0 = fixed size, 1 = ring buffer)")
+        buff_string = self.serial_io('PM:DS:BUF?')  # returns the selected buffer behavior
+        print(f"The selected buffer behavior is: {buff_string} (0 = fixed size, 1 = ring buffer)")
         buff = int(buff_string)
         return buff
 
@@ -170,7 +129,7 @@ class Powermeter:
         This is a function to clear the Data Store of all data
         :return: -
         """
-        self.__write_serial(b'PM:DS:CL\r\n')  # resets the data store to be empty with no values
+        self.serial_io('PM:DS:CL')  # resets the data store to be empty with no values
         print("The Data Store has been cleared of all data")
 
     def get_count(self):
@@ -179,7 +138,7 @@ class Powermeter:
         in the Data Store.
         :return: int (The number of measurements that have been collected)
         """
-        count_string = self.__write_serial(b'PM:DS:C?\r\n')  # returns the number of measurements collected
+        count_string = self.serial_io('PM:DS:C?')  # returns the number of measurements collected
         print("The number of measurements that have been collected is:", count_string)
         count = int(count_string)
         return count
@@ -193,7 +152,7 @@ class Powermeter:
         :param en: 0 = disable, 1 = enable
         :return: status of the Data Store (0 = disabled, 1 = enabled)
         """
-        self.__write_serial(str.encode(f'PM:DS:EN {en}\r\n'))
+        self.serial_io(f'PM:DS:EN {en}')
         return self.get_collection_status()
 
     def get_collection_status(self):
@@ -201,9 +160,9 @@ class Powermeter:
         This is a function to get the enabled status of the Data Store
         :return: status of the Data Store (0 = disable, 1 = enable)
         """
-        collect_string = self.__write_serial(b'PM:DS:EN?\r\n')  # returns the status of the collection in the Data Store
-        print("The collection of measurements in the Data Store is:", collect_string,
-              "(0 = disabled or buffer full (after 10000 measurements), 1 = enabled)")
+        collect_string = self.serial_io('PM:DS:EN?')  # returns the status of the collection in the Data Store
+        print(f"The collection of measurements in the Data Store is: {collect_string} \
+              (0 = disabled or buffer full (after 10000 measurements), 1 = enabled)")
         self.get_count()
         collect = int(collect_string)
         return collect
@@ -212,21 +171,16 @@ class Powermeter:
         """
         This is a function to get a number of measurements that have been collected in the Data Store.
         :param num: str
-                    “1”–returns the single value specified by index 1
-                    “1-10”–returns values in the range from the indices 1-10
-                    “-5”–returns the oldest 5 values (same as 1-5)
-                    “+1”–returns the newest value
+                    “1”-returns the single value specified by index 1
+                    “1-10”-returns values in the range from the indices 1-10
+                    “-5”-returns the oldest 5 values (same as 1-5)
+                    “+1”-returns the newest value
         :return: list of data (floats) with the length that was indicated with num
                 looks something like this: [-1.295755E-011, -1.295711E-011, -1.295667E-011, -1.295623E-011]
 
         """
-        self.__write_serial(str.encode(f'PM:DS:GET? {num}\r\n'))  # returns a number of measurements collected
-        s = ''
-        while self.serial.inWaiting():
-            try:
-                s += self.serial.read().decode()
-            except:
-                pass
+        s = self.serial_io(f'PM:DS:GET? {num}', multi_line=True)  # returns a number of measurements collected
+
         # print(s)    # prints something like this:
                     # Detector SN: 2003
                     # IDN: NEWPORT 2936-R v1.2.3 08/04/15 SN24777
@@ -274,7 +228,7 @@ class Powermeter:
         :param intv: int (represents the rate at which measurements are put in the data buffer)
         :return: int (selected Data Store Interval)
         """
-        self.__write_serial(str.encode(f'PM:DS:INT {intv}\r\n'))  # selects the Data Store Interval
+        self.serial_io(f'PM:DS:INT {intv}')  # selects the Data Store Interval
         return self.get_interval()
 
     def get_interval(self):
@@ -282,7 +236,7 @@ class Powermeter:
         This is a function to get information about the selected Data Store Interval
         :return: int (selected Data Store Interval)
         """
-        intv_string = self.__write_serial(b'PM:DS:INT?\r\n')  # returns the selected Data Store Interval
+        intv_string = self.serial_io('PM:DS:INT?')  # returns the selected Data Store Interval
         print("The selected Data Store Interval is:", intv_string)
         intv = int(intv_string)
         return intv
@@ -300,7 +254,7 @@ class Powermeter:
                      7 = RMS
         :return: int (present acquisition mode)
         """
-        self.__write_serial(str.encode(f'PM:MODE {mode}\r\n'))  # selects the acquisition mode
+        self.serial_io(f'PM:MODE {mode}')  # selects the acquisition mode
         return self.get_mode()
 
     def get_mode(self):
@@ -316,10 +270,10 @@ class Powermeter:
                  6 = Pulse Single,
                  7 = RMS
         """
-        mode_string = self.__write_serial(b'PM:MODE?\r\n')  # returns the selected acquisition mode
-        print("The selected acquisition mode is:", mode_string,
-              "(0 = DC Continuous, 1 = DC Single, 2 = Integrate, 3 = Peak-to-peak Continuous,"
-              "4 = Peak-to-peak Single, 5 = Pulse Continuous, 6 = Pulse Single, 7 = RMS)")
+        mode_string = self.serial_io('PM:MODE?')  # returns the selected acquisition mode
+        print(  f"The selected acquisition mode is: {mode_string}, \
+                (0 = DC Continuous, 1 = DC Single, 2 = Integrate, 3 = Peak-to-peak Continuous, \
+                4 = Peak-to-peak Single, 5 = Pulse Continuous, 6 = Pulse Single, 7 = RMS)")
         mode = int(mode_string)
         return mode
 
@@ -328,7 +282,7 @@ class Powermeter:
         This is a function to get the measured (and corrected) power in the selected units
         :return: float
         """
-        power_string = self.__write_serial(b'PM:P?\r\n')  # returns the power in the selected units
+        power_string = self.serial_io('PM:P?')  # returns the power in the selected units
         #print("The power is:", power_string)
         power = float(power_string)
         return power
@@ -339,7 +293,7 @@ class Powermeter:
         :param runner: 0 = stopped, 1 = running
         :return: int (0 = stopped, 1 = running)
         """
-        self.__write_serial(str.encode(f'PM:RUN {runner}\r\n'))  # disables or enables the acquisition of data
+        self.serial_io(f'PM:RUN {runner}')  # disables or enables the acquisition of data
         return self.get_run()
 
     def get_run(self):
@@ -347,8 +301,8 @@ class Powermeter:
         This is a function to get the present run mode
         :return: int (0 = stopped, 1 = running)
         """
-        run_string = self.__write_serial(b'PM:RUN?\r\n')  # returns an int indicating the present run mode
-        print("The run mode is:", run_string, "(0 = stopped, 1 = running)")
+        run_string = self.serial_io('PM:RUN?')  # returns an int indicating the present run mode
+        print(f"The run mode is: {run_string} (0 = stopped, 1 = running)")
         run = int(run_string)
         return run
 
@@ -357,7 +311,7 @@ class Powermeter:
         This is a function that sets the zeroing value with the present reading
         :return: float (set offset value)
         """
-        self.__write_serial(b'PM:ZEROSTO\r\n')  # sets the zeroing value with the present reading
+        self.serial_io('PM:ZEROSTO')  # sets the zeroing value with the present reading
         return self.get_offset()
 
     def set_offset_val(self, offset):
@@ -366,7 +320,7 @@ class Powermeter:
         :param offset: float
         :return: float (set offset value)
         """
-        self.__write_serial(str.encode(f'PM:ZEROVAL {offset}\r\n'))  # sets the zeroing value with the given value
+        self.serial_io(f'PM:ZEROVAL {offset}')  # sets the zeroing value with the given value
         return self.get_offset()
 
     def get_offset(self):
@@ -374,7 +328,7 @@ class Powermeter:
         This is a function that returns the set offset value
         :return: float (set offset value)
         """
-        offset_string = self.__write_serial(b'PM:ZEROVAL?\r\n')  # returns
-        print("The offset value is set to:", offset_string)
+        offset_string = self.serial_io('PM:ZEROVAL?')  # returns
+        print(f"The offset value is set to: {offset_string}")
         offset = float(offset_string)
         return offset

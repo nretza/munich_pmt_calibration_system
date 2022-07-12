@@ -1,12 +1,9 @@
 # Author: Kilian Holzapfel <kilian.holzapfel@tum.de>
-
 import os
 
+# ------------ basic setup ---------------------------------
+home_dir = os.environ['HOME']
 
-class Config:
-    # ------------ basic setup ---------------------------------
-    home_dir = os.environ['HOME']
-
-    # ------------ Logging ----------------------------------------------
-    omcu_log_file: str = os.path.join(home_dir, 'logs/omcu.log')
-    omcu_msg_counter_file: str = omcu_log_file.replace('.log', '_count.json')  # counting each level
+# ------------ Logging ----------------------------------------------
+omcu_log_file: str = os.path.join(home_dir, 'logs/omcu.log')
+omcu_msg_counter_file: str = omcu_log_file.replace('.log', '_count.json')  # counting each level

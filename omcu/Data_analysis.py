@@ -9,17 +9,16 @@ import math
 from scipy import optimize
 from scipy.signal import find_peaks
 from scipy.signal import argrelextrema
-import scipy.constants as const
 from scipy.interpolate import UnivariateSpline as US
+import scipy.constants as const
 
-from omcu.util.Waveform import Waveform
-
-
+from util import Waveform
 
 class Analysis:
 
     def __init__(self, filename):
         self.filename = filename
+        self.loadData()
     
     def loadData(self, source='signal'):
         h5 = h5py.File(self.filename, 'r')

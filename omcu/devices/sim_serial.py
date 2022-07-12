@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 
-class SimSerial:
+class sim_serial:
     def __init__(self, *args, **kwargs):
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f'Initialised with - args: {args}; kwargs: {kwargs}')
