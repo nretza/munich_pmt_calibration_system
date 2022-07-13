@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-import logging
-import serial
-import time
 from omcu.devices.device import serial_device
 
 class Laser(serial_device):

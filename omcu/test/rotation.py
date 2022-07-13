@@ -3,9 +3,6 @@ from devices.PSU import PSU1
 
 import itertools
 
-Rotation(delay=.1)
-PSU1()
-
 PSU1.Instance().on()
 err_count = 0
 
