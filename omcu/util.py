@@ -5,7 +5,7 @@ import scipy.constants as const
 
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
-from devices.PSU import PSU0
+from devices.PSU import PSU0 #TODO: REPLACE WITH HV
 from devices.Rotation import Rotation
 
 class Waveform:
@@ -54,13 +54,13 @@ def calculate_occ(dataset, threshold=-4) -> float:
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=710, laser_tune_step=1, delay=0.1, threshold_pico=2000,
-             threshold_occ=-4, iterations=10000) -> Tuple[float, float]:
+             threshold_occ=-4, iterations=10000) -> Tuple(float, float):
 
     Rotation.Instance().go_home()
 
     assert max(Rotation.Instance().get_position()) <= 1 #Rotation stage in home position
     assert Laser.Instance().get_ld() == 1 #laser on
-    assert PSU0.Instance().is_on() #PSU0 on
+    assert PSU0.Instance().is_on() #PSU0 on  #TODO: REPLACE WITH HV
     assert occ_min <= occ_max #numbers match
 
     laser_tune = laser_tune_start
@@ -82,7 +82,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=710, laser_tune_step=1, delay=0.
 def measure_occ(threshold_pico=2000, threshold_occ=-4, iterations=10000) -> float:
 
     assert Laser.Instance().get_ld() == 1 # laser on
-    assert PSU0.Instance().is_on() # PSU0 on
+    assert PSU0.Instance().is_on() # PSU0 on  #TODO: REPLACE WITH HV
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
@@ -94,25 +94,25 @@ def calculate_gain(dataset, threshold=-4) -> float:
     gains = []
     for data in dataset:
         if np.min(data[:, 1]) < threshold:
-            wf = Waveform(_, _, _, data[:, 0], data[:, 1], np.min(data[:, 1]))
+            wf = Waveform("_", "_", "_", data[:, 0], data[:, 1], np.min(data[:, 1]))
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
 def tune_gain(g_min, g_max, Vctl_start=4, Vctl_step=0.2, delay=0.1, threshold_pico=2000, threshold_gain=-4,
-              iterations=10000) -> Tuple[float, float]:
+              iterations=10000) -> Tuple(float, float):
 
     Rotation.Instance().go_home()
 
     assert tune_occ(0, 0.1) < 0.1 # occupancy tuned
     assert max(Rotation.Instance().get_position()) <= 1  # Rotation stage in home position
     assert Laser.Instance().get_ld() == 1  # laser on
-    assert PSU0.Instance().is_on() #PSU0 on
+    assert PSU0.Instance().is_on() #PSU0 on  #TODO: REPLACE WITH HV
     assert g_min <= g_max  # numbers match
 
     Vctl = Vctl_start
 
     while True:
-        PSU0.Instance().settings(2,Vctl, current=0.1)
+        PSU0.Instance().settings(2,Vctl, current=0.1)  #TODO: REPLACE WITH HV
         time.sleep(delay)
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                              threshold=threshold_pico, number=iterations)
@@ -129,9 +129,9 @@ def tune_gain(g_min, g_max, Vctl_start=4, Vctl_step=0.2, delay=0.1, threshold_pi
 
 def measure_gain(threshold_pico=2000, threshold_gain=-4, iterations=10000) -> float:
 
-    assert tune_occ(0, 0.1) < 0.1
+    assert tune_occ(0, 0.1) < 0.1 # occ tuned
     assert Laser.Instance().get_ld() == 1  # laser on
-    assert PSU0.Instance().is_on() #PSU0 on
+    assert PSU0.Instance().is_on() #PSU0 on TODO: REPLACE WITH HV  #TODO: REPLACE WITH HV
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
