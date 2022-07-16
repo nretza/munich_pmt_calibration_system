@@ -1,8 +1,7 @@
-from asyncore import read
 import logging
 import time
-import serial
-from serial import Serial # the python serial package
+
+from serial import Serial, PARITY_NONE, STOPBITS_ONE, EIGHTBITS # the python serial package
 from devices.sim_serial import sim_serial #self written stuff to simulate a serial port
 
 class device:
@@ -49,17 +48,23 @@ class serial_device(device):
         # initialise Serial or SimSerial
         self.serial = serial_connection(dev,
                                         baudrate=baudrate_dict[dev],
-                                        parity=serial.PARITY_NONE,
-                                        stopbits=serial.STOPBITS_ONE,
-                                        bytesize=serial.EIGHTBITS,
+                                        parity=PARITY_NONE,
+                                        stopbits=STOPBITS_ONE,
+                                        bytesize=EIGHTBITS,
                                         timeout=2
                                         )
 
-    def serial_io(self, cmd, read_only=False, delay=None, line_ending=b'\r\n', wait_for=None, multi_line=False) -> str:
+    def serial_io(self, cmd: str, 
+                        read_only: bool=False,
+                        delay: float=None, 
+                        line_ending: str='\r\n',
+                        wait_for: str=None,
+                        multi_line: bool=False) -> str:
 
         """
-        For communication with the serial port. Flashes buffers of both input and output, does command formatting and writes the command
-        to the output buffer. After a delay, a line is read from the input buffer and returned.
+        For communication with the serial port. Flashes buffers of both input and output,
+        does command formatting and writes the command to the output buffer.
+        After a delay, a line is read from the input buffer and returned.
 
         PARAMETERS
         ----------
@@ -67,6 +72,8 @@ class serial_device(device):
         read_only: only reads line, doesnt write
         delay: float or None, optional
         line_ending: bytes, optional
+        wait_for: reads lines consecutively until str is reached
+        multiline: reads through serial.readlines()
         """
 
         # only read, dont write
@@ -86,8 +93,8 @@ class serial_device(device):
         # encode cmd
         if type(cmd) is str:
             cmd = cmd.encode()
-        if not cmd.endswith(line_ending):
-            cmd += line_ending
+        if not cmd.endswith(line_ending.encode()):
+            cmd += line_ending.encode()
 
         #read and write
         self.serial.write(cmd)
@@ -112,6 +119,5 @@ class serial_device(device):
         else:
             return_str = self.serial.readline().decode()
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-        print(f'Serial write cmd: {cmd}; return {return_str}')
         return return_str
         
