@@ -82,7 +82,7 @@ def calculate_occ(dataset, threshold=-4) -> float:
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=710, laser_tune_step=1, delay=0.1, threshold_pico=2000,
-             threshold_occ=-4, iterations=10000) -> Tuple(float, float):
+             threshold_occ=-4, iterations=10000) -> [float, float]:
 
     Rotation.Instance().go_home()
 
@@ -127,7 +127,7 @@ def calculate_gain(dataset, threshold=-4) -> float:
     return sum(gains)/len(gains)
 
 def tune_gain(g_min, g_max, Vctl_start=4, Vctl_step=0.2, delay=0.1, threshold_pico=2000, threshold_gain=-4,
-              iterations=10000) -> Tuple(float, float):
+              iterations=10000) -> [float, float]:
 
     Rotation.Instance().go_home()
 

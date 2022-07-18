@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import gpd3303s
 import time
+from devices.device import device
 
 
-class PSU(gpd3303s.GPD3303S):
+class PSU(device, gpd3303s.GPD3303S):
     """This class makes an instance for the USB power supply.
     It is important that the udev rules allow access to the current user.
     """
@@ -13,7 +14,9 @@ class PSU(gpd3303s.GPD3303S):
         This is the init function for the power supply device
         :param dev: device path, use: dev="/dev/PSU_0" or dev="/dev/PSU_1"
         """
-        super().__init__()
+        #super() has problems due to multiple inherits
+        device.__init__(self)
+        gpd3303s.GPD3303S.__init__(self)
         self.state = False
         self.open(dev)
         self.enableOutput(False)

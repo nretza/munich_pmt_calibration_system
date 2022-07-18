@@ -25,6 +25,9 @@ class Rotation(serial_device):
 
         super().__init__(dev, delay=delay)
 
+        #soemhow the first i/o on the RS is always buggy. Sennd dummy message to avoid bugs
+        self.serial_io(' ')
+
     def set_phi(self, phi):
         """
         Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system

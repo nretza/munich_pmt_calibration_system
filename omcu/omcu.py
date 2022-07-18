@@ -48,5 +48,4 @@ class omcu(device):
         pass
 
 if __name__ == "__main__":
-    OMCU = omcu()
-    OMCU.setup()
+    pass

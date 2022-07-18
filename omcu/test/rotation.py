@@ -1,13 +1,15 @@
 from devices.Rotation import Rotation
 from devices.PSU import PSU1
-
+from util import setup_file_logging
+import logging
 import itertools
+
+#setup_file_logging("/home/canada/logfile.log", logging.DEBUG)
 
 PSU1.Instance().on()
 err_count = 0
 
 #TODO: proper pytest stuff
-
 
 for i in range(3):
     try:
