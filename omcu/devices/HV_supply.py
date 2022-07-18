@@ -30,50 +30,91 @@ class HV_supply(device):
 
         baudrate = "9600"
         commdata = "8"
-        commstop = "1"
+        commstop = "0"
         commparity = "0"
-        lbusaddress = "1-3.4.4.4.2:1.0"
-        args="_".join([dev,baudrate,commdata,commstop,commparity, lbusaddress])
+        args="_".join([dev,baudrate,commdata,commstop,commparity])
 
-        self.hv_handle = hv_connection.init_system( system_type=9, #CAENHV_SYSTEM_TYPE[system], #DT55XX
+        self.hv_handle = hv_connection.init_system( system_type=11, #CAENHV_SYSTEM_TYPE[system], #DT55XXE
                                                     link_type=5, #LinkType[link], #USB_VCP
                                                     argument=args, #devie address
                                                     username="", #empty
                                                     password="" #empty
                                                   )
-        self.create_map = hv_connection.get_crate_map(handle=self.hv_handle)
-        self.off(channel=4)
+        self.hv_slot = 0
+
+        print(hv_connection.get_crate_map(handle=self.hv_handle))
+        print(hv_connection.get_board_parameters(self.hv_handle, self.hv_slot))
+        print(hv_connection.get_channel_parameters(self.hv_handle, self.hv_slot, 1))
+
+
 
     def on(self, channel):
-        pass
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", True)
+        self.logger.Info(f"High Voltage on channel {channel} turned ON")
 
     def off(self, channel):
-        pass
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", False)
+        self.logger.Info(f"High Voltage on channel {channel} turned OFF")
+
+    def off_all(self):
+        for i in range(4):
+            hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, 1, "Pw", False)
+        self.logger.info("High Voltage on all channels turned OFF")
+
+    def is_on(self, channel):
+        hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw")
+
+#-----------------------------------------------------------
+
+    def SetVoltage(self, channel, V, tolerance=5, max_iter=30, wait_time=2):
+        if not self.is_on(channel):
+            self.logger.warning(f"Cant set voltage, channel {channel} is not turned on!")
+            raise RuntimeError
+
+        self.setHVSet(channel, V)
+
+        iter = 0
+        while self.getHVMon(channel) - self.getHVSet(channel) > tolerance:
+            iter += 1
+            time.sleep(wait_time)
+            if iter >= max_iter:
+                self.logger.warning("Voltage does not adjust in time, try to increase RampUP/RampDwn speed!")
+                break
+        return self.getHVMon(channel)
+
+#-----------------------------------------------------------
 
     def setHV_rampup_rate(self, channel, rate):
-        pass
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "RUp", rate)
+        self.logger.info(f"Setting RampUp-Rate for channel {channel} to {rate} V/s")
 
-    def getHV_rampup_rate(self, channel, rate):
+    def getHV_rampup_rate(self, channel):
+        hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "RUp")
         pass
 
     def setHV_rampdown_rate(self, channel, rate):
-        pass
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "RDwn", rate)
+        self.logger.info(f"Setting RampDown-Rate for channel {channel} to {rate} V/s")
 
-    def getHV_rampdown_rate(self):
-        pass
+    def getHV_rampdown_rate(self, channel):
+        hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "RDwn")
 
-    def setHV(self, Channel, HV):
-        pass
+    def setHVSet(self, channel, HV):
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "VSet", HV)
+        self.logger.info(f"setting HV on channel {channel} to {HV} Volt")
 
-    def getHV(self, channel, HV):
-        pass
+    def getHVSet(self, channel):
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "VSet")
 
-    def setCurrent(self, channel, curr):
-        pass
+    def getHVMon(self, channel):
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "VMon")
 
-    def getCurrent(self, channel, curr):
-        pass
+    def setISet(self, channel, I):
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "ISet", I)
+        self.logger.info(f"setting current on channel {channel} to {I} Amp")
 
+    def getISet(self, channel):
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "ISet")
 
-    def print_map(self):
-        print(self.create_map)
+    def getIMon(self, channel):
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "IMon")
