@@ -1,6 +1,5 @@
 #repo specific stuff
 data*/
-.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -9,6 +8,7 @@ __pycache__/
 
 #IDE-Stuff
 .vscode
+.idea
 
 # C extensions
 *.so
