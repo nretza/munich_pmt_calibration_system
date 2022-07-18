@@ -66,6 +66,8 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
     log_handler.setLevel(logging_level)
     log_handler.setFormatter(logging_formatter)
 
+    #settings for root logger. all loggers inherit from root
+    logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(log_handler)
 
     return log_handler

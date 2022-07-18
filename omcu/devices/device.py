@@ -11,7 +11,7 @@ class device:
     
     def __init__(self):
         self.logger = logging.getLogger(type(self).__name__)
-        self.logger.debug(f"{type(self)} initialized")
+        self.logger.debug(f"{type(self).__name__} initialized")
 
 
 class serial_device(device):
@@ -79,9 +79,9 @@ class serial_device(device):
 
         # only read, dont write
         if read_only:
-            return_str = self.serial.readline().decode()
+            return_str = self.serial.readline()
             self.logger.debug(f'Serial in read only mode. return: {return_str}')
-            return return_str
+            return return_str.decode()
 
         # flush buffers
         self.serial.reset_input_buffer()
@@ -104,8 +104,8 @@ class serial_device(device):
         # wait for a set of characters to appear in the output string
         if wait_for:
             while True:
-                return_str = self.serial.readline().decode()
-                if wait_for in return_str:
+                return_str = self.serial.readline()
+                if wait_for in return_str.decode():
                     break
                 time.sleep(delay)
 
@@ -114,10 +114,10 @@ class serial_device(device):
             return_str = ""
             return_lst = self.serial.readlines()
             for string in return_lst:
-                return_str += string.decode()
+                return_str += string
 
         #Default: read until a line ending is reached
         else:
-            return_str = self.serial.readline().decode()
+            return_str = self.serial.readline()
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-        return return_str
+        return return_str.decode()
