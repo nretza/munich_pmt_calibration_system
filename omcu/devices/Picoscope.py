@@ -97,6 +97,7 @@ class Picoscope(device):
                 ps.ps6000aSetChannelOff(self.chandle, ch)
                 #print("Channel off:", ch)
 
+        self.logger.debug(f"Setting up channels. trig_ch: {trgchannel}, signal_ch: {sgnlchannel}") 
         return trgchannel, sgnlchannel
 
     def channel_setup_all(self):
@@ -106,6 +107,8 @@ class Picoscope(device):
         """
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
+
+        self.logger.debug(f"turning all channels on")
 
     def trigger_setup(self, trgchannel=0, direction=2, threshold=1000):
         """
@@ -126,6 +129,9 @@ class Picoscope(device):
         # delay = 0 s
         autoTriggerMicroSeconds = 1000000  # [us]
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, trgchannel, threshold, direction, 0, autoTriggerMicroSeconds)
+
+        self.logger.debug(f"setting trigger threshold {threshold} mV on channel {trgchannel}") 
+
         return trgchannel, direction, threshold
 
     def timebase_setup(self):
@@ -145,6 +151,9 @@ class Picoscope(device):
                                               ctypes.byref(timeInterval), self.resolution)
         #print("timebase = ", timebase.value)
         #print("sample interval =", timeInterval.value, "s")
+
+        self.logger.debug("Setup to get the fastest available timebase.")
+
         return timebase.value, timeInterval.value
 
     def buffer_setup(self, channel=0):
@@ -174,6 +183,8 @@ class Picoscope(device):
         ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(bufferMax),
                                  ctypes.byref(bufferMin), nSamples, dataType, waveform,
                                  downSampleMode, action)
+
+        self.logger.debug(f"Will store data without downsampling. One channel, one waveform.")
         return bufferMax
 
     def buffer_setup_block(self, channel=0, number=10):
@@ -212,6 +223,8 @@ class Picoscope(device):
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[i]), ctypes.byref(buffersMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, add)
+
+        self.logger.debug(f"will store data without downsampling. One channel, several waveforms.")
 
         return buffersMax, buffersMin
 
@@ -263,6 +276,8 @@ class Picoscope(device):
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
                                          downSampleMode, add)
+
+        self.logger.debug(f"will store data without downsampling. One trigger channel and one signal channel, several waveforms - indicated by number")
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
@@ -385,6 +400,7 @@ class Picoscope(device):
         # np.save(filename_trg, data_trg)
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
+        self.logger.info(f"block measurement of {number} Waveforms performed. trigger_ch: {trgchannel}, signal_ch: {sgnlchannel}")
         return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
     def block_measurement_one_ch(self, channel=2, number=10):
@@ -491,6 +507,8 @@ class Picoscope(device):
         # np.save(filename_trg, data_trg)
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
+        self.logger.info(f"Single channel block measurement of {number} Waveforms performed. ch: {channel}")
+
         return data
 
     def adc2v(self, data, vrange=7):
@@ -577,6 +595,8 @@ class Picoscope(device):
         ps.ps6000aStop(self.chandle)
         #print('Picoscope stopped')
 
+        self.logger.warning("picoscope stopped")
+
     def close_scope(self):
         """
         This is a function to stop whatever the picoscope is doing and close the connection to it.
@@ -586,6 +606,7 @@ class Picoscope(device):
         ps.ps6000aCloseUnit(self.chandle)
         #print('Picoscope closed')
 
+        self.logger.warning("picoscope stopped and connection closed")
 
 if __name__ == "__main__":
     ps = Picoscope()

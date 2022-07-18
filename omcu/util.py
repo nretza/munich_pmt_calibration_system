@@ -1,4 +1,5 @@
 import time
+import logging
 import numpy as np
 from numpy import trapz
 import scipy.constants as const
@@ -41,6 +42,33 @@ class Waveform:
     def subtractBaseline(self, value):
         self.y -= value
         return self.y
+
+#-----------------------------------------------------
+
+def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_formatter=None):
+    """
+    Sets up logging to a file given logging level and format.
+
+    How it works: Each module has its own logger. Here, a logging handler is created, which outputs to
+    the desired file. This handler is then passed to the root logger, from which all other loggers inherit.
+
+    PARAMETERS
+    ---------
+    logging_file: the desired output file
+    logging_level: the level to which should be outputted. Default: logging.INFO
+    logging_format: the desired output format of the handler Default: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    """
+
+    if not logging_formatter:
+        logging_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    log_handler = logging.FileHandler(filename=logging_file)
+    log_handler.setLevel(logging_level)
+    log_handler.setFormatter(logging_formatter)
+
+    logging.getLogger().addHandler(log_handler)
+
+    return log_handler
 
 #-----------------------------------------------------
 

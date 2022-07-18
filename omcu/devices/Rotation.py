@@ -50,6 +50,7 @@ class Rotation(serial_device):
         hpX = self.serial_io(f'goHomeX', wait_for=": ").split(':')[1]
         home_pos[0] = float(hpY)
         home_pos[1] = float(hpX)
+        self.logger.info(f"returning to home position: {home_pos}")
         return home_pos
 
     def set_position(self, phi, theta):
@@ -58,6 +59,8 @@ class Rotation(serial_device):
         :param phi: Float (0-360 in 5000 steps)
         :param theta: Float (0-360 in 5000 steps)
         """
+        self.logger.info(f"rotating to phi: {phi}, theta: {theta}")
+
         pos = [0, 0]
         pos[0] = self.set_phi(phi)
         pos[1] = self.set_theta(theta)
@@ -79,11 +82,14 @@ class Rotation(serial_device):
         sets the delay time in-between single steps in milliseconds. Minimum value is 300.
         :param speed: Float (0-360 in 5000 steps)
         """
+        self.logger.info(f"setting rotation speed to {speed}")
         speed_str = self.serial_io(f'setspeed {speed}', wait_for=": ").split(':')[1]
         speed_val = float(speed_str)
         if speed_val > 16383:
+            self.logger.warning(f"speed {speed_val} too high, the delay might be not accurate anymore.")
             print('the delay might be not accurate anymore.')
         elif speed_val > 32767:
+            self.logger.warning(f"speed {speed_val} too high, delaytime to large for int. Will produce very short delays.")
             print('delaytime to large for int. Will produce very short delays')
         return speed_val
 

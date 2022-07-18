@@ -1,17 +1,15 @@
 import sys
 import argparse
 
-sys.path.append('/home/canada/munich_pmt_calibration_system/omcu')
-
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU0, PSU1
 from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
+from devices.device import device, serial_device
 
-
-class omcu:
+class omcu(device):
 
     def __init__(self, sim=True):
 

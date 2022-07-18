@@ -32,15 +32,18 @@ class PSU(gpd3303s.GPD3303S):
         """
         self.setVoltage(channel, voltage)
         self.setCurrent(channel, current)
+        self.logger.debug(f"set settings. ch: {channel}, voltage: {voltage}, current: {current}")
         return self.state
 
     def on(self):
         self.enableOutput(True)
         self.state = True
+        self.logger.info("turned on")
         time.sleep(1)
 
     def off(self):
         self.enableOutput(False)
+        self.logger.info("turned off")
         self.state = False
 
     def is_on(self):

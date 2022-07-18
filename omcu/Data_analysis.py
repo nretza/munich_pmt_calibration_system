@@ -19,6 +19,7 @@ class Analysis:
     def __init__(self, filename):
         self.filename = filename
         self.loadData()
+        self.logger = logging.getLogger(type(self).__name__)
     
     def loadData(self, source='signal'):
         h5 = h5py.File(self.filename, 'r')

@@ -11,6 +11,7 @@ class device:
     
     def __init__(self):
         self.logger = logging.getLogger(type(self).__name__)
+        self.logger.debug(f"{type(self)} initialized")
 
 
 class serial_device(device):
@@ -120,4 +121,3 @@ class serial_device(device):
             return_str = self.serial.readline().decode()
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
         return return_str
-        
