@@ -8,6 +8,7 @@ from omcu.devices.Rotation import Rotation
 from omcu.devices.Laser import Laser
 from omcu.devices.Powermeter import Powermeter
 from omcu.devices.device import device, serial_device
+from omcu.util import *
 
 setup_file_logging(logging_file="logging.log", logging_level=20)
 

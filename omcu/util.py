@@ -49,7 +49,7 @@ def calculate_occ(dataset, threshold_signal=-4) -> float:
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0.1, threshold_pico=2000,
-             threshold_signal=-4, iterations=10000) -> List[float, float]:
+             threshold_signal=-4, iterations=10000):
 
     if not laser_tune_start:
         laser_tune_start = Laser.Instance().get_tune_value()
@@ -60,6 +60,8 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0
     assert Laser.Instance().get_ld() == 1 #laser on
     assert HV_supply.Instance().is_on() #HV on
     assert occ_min <= occ_max #numbers match
+
+    logging.getLogger("OMCU").info(f"tuning occupancy to value between {occ_min} and {occ_max}")
 
     laser_tune = laser_tune_start
 
@@ -100,7 +102,7 @@ def calculate_gain(dataset, threshold_signal=-4) -> float:
     return sum(gains)/len(gains)
 
 def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, threshold_signal=-4,
-              iterations=10000) -> List[float, float]:
+              iterations=10000):
 
     if not V_start:
         V_start = HV_supply.Instance().getHVSet()
@@ -113,6 +115,8 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
     assert HV_supply.Instance().is_on() #HV on
     assert g_min <= g_max  # numbers match
 
+    logging.getLogger("OMCU").info(f"tuning gain to value between {g_min} and {g_max}")
+
     V = V_start
 
     while True:
@@ -123,7 +127,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                              threshold=threshold_pico, number=iterations)
         
-        gain = calculate_gain(dataset, threshold=threshold_signal)
+        gain = calculate_gain(dataset, threshold_signal=threshold_signal)
         logging.getLogger("OMCU").info(f"measured gain to be {gain}")
         if gain < g_min:
             V += V_step

@@ -204,7 +204,7 @@ class Laser(serial_device):
         self.serial_io('tm=0')  # sets tune mode to manual
         tune_mode_0 = self.get_tune_mode()
         self.serial_io(f'tune={tune}', line_ending='\n') # sets tune value to tune (0...1000, where 1000=100 %)
-        self.logger.debug(f"setting tune value to {tune}")
+        self.logger.info(f"setting tune value to {tune}")
         return self.get_tune_value()
 
     def get_tune_value(self):
