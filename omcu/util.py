@@ -39,17 +39,17 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
 
 #-----------------------------------------------------
 
-def calculate_occ(dataset, threshold=-4) -> float:
+def calculate_occ(dataset, threshold_signal=-4) -> float:
 
         number = len(dataset)
         minval = np.zeros(number)
         for i in range(number):
             minval[i] = np.min(dataset[i].T[1])
-        occ = np.sum(np.where(minval < threshold, 1, 0))/number  # Occupancy for threshold
+        occ = np.sum(np.where(minval < threshold_signal, 1, 0))/number  # Occupancy for threshold
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0.1, threshold_pico=2000,
-             threshold_occ=-4, iterations=10000) -> List[float, float]:
+             threshold_signal=-4, iterations=10000) -> List[float, float]:
 
     if not laser_tune_start:
         laser_tune_start = Laser.Instance().get_tune_value()
@@ -68,7 +68,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0
         time.sleep(delay)
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                             threshold=threshold_pico, number=iterations)
-        occ = calculate_occ(dataset=dataset, threshold=threshold_occ)
+        occ = calculate_occ(dataset=dataset, threshold_signal=threshold_signal)
         if occ < occ_min:
             laser_tune -= laser_tune_step
         elif occ > occ_max:
@@ -77,26 +77,26 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0
             break
     return occ, laser_tune
 
-def measure_occ(threshold_pico=2000, threshold_occ=-4, iterations=10000) -> float:
+def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
 
     assert Laser.Instance().get_ld() == 1 # laser on
     assert HV_supply.Instance().is_on() #HV on
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
-    return calculate_occ(dataset=dataset, threshold=threshold_occ)
+    return calculate_occ(dataset=dataset, threshold_signal=threshold_signal)
 
 #-----------------------------------------------------
 
-def calculate_gain(dataset, threshold=-4) -> float:
+def calculate_gain(dataset, threshold_signal=-4) -> float:
     gains = []
     for data in dataset:
-        if np.min(data[:, 1]) < threshold:
+        if np.min(data[:, 1]) < threshold_signal:
             wf = Waveform("_", "_", "_", data[:, 0], data[:, 1], np.min(data[:, 1]))
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
-def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, threshold_gain=-4,
+def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, threshold_signal=-4,
               iterations=10000) -> List[float, float]:
 
     if not V_start:
@@ -120,7 +120,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                              threshold=threshold_pico, number=iterations)
         
-        gain = calculate_gain(dataset, threshold=threshold_gain)
+        gain = calculate_gain(dataset, threshold=threshold_signal)
         if gain < g_min:
             V += V_step
         elif gain > g_max:
@@ -130,7 +130,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
 
     return gain, V
 
-def measure_gain(threshold_pico=2000, threshold_gain=-4, iterations=10000) -> float:
+def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
 
     assert tune_occ(0, 0.1) < 0.1 # occ tuned
     assert Laser.Instance().get_ld() == 1  # laser on
@@ -139,4 +139,4 @@ def measure_gain(threshold_pico=2000, threshold_gain=-4, iterations=10000) -> fl
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
     
-    return calculate_gain(dataset, threshold=threshold_gain)
+    return calculate_gain(dataset, threshold_signal=threshold_signal)
