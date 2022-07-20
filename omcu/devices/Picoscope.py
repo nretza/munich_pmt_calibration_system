@@ -400,7 +400,7 @@ class Picoscope(device):
         # np.save(filename_trg, data_trg)
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
-        self.logger.info(f"block measurement of {number} Waveforms performed. trigger_ch: {trgchannel}, signal_ch: {sgnlchannel}")
+        self.logger.debug(f"block measurement of {number} Waveforms performed. trigger_ch: {trgchannel}, signal_ch: {sgnlchannel}")
         return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
     def block_measurement_one_ch(self, channel=2, number=10):
@@ -595,7 +595,7 @@ class Picoscope(device):
         ps.ps6000aStop(self.chandle)
         #print('Picoscope stopped')
 
-        self.logger.warning("picoscope stopped")
+        self.logger.debug("picoscope stopped")
 
     def close_scope(self):
         """
@@ -606,7 +606,7 @@ class Picoscope(device):
         ps.ps6000aCloseUnit(self.chandle)
         #print('Picoscope closed')
 
-        self.logger.warning("picoscope stopped and connection closed")
+        self.logger.debug("picoscope stopped and connection closed")
 
 if __name__ == "__main__":
     ps = Picoscope()

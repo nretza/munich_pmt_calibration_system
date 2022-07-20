@@ -57,20 +57,20 @@ class HV_supply(device):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", True)
-        self.logger.debug(f"High Voltage on channel {channel} turned ON")
+        self.logger.info(f"High Voltage on channel {channel} turned ON")
         return self.is_on(channel)
 
     def off(self, channel:int=None):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", False)
-        self.logger.debug(f"High Voltage on channel {channel} turned OFF")
+        self.logger.info(f"High Voltage on channel {channel} turned OFF")
         return self.is_on(channel)
 
     def off_all(self):
         for i in range(4):
             hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, 1, "Pw", False)
-        self.logger.debug("High Voltage on all channels turned OFF")
+        self.logger.info("High Voltage on all channels turned OFF")
 
     def is_on(self, channel:int=None):
         if not channel:
@@ -105,7 +105,7 @@ class HV_supply(device):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "RUp", rate)
-        self.logger.info(f"Setting RampUp-Rate for channel {channel} to {rate} V/s")
+        self.logger.debug(f"Setting RampUp-Rate for channel {channel} to {rate} V/s")
 
     def getHV_rampup_rate(self, channel:int=None) -> float:
         if not channel:
@@ -116,7 +116,7 @@ class HV_supply(device):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "RDwn", rate)
-        self.logger.info(f"Setting RampDown-Rate for channel {channel} to {rate} V/s")
+        self.logger.debug(f"Setting RampDown-Rate for channel {channel} to {rate} V/s")
 
     def getHV_rampdown_rate(self, channel:int=None) -> float:
         if not channel:
@@ -127,7 +127,7 @@ class HV_supply(device):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "VSet", HV)
-        self.logger.info(f"setting HV on channel {channel} to {HV} Volt")
+        self.logger.debug(f"setting HV on channel {channel} to {HV} Volt")
 
     def getHVSet(self, channel:int=None) -> float:
         if not channel:
@@ -154,7 +154,7 @@ class HV_supply(device):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "ISet", I)
-        self.logger.info(f"setting current on channel {channel} to {I} uA")
+        self.logger.debug(f"setting current on channel {channel} to {I} uA")
 
     def getISet(self, channel:int=None) -> float:
         if not channel:

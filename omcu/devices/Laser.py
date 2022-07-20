@@ -52,7 +52,6 @@ class Laser(serial_device):
         """
         s = self.serial_io('state?', multi_line=True)
         self.logger.info(f"requested laser state:\n{s}")
-        print(s)
 
     def on_pulsed(self):
         """
@@ -78,7 +77,6 @@ class Laser(serial_device):
         :return: int: 0 = emission off, 1 = emission on, (2 = something went wrong)
         """
         ld_string = self.serial_io('ld?')  # returns string 'pulsed laser emission: off/on'
-        print(ld_string)
         if 'off' in ld_string:
             ld_val = 0
         elif ' on' in ld_string:
@@ -88,7 +86,6 @@ class Laser(serial_device):
         else:
             ld_val = 2
             self.logger.warning(f"Error: pulsed laser emission state could not be determined: {ld_string}")
-            print('Error: pulsed laser emission state could not be determined. Try again!')
         return ld_val
 
     def set_trig_edge(self, te):
@@ -97,8 +94,8 @@ class Laser(serial_device):
         :param te: trigger edge (falling 0, rising 1)
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
-        self.serial_io(f'te={te}', line_ending=b'\n')  # sets trigger edge to te (falling 0, rising 1)
-        self.logger.Info(f"setting laser trigger edge to {te}")
+        self.serial_io(f'te={te}', line_ending='\n')  # sets trigger edge to te (falling 0, rising 1)
+        self.logger.debug(f"setting laser trigger edge to {te}")
         return self.get_trig_edge()
 
     def get_trig_edge(self):
@@ -107,7 +104,6 @@ class Laser(serial_device):
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
         te_string = self.serial_io('te?')  # returns string 'trigger edge: falling/rising'
-        print(te_string)
         if 'falling' in te_string:
             te_val = 0
         elif 'rising' in te_string:
@@ -117,7 +113,6 @@ class Laser(serial_device):
         else:
             te_val = 2
             self.logger.warning(f"Error: trigger edge could not be determined: {te_string}")
-            print('Error: trigger edge could not be determined. Try again!')
         return te_val
 
     def set_trig_source(self, ts):
@@ -126,8 +121,8 @@ class Laser(serial_device):
         :param ts: trigger source (internal 0, ext. adjustable 1, ext. TTL 2)
         :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
-        self.serial_io(f'ts={ts}', line_ending=b'\n')  # sets trigger source to ts
-        self.logger.info(f"setting laser trigger source to {ts}")
+        self.serial_io(f'ts={ts}', line_ending='\n')  # sets trigger source to ts
+        self.logger.debug(f"setting laser trigger source to {ts}")
         # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
@@ -137,7 +132,6 @@ class Laser(serial_device):
         :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
         ts_string = self.serial_io('ts?')  # returns string 'trigger source: internal/ext. adjustable/ext. TTL'
-        print(ts_string)
         if 'internal' in ts_string:
             ts_val = 0
         elif 'adjustable' in ts_string:
@@ -149,7 +143,6 @@ class Laser(serial_device):
         else:
             ts_val = 3
             self.logger.warning(f"Error: trigger source could not be determined: {ts_string}")
-            print('Error: trigger source could not be determined. Try again!')
         return ts_val
 
     def set_trig_level(self, tl):
@@ -158,8 +151,8 @@ class Laser(serial_device):
         :param tl: trigger level (-4800...+4800 mV)
         :return: float: trigger level (-4.80...+4.80 V)
         """
-        self.serial_io(f'tl={tl}', line_ending=b'\n')  # sets trigger level to tl (-4800...+4800 mV)
-        self.logger.info(f"setting laser trigger level to {tl}")
+        self.serial_io(f'tl={tl}', line_ending='\n')  # sets trigger level to tl (-4800...+4800 mV)
+        self.logger.debug(f"setting laser trigger level to {tl}")
         return self.get_trig_level()
 
     def get_trig_level(self):
@@ -168,7 +161,6 @@ class Laser(serial_device):
         :return: float: trigger level (-4.80...+4.80 V)
         """
         tl_string = self.serial_io('tl?')  # returns string 'trigger level: +0.00 V'
-        print(tl_string)
         if 'test' in tl_string:
             tl_val = 0
         else:
@@ -181,7 +173,7 @@ class Laser(serial_device):
         :param tm: tune mode (manual 0, auto 1)
         :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
-        self.serial_io(f'tm={tm}', line_ending=b'\n')  # sets tune mode to tm (manual 0, auto 1)
+        self.serial_io(f'tm={tm}', line_ending='\n')  # sets tune mode to tm (manual 0, auto 1)
         self.logger.info(f"setting laser tune mode to {tm}")
         return self.get_tune_mode()
 
@@ -191,7 +183,6 @@ class Laser(serial_device):
         :return: int: 0 = manual, 1 = auto, (2 = something went wrong)
         """
         tm_string = self.serial_io('tm?')  # returns string 'tune mode: manual/auto'
-        print(tm_string)
         if 'auto' in tm_string:
             tm_val = 1
         elif 'manual' in tm_string:
@@ -201,7 +192,6 @@ class Laser(serial_device):
         else:
             tm_val = 2
             self.logger.warning(f"Error: tune mode could not be determined: {tm_string}")
-            print('Error: tune mode could not be determined. Try again!')
         return tm_val
 
     def set_tune_value(self, tune):
@@ -209,26 +199,24 @@ class Laser(serial_device):
         This is a function to set a tune value
         It sets first the tune mode to manual
         :param tune: tune value (0...1000, where 1000=100 %)
-        :return: float: tune value (0...100.0 %)
+        :return: float: tune value (0...1000, where 1000=100 %)
         """
         self.serial_io('tm=0')  # sets tune mode to manual
         tune_mode_0 = self.get_tune_mode()
-        print(tune_mode_0)
-        self.serial_io(f'tune={tune}', line_ending=b'\n') # sets tune value to tune (0...1000, where 1000=100 %)
-        self.logger.info(f"setting tune value to {tune}")
+        self.serial_io(f'tune={tune}', line_ending='\n') # sets tune value to tune (0...1000, where 1000=100 %)
+        self.logger.debug(f"setting tune value to {tune}")
         return self.get_tune_value()
 
     def get_tune_value(self):
         """
         This is a function to get information about the set tune value
-        :return: float: tune value (0...100.0 %)
+        :return: float: tune value (0...1000, where 1000=100 %)
         """
         tune_string = self.serial_io('tune?')  # returns string 'tune value: 70.00 %'
-        print(tune_string)
         if 'test' in tune_string:
             tune_val = 0
         else:
-            tune_val = float(tune_string[15:24])  # makes float from string of tune level value
+            tune_val = float(tune_string[15:24])*10  # makes float from string of tune level value
         return tune_val
 
     def set_freq(self, f):
@@ -237,8 +225,8 @@ class Laser(serial_device):
         :param f: frequency (25...125000000 Hz)
         :return: str: 'int. frequency: 100 Hz'
         """
-        self.serial_io(f'f={f}', line_ending=b'\n')  # sets frequency to f (25...125000000)
-        self.logger.info(f"set internal oscillator frequency to {f}")
+        self.serial_io(f'f={f}', line_ending='\n')  # sets frequency to f (25...125000000)
+        self.logger.debug(f"set internal oscillator frequency to {f}")
         return self.get_freq()
 
     def get_freq(self):
@@ -247,7 +235,6 @@ class Laser(serial_device):
         :return: float: frequency (25...125000000 Hz)
         """
         freq_string = self.serial_io('f?')  # returns string 'int. frequency: 100 Hz'
-        print(freq_string)
         if 'test' in freq_string:
             freq = 0
         else:
@@ -260,8 +247,8 @@ class Laser(serial_device):
         :param cwl: CW laser output power (0...100 %)
         :return: float: CW laser output power (0...100 %)
         """
-        self.serial_io(f'cwl={cwl}', line_ending=b'\n')  # sets CW laser output power (0...100)
-        self.logger.info(f"set CW laser output power value to {cwl}")
+        self.serial_io(f'cwl={cwl}', line_ending='\n')  # sets CW laser output power (0...100)
+        self.logger.debug(f"set CW laser output power value to {cwl}")
         return self.get_cwl()
 
     def get_cwl(self):
@@ -270,7 +257,6 @@ class Laser(serial_device):
         :return: float: CW laser output power (0...100 %)
         """
         cwl_string = self.serial_io('cwl?')  # returns string 'CW output power: 0 %'
-        print(cwl_string)
         if 'test' in cwl_string:
             cwl_val = 0
         else:
@@ -301,7 +287,6 @@ class Laser(serial_device):
         :return: int: 0 = off, 1 = on, (2 = something went wrong)
         """
         cw_string = self.serial_io('cw?')  # returns string 'CW laser emission: off/on'
-        print(cw_string)
         if 'off' in cw_string:
             cw_val = 0
         elif ' on' in cw_string:
@@ -311,7 +296,6 @@ class Laser(serial_device):
         else:
             cw_val = 2
             self.logger.warning(f"Error: CW laser emission state could not be determined: {cw_string}")
-            print('Error: CW laser emission state could not be determined. Try again!')
         return cw_val
 
     def get_temp(self):

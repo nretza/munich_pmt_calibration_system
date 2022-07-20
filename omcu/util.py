@@ -25,7 +25,7 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
     """
 
     if not logging_formatter:
-        logging_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logging_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
     log_handler = logging.FileHandler(filename=logging_file)
     log_handler.setLevel(logging_level)
@@ -69,6 +69,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                             threshold=threshold_pico, number=iterations)
         occ = calculate_occ(dataset=dataset, threshold_signal=threshold_signal)
+        logging.getLogger("OMCU").info(f"measured occupancy to be {occ}")
         if occ < occ_min:
             laser_tune -= laser_tune_step
         elif occ > occ_max:
@@ -84,7 +85,9 @@ def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> f
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
-    return calculate_occ(dataset=dataset, threshold_signal=threshold_signal)
+    occ = calculate_occ(dataset=dataset, threshold_signal=threshold_signal)
+    logging.getLogger("OMCU").info(f"measured occupancy to be {occ}")
+    return occ
 
 #-----------------------------------------------------
 
@@ -121,6 +124,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
                                                              threshold=threshold_pico, number=iterations)
         
         gain = calculate_gain(dataset, threshold=threshold_signal)
+        logging.getLogger("OMCU").info(f"measured gain to be {gain}")
         if gain < g_min:
             V += V_step
         elif gain > g_max:
@@ -139,4 +143,6 @@ def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
     
-    return calculate_gain(dataset, threshold_signal=threshold_signal)
+    gain = calculate_gain(dataset, threshold_signal=threshold_signal)
+    logging.getLogger("OMCU").info(f"measured gain to be {gain}")
+    return gain

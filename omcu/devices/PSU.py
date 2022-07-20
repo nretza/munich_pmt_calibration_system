@@ -20,7 +20,7 @@ class PSU(device, gpd3303s.GPD3303S):
         self.state = False
         self.open(dev)
         self.enableOutput(False)
-        self.settings(1, 12.0, 3.0)
+        self.settings(1, 12.0, 2.0)
         self.settings(2, 3.6, 0.1)
 
     def settings(self, channel, voltage=5.0, current=0.1):
