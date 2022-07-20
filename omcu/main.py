@@ -1,5 +1,6 @@
 import sys
 import argparse
+import itertools
 
 from omcu.devices.Picoscope import Picoscope
 from omcu.devices.PSU import PSU0, PSU1

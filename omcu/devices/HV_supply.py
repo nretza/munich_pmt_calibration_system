@@ -87,7 +87,7 @@ class HV_supply(device):
             raise RuntimeError
 
         self.setHVSet(HV=V, channel=channel)
-        self.logger.info(f"Set voltage on channel {channel} to {V} Volt")
+        self.logger.debug(f"Set voltage on channel {channel} to {V} Volt")
 
         iter = 0
         while self.getHVMon(channel) - self.getHVSet(channel) > tolerance:
