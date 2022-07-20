@@ -3,10 +3,10 @@ import logging
 import numpy as np
 
 from omcu.Waveform import Waveform
-from devices.Laser import Laser
-from devices.Picoscope import Picoscope
-from devices.HV_supply import HV_supply
-from devices.Rotation import Rotation
+from omcu.devices.Laser import Laser
+from omcu.devices.Picoscope import Picoscope
+from omcu.devices.HV_supply import HV_supply
+from omcu.devices.Rotation import Rotation
 
 #-----------------------------------------------------
 

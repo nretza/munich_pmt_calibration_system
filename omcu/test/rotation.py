@@ -1,6 +1,6 @@
-from devices.Rotation import Rotation
-from devices.PSU import PSU1
-from util import setup_file_logging
+from omcu.devices.Rotation import Rotation
+from omcu.devices.PSU import PSU1
+from omcu.util import setup_file_logging
 import itertools
 
 setup_file_logging("/home/canada/logfile.log", logging_level=20)

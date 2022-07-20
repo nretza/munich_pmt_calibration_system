@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from devices.device import serial_device
+from omcu.devices.device import serial_device
 
 class Rotation(serial_device):
     """
