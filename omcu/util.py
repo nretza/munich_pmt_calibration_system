@@ -48,8 +48,11 @@ def calculate_occ(dataset, threshold=-4) -> float:
         occ = np.sum(np.where(minval < threshold, 1, 0))/number  # Occupancy for threshold
         return occ
 
-def tune_occ(occ_min, occ_max, laser_tune_start=710, laser_tune_step=1, delay=0.1, threshold_pico=2000,
+def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0.1, threshold_pico=2000,
              threshold_occ=-4, iterations=10000) -> List[float, float]:
+
+    if not laser_tune_start:
+        laser_tune_start = Laser.Instance().get_tune_value()
 
     Rotation.Instance().go_home()
 
@@ -93,8 +96,11 @@ def calculate_gain(dataset, threshold=-4) -> float:
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
-def tune_gain(g_min, g_max, V_start=1000, V_step=10, threshold_pico=2000, threshold_gain=-4,
+def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, threshold_gain=-4,
               iterations=10000) -> List[float, float]:
+
+    if not V_start:
+        V_start = HV_supply.Instance().getHVSet()
 
     Rotation.Instance().go_home()
 
