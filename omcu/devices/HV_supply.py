@@ -1,5 +1,4 @@
 import pycaenhv.wrappers as hv_connection
-from pycaenhv.enums import CAENHV_SYSTEM_TYPE, LinkType
 from omcu.devices.device import device
 import time
 
@@ -21,7 +20,7 @@ class HV_supply(device):
         return cls._instance
 
 
-    def __init__(self, dev:str="ttyACM0", default_ch:int=1):
+    def __init__(self, dev:str="ttyACM0", default_ch:int=2):
 
         if HV_supply._instance:
             raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
@@ -47,33 +46,36 @@ class HV_supply(device):
         self.hv_slot = 0
 
         self.off_all()
-        for channel in range (4):
-            self.setHV_rampup_rate(channel, 50)
-            self.setHV_rampdown_rate(channel, 50)
-            self.setHVSet(channel, 50)
-            self.setISet(channel, 1)
+        for channel in range(4):
+            self.setHV_rampup_rate(100, channel)
+            self.setHV_rampdown_rate(100, channel)
+            self.setHVSet(1000, channel)
+            self.setISet(150, channel)
+            self.setHVMax(1500, channel)
 
     def on(self, channel:int=None):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", True)
-        self.logger.Info(f"High Voltage on channel {channel} turned ON")
+        self.logger.debug(f"High Voltage on channel {channel} turned ON")
+        return self.is_on(channel)
 
     def off(self, channel:int=None):
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw", False)
-        self.logger.Info(f"High Voltage on channel {channel} turned OFF")
+        self.logger.debug(f"High Voltage on channel {channel} turned OFF")
+        return self.is_on(channel)
 
     def off_all(self):
         for i in range(4):
             hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, 1, "Pw", False)
-        self.logger.info("High Voltage on all channels turned OFF")
+        self.logger.debug("High Voltage on all channels turned OFF")
 
     def is_on(self, channel:int=None):
         if not channel:
             channel = self.default_ch
-        hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw")
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "Pw")
 
 #-----------------------------------------------------------
 
@@ -84,7 +86,8 @@ class HV_supply(device):
             self.logger.warning(f"Cant set voltage, channel {channel} is not turned on!")
             raise RuntimeError
 
-        self.setHVSet(channel, V)
+        self.setHVSet(HV=V, channel=channel)
+        self.logger.info(f"Set voltage on channel {channel} to {V} Volt")
 
         iter = 0
         while self.getHVMon(channel) - self.getHVSet(channel) > tolerance:
@@ -93,6 +96,7 @@ class HV_supply(device):
             if iter >= max_iter:
                 self.logger.warning("Voltage does not adjust in time, try to increase RampUP/RampDwn speed!")
                 break
+
         return self.getHVMon(channel)
 
 #-----------------------------------------------------------
@@ -135,11 +139,22 @@ class HV_supply(device):
             channel = self.default_ch
         return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "VMon")
 
+    def getHVMax(self, channel:int=None) -> float:
+        if not channel:
+            channel = self.default_ch
+        return hv_connection.get_channel_parameter(self.hv_handle, self.hv_slot, channel, "MaxV")
+
+    def setHVMax(self, MaxV:float, channel:int=None):
+        if not channel:
+            channel = self.default_ch
+        hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "MaxV", MaxV)
+        self.logger.debug(f"setting Maximum HV on channel {channel} to {MaxV} Volt")
+
     def setISet(self, I:float, channel:int=None) -> float:
         if not channel:
             channel = self.default_ch
         hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, channel, "ISet", I)
-        self.logger.info(f"setting current on channel {channel} to {I} Amp")
+        self.logger.info(f"setting current on channel {channel} to {I} uA")
 
     def getISet(self, channel:int=None) -> float:
         if not channel:
