@@ -40,22 +40,23 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
 
 #-----------------------------------------------------
 
-def filter_dataset_by_threshold(threshold, dataset, triggerset=None):
+def filter_dataset_by_threshold(threshold, dataset):
+    dataset_filtered = []
+    for data in dataset:
+        minval = np.min(data[:, 1])
+        if minval < threshold:
+            dataset_filtered.append(data)
+    return dataset_filtered
+
+def filter_data_and_triggerset_by_threshold(threshold, dataset, triggerset):
     dataset_filtered = []
     triggerset_filtered = []
-    if not triggerset == None:
-        for data, trigger in zip(dataset, triggerset):
-            minval = np.min(data[:, 1])
-            if minval < threshold:
-                dataset_filtered.append(data)
-                triggerset_filtered.append(trigger)
-        return dataset_filtered, triggerset_filtered
-    else:
-        for data in dataset:
-            minval = np.min(data[:, 1])
-            if minval < threshold:
-                dataset_filtered.append(data)
-        return dataset_filtered
+    for data, trigger in zip(dataset, triggerset):
+        minval = np.min(data[:, 1])
+        if minval < threshold:
+            dataset_filtered.append(data)
+            triggerset_filtered.append(trigger)
+    return dataset_filtered, triggerset_filtered
 
 #-----------------------------------------------------   
 
@@ -84,7 +85,7 @@ def calculate_occ(dataset, threshold_signal=-4) -> float:
         occ = np.sum(np.where(minval < threshold_signal, 1, 0))/number  # Occupancy for threshold
         return occ
 
-def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=0.1, threshold_pico=2000,
+def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2, threshold_pico=2000,
              threshold_signal=-4, iterations=10000):
 
     if not laser_tune_start:
@@ -161,7 +162,7 @@ def calculate_gain(dataset, threshold_signal=-4) -> float:
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
-def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, threshold_signal=-4,
+def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=2, threshold_signal=-4,
               iterations=10000):
 
     if not V_start:
@@ -195,6 +196,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, thresh
         # Sets voltage, unblocks when measured voltage in tolerance around set voltage
         HV_supply.Instance().SetVoltage(V, tolerance=2, max_iter=60, wait_time=1)
 
+        time.sleep(delay)
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                              threshold=threshold_pico, number=iterations)
         
@@ -238,7 +240,7 @@ def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> 
 def tune_parameters():
 
     if config.TUNE_MODE == "single" or config.TUNE_MODE == "only_occ":
-        print(f"tuning occupancy between {config.OCC_MIN} and {config.OCC_MAX}")
+        print(f"\ntuning occupancy between {config.OCC_MIN} and {config.OCC_MAX}")
         occ, laser_tune = tune_occ(occ_min=config.OCC_MIN,
                                    occ_max=config.OCC_MAX,
                                    laser_tune_start=config.LASER_TUNE_START,
@@ -248,7 +250,7 @@ def tune_parameters():
         print(f"reached occupancy of {occ} at {laser_tune} laser tune value")
 
     if config.TUNE_MODE == "single" or config.TUNE_MODE == "only_gain":
-        print(f"tuning gain between {config.GAIN_MIN} and {config.GAIN_MAX}")
+        print(f"\ntuning gain between {config.GAIN_MIN} and {config.GAIN_MAX}")
         gain, HV = tune_gain(g_min=config.GAIN_MIN,
                              g_max=config.GAIN_MAX,
                              V_start=config.V_START,
@@ -259,7 +261,7 @@ def tune_parameters():
 
     elif config.TUNE_MODE == "iter":
         iters = 0
-        print(f"tuning occupancy between {config.OCC_MIN} and {config.OCC_MAX} and gain between {config.GAIN_MIN} and {config.GAIN_MAX} iteratively")
+        print(f"\ntuning occupancy between {config.OCC_MIN} and {config.OCC_MAX} and gain between {config.GAIN_MIN} and {config.GAIN_MAX} iteratively")
         while True:
             iters += 1
             _, laser_val = tune_occ(occ_min=config.OCC_MIN,
@@ -291,11 +293,13 @@ def tune_parameters():
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
-        print(f"will not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{gain}")
+        print(f"\nwill not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{gain}")
 
-    else:
+    elif config.TUNE_MODE not in ["none", "iter", "single", "only_gain", "only_occ"]:
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
         print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{gain}")
+    else:
+        print("\nsomething weird just happened!")

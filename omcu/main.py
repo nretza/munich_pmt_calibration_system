@@ -94,13 +94,21 @@ def main():
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(104)
+    try:
+        Powermeter.Instance()
+    except:
+        print(f"\nERROR:\t Powermeter could not be connected to successfully.\n \
+        Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
+        Consider the logging file in {DATA_PATH} for further help")
+        print("\n exiting program now. Good bye!")
+        exit(105)
 
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
         print(f"{remain} minutes of cooldown remaining")
-        time.sleep(1)
+        time.sleep(60)
     print("cooldown completed!")
 
     #tune parameters (seperate function because its pretty long)
@@ -111,21 +119,20 @@ def main():
     print(f"saving data in {os.path.join(DATA_PATH, DATA_FILE)}")
     with h5py.File(os.path.join(DATA_PATH, DATA_FILE), 'w') as datafile:
         for phi, theta, HV in itertools.product(PHI_LIST, THETA_LIST, HV_LIST): #loop through HV, then Theta, then phi
-            print(f"\nmeasuring - HV:{HV}\tPhi: {phi}\tTheta: {theta}")
+            print(f"\nmeasuring ---- HV:{HV}\tPhi: {phi}\tTheta: {theta}")
             Rotation.Instance().set_position(phi, theta)
             HV_supply.Instance().SetVoltage(HV)
+            time.sleep(config.MEASUREMENT_SLEEP)
+            meta_dict = calc_meta_dict()
             time.sleep(config.MEASUREMENT_SLEEP)
             data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,
                                                        sgnlchannel=2,
                                                        direction=2,
                                                        threshold=2000,
                                                        number=config.NR_OF_WAVEFORMS)
-            data_filtr, trigger_filtr = filter_dataset_by_threshold(threshold=config.SIGNAL_THRESHOLD,
-                                                                    dataset=data_sgnl,
-                                                                    triggerset=data_trg)
-            time.sleep(config.MEASUREMENT_SLEEP)
-            meta_dict = calc_meta_dict()
-
+            data_filtr, trigger_filtr = filter_data_and_triggerset_by_threshold(threshold=config.SIGNAL_THRESHOLD,
+                                                                                dataset=data_sgnl,
+                                                                                triggerset=data_trg)
             nSamples = Picoscope.Instance().get_nSamples()
             arr_sgnl = datafile.create_dataset(f"theta{theta}/phi{phi}/HV{HV}/signal", (len(data_filtr), nSamples, 2), 'f')
             arr_trg  = datafile.create_dataset(f"theta{theta}/phi{phi}/HV{HV}/trigger", (len(trigger_filtr), nSamples, 2), 'f')

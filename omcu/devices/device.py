@@ -60,7 +60,8 @@ class serial_device(device):
                         delay: float=None, 
                         line_ending: str='\r\n',
                         wait_for: str=None,
-                        multi_line: bool=False) -> str:
+                        multi_line: bool=False,
+                        codec = "utf-8") -> str:
 
         """
         For communication with the serial port. Flashes buffers of both input and output,
@@ -120,4 +121,4 @@ class serial_device(device):
         else:
             return_str = self.serial.readline()
         self.logger.debug(f'Serial write cmd: {cmd}; return {return_str}')
-        return return_str.decode()
+        return return_str.decode(errors="ignore")

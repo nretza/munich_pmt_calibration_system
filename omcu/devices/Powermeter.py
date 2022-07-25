@@ -16,7 +16,7 @@ class Powermeter(serial_device):
             cls._instance = Powermeter()
         return cls._instance
 
-    def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.1):
+    def __init__(self, dev="/dev/Powermeter", simulating=False, delay=.5):
 
         if Powermeter._instance:
             raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
@@ -56,7 +56,7 @@ class Powermeter(serial_device):
         :return: int: 0 = echo off, 1 = echo on
         """
         echo_string = self.serial_io('echo?')  # returns the set echo (0,1)
-        print(f"The echo status is: {echo_string} (0 = echo off, 1 = echo on, which should not be used here!")
+        self.logger.debug(f"The echo status is: {echo_string} (0 = echo off, 1 = echo on, which should not be used here!")
         echo = int(echo_string)
         return echo
 
@@ -77,7 +77,7 @@ class Powermeter(serial_device):
         :return: int: selected wavelength in nm
         """
         lamb_string = self.serial_io('PM:L?')  # returns the selected wavelength in nm
-        print(f"The selected wavelength in nm is: {lamb_string}")
+        self.logger.debug(f"The selected wavelength in nm is: {lamb_string}")
         lamb = int(lamb_string)
         return lamb
 
@@ -96,7 +96,7 @@ class Powermeter(serial_device):
         :return: int: 1/2 (selected power meter channel)
         """
         chan_string = self.serial_io('PM:CHAN?')  # returns the selected power meter channel
-        print(f"The selected power meter channel is: {chan_string}")
+        self.logger.debug(f"The selected power meter channel is: {chan_string}")
         chan = int(chan_string)
         return chan
 
@@ -117,7 +117,7 @@ class Powermeter(serial_device):
         :return: int: 0 = fixed size, 1 = ring buffer
         """
         buff_string = self.serial_io('PM:DS:BUF?')  # returns the selected buffer behavior
-        print(f"The selected buffer behavior is: {buff_string} (0 = fixed size, 1 = ring buffer)")
+        self.logger.debug(f"The selected buffer behavior is: {buff_string} (0 = fixed size, 1 = ring buffer)")
         buff = int(buff_string)
         return buff
 
@@ -127,7 +127,7 @@ class Powermeter(serial_device):
         :return: -
         """
         self.serial_io('PM:DS:CL')  # resets the data store to be empty with no values
-        print("The Data Store has been cleared of all data")
+        self.logger.debug("The Data Store has been cleared of all data")
 
     def get_count(self):
         """
@@ -136,7 +136,7 @@ class Powermeter(serial_device):
         :return: int (The number of measurements that have been collected)
         """
         count_string = self.serial_io('PM:DS:C?')  # returns the number of measurements collected
-        print("The number of measurements that have been collected is:", count_string)
+        self.logger.debug("The number of measurements that have been collected is:", count_string)
         count = int(count_string)
         return count
 
@@ -158,7 +158,7 @@ class Powermeter(serial_device):
         :return: status of the Data Store (0 = disable, 1 = enable)
         """
         collect_string = self.serial_io('PM:DS:EN?')  # returns the status of the collection in the Data Store
-        print(f"The collection of measurements in the Data Store is: {collect_string} \
+        self.logger.debug(f"The collection of measurements in the Data Store is: {collect_string} \
               (0 = disabled or buffer full (after 10000 measurements), 1 = enabled)")
         self.get_count()
         collect = int(collect_string)
@@ -234,7 +234,7 @@ class Powermeter(serial_device):
         :return: int (selected Data Store Interval)
         """
         intv_string = self.serial_io('PM:DS:INT?')  # returns the selected Data Store Interval
-        print("The selected Data Store Interval is:", intv_string)
+        self.logger.debug(f"The selected Data Store Interval is: {intv_string}")
         intv = int(intv_string)
         return intv
 
@@ -268,7 +268,7 @@ class Powermeter(serial_device):
                  7 = RMS
         """
         mode_string = self.serial_io('PM:MODE?')  # returns the selected acquisition mode
-        print(  f"The selected acquisition mode is: {mode_string}, \
+        self.logger.debug(  f"The selected acquisition mode is: {mode_string}, \
                 (0 = DC Continuous, 1 = DC Single, 2 = Integrate, 3 = Peak-to-peak Continuous, \
                 4 = Peak-to-peak Single, 5 = Pulse Continuous, 6 = Pulse Single, 7 = RMS)")
         mode = int(mode_string)
@@ -299,7 +299,7 @@ class Powermeter(serial_device):
         :return: int (0 = stopped, 1 = running)
         """
         run_string = self.serial_io('PM:RUN?')  # returns an int indicating the present run mode
-        print(f"The run mode is: {run_string} (0 = stopped, 1 = running)")
+        self.logger.debug(f"The run mode is: {run_string} (0 = stopped, 1 = running)")
         run = int(run_string)
         return run
 
@@ -326,6 +326,6 @@ class Powermeter(serial_device):
         :return: float (set offset value)
         """
         offset_string = self.serial_io('PM:ZEROVAL?')  # returns
-        print(f"The offset value is set to: {offset_string}")
+        self.logger.debug(f"The offset value is set to: {offset_string}")
         offset = float(offset_string)
         return offset
