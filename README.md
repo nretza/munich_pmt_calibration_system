@@ -1,9 +1,9 @@
 # munich_pmt_calibration_system
 Control Software fpr the Optical Module Calibration Unit.
 
-##usage
+## usage
 
-###before running
+### before running
 Please make sure that the following conditions are met before the OMCU is turned on:
 
 1.)	The PMT is connected to the HV supply via the coaxial cable labeled "HV" inside the OMCU.
@@ -17,7 +17,7 @@ Please make sure that the following conditions are met before the OMCU is turned
 		 - the Picoamp
 		 - the HV Supply - Please call your electronics expert to switch this device on!
 		 
-###comand line arguments
+### comand line arguments
 usage: main.py [-h] [-o OUTPATH] [-n PMTNAME] [-c COOLDOWN] [-p PHI] [-t THETA] [-v HV]
 
 optional arguments:
@@ -31,8 +31,8 @@ optional arguments:
 
 If n argument is given, the omcu defaults to the value in omcu/config.py
 
-###config file
+### config file
 The omcu offers a config file at omcu/config.py to adjust varoius settings in detail. Please note that these configurations will be overwritten by comand line argments you pass to the omcu.
 
-###further help
+### further help
 for further help, please contact the author: niklas.retza@tum.de
