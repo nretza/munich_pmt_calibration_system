@@ -39,7 +39,10 @@ def main():
     else:
         pmt_name = PMT_NAME
     DATA_PATH = os.path.join(OUT_PATH, pmt_name)
-    os.mkdir(DATA_PATH) #TODO: filter for already exisitng folders
+    while os.path.exists(DATA_PATH):
+        pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\t")
+        DATA_PATH = os.path.join(OUT_PATH, pmt_name)
+    os.mkdir(DATA_PATH)
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=20)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
@@ -99,8 +102,8 @@ def main():
     print(f"OMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
-        print("{i} minutes of cooldown remaining")
-        time.sleep(60)
+        print(f"{remain} minutes of cooldown remaining")
+        time.sleep(1)
     print("cooldown completed!")
 
     #tune parameters (seperate function because its pretty long)
@@ -158,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
     parser.add_argument('-p', '--phi', help='list of phi angles to cycle through while datataking', action="append")
     parser.add_argument('-t', '--theta', help='list of theta angles to cycle through while datataking', action="append")
-    parser.add_argument('-h', '--HV', help='list of high voltages to cycle through while datataking', action="append")
+    parser.add_argument('-v', '--HV', help='list of high voltages to cycle through while datataking', action="append")
 
     args = parser.parse_args()
 
