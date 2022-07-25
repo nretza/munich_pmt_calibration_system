@@ -1,7 +1,14 @@
+#repo specific stuff
+data*/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+#IDE-Stuff
+.vscode
+.idea
 
 # C extensions
 *.so

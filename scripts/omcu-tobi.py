@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 # Author:  Tobias Pertl <tobias.pertl@tum.de>
 
-from submodules.Picoscope import Picoscope
-from submodules.Picoamp import Picoamp
-from submodules.PSU import PSU
-from submodules.Laser import Laser
-from submodules.Rotation import Rotation
-from Occupancy import Occupancy
+from devices.Picoscope import Picoscope
+from devices.Picoamp import Picoamp
+from devices.PSU import PSU
+from devices.Laser import Laser
+from devices.Rotation import Rotation
+from util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

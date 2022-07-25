@@ -1,11 +1,9 @@
-#!/usr/bin/python3
-# Author:  Laura Winter <evalaura.winter@tum.de>
-
 import numpy as np
 from numpy import trapz
 import scipy.constants as const
 
 class Waveform:
+
     def __init__(self, theta, phi, HV, x, y, minval):
         self.theta = theta
         self.phi = phi
@@ -28,9 +26,12 @@ class Waveform:
         self.area = trapz(self.y[self.mask]*1e-3, self.x[self.mask]*1e-9)
         self.charge = self.area/50
         self.gain = abs(self.charge)/const.e
+        return self.gain
 
     def mean(self):
         self.mean = np.mean(self.y)
+        return self.mean
 
     def subtractBaseline(self, value):
         self.y -= value
+        return self.y

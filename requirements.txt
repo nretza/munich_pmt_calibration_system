@@ -1,0 +1,9 @@
+pycaenhv # https://github.com/vasoto/pycaenhv/tree/master/src/pycaenhv, also install CAEN HV Wrapper C-Library
+picosdk
+gpd3303s
+
+scipy
+numpy
+matplotlib
+h5py
+pyserial

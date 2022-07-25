@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # Author:  Laura Winter <evalaura.winter@tum.de>
 
-from submodules.Picoscope import Picoscope
-from submodules.PSU import PSU
-from Occupancy import Occupancy
+from devices.Picoscope import Picoscope
+from devices.PSU import PSU
+from util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

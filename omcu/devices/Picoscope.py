@@ -2,6 +2,7 @@
 import ctypes
 import numpy as np
 from numpy import trapz
+from devices.device import device
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt
@@ -9,12 +10,30 @@ from picosdk.functions import adc2mV
 import time
 
 
-class Picoscope:
+class Picoscope(device):
     """
     This is a class for the PicoTech Picoscope 6424E
+    
+    This is a Singleton - google it!
     """
 
+    _instance = None
+
+    @classmethod
+    def Instance(cls):
+        if not cls._instance:
+            cls._instance = Picoscope()
+        return cls._instance
+
     def __init__(self):
+
+        if Picoscope._instance:
+            raise Exception(f"ERROR: {str(type(self))} has already been initialized. please call with {str(type(self).__name__)}.Instance()")
+        else:
+            Picoscope._instance = self
+
+        super().__init__()
+
         self.chandle = ctypes.c_int16()
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         # PICO_DR_8BIT = 0, PICO_DR_10BIT = 10, PICO_DR_12BIT = 1
@@ -78,6 +97,7 @@ class Picoscope:
                 ps.ps6000aSetChannelOff(self.chandle, ch)
                 #print("Channel off:", ch)
 
+        self.logger.debug(f"Setting up channels. trig_ch: {trgchannel}, signal_ch: {sgnlchannel}") 
         return trgchannel, sgnlchannel
 
     def channel_setup_all(self):
@@ -87,6 +107,8 @@ class Picoscope:
         """
         for ch in [0, 1, 2, 3]:
             ps.ps6000aSetChannelOn(self.chandle, ch, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
+
+        self.logger.debug(f"turning all channels on")
 
     def trigger_setup(self, trgchannel=0, direction=2, threshold=1000):
         """
@@ -107,6 +129,9 @@ class Picoscope:
         # delay = 0 s
         autoTriggerMicroSeconds = 1000000  # [us]
         ps.ps6000aSetSimpleTrigger(self.chandle, 1, trgchannel, threshold, direction, 0, autoTriggerMicroSeconds)
+
+        self.logger.debug(f"setting trigger threshold {threshold} mV on channel {trgchannel}") 
+
         return trgchannel, direction, threshold
 
     def timebase_setup(self):
@@ -126,6 +151,9 @@ class Picoscope:
                                               ctypes.byref(timeInterval), self.resolution)
         #print("timebase = ", timebase.value)
         #print("sample interval =", timeInterval.value, "s")
+
+        self.logger.debug("Setup to get the fastest available timebase.")
+
         return timebase.value, timeInterval.value
 
     def buffer_setup(self, channel=0):
@@ -155,6 +183,8 @@ class Picoscope:
         ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(bufferMax),
                                  ctypes.byref(bufferMin), nSamples, dataType, waveform,
                                  downSampleMode, action)
+
+        self.logger.debug(f"Will store data without downsampling. One channel, one waveform.")
         return bufferMax
 
     def buffer_setup_block(self, channel=0, number=10):
@@ -193,6 +223,8 @@ class Picoscope:
             if i > 0:
                 ps.ps6000aSetDataBuffers(self.chandle, channel, ctypes.byref(buffersMax[i]), ctypes.byref(buffersMin[i]),
                                          nSamples, dataType, waveform, downSampleMode, add)
+
+        self.logger.debug(f"will store data without downsampling. One channel, several waveforms.")
 
         return buffersMax, buffersMin
 
@@ -244,6 +276,8 @@ class Picoscope:
                 ps.ps6000aSetDataBuffers(self.chandle, sgnlchannel, ctypes.byref(buffersMax_sgnlch[i]),
                                          ctypes.byref(buffersMin_sgnlch[i]), nSamples, dataType, waveform,
                                          downSampleMode, add)
+
+        self.logger.debug(f"will store data without downsampling. One trigger channel and one signal channel, several waveforms - indicated by number")
 
         return buffersMax_trgch, buffersMin_trgch, buffersMax_sgnlch, buffersMin_sgnlch
 
@@ -366,6 +400,7 @@ class Picoscope:
         # np.save(filename_trg, data_trg)
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
+        self.logger.debug(f"block measurement of {number} Waveforms performed. trigger_ch: {trgchannel}, signal_ch: {sgnlchannel}")
         return data_sgnl, data_trg  # filename_sgnl, filename_trg
 
     def block_measurement_one_ch(self, channel=2, number=10):
@@ -472,6 +507,8 @@ class Picoscope:
         # np.save(filename_trg, data_trg)
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
+        self.logger.info(f"Single channel block measurement of {number} Waveforms performed. ch: {channel}")
+
         return data
 
     def adc2v(self, data, vrange=7):
@@ -558,6 +595,8 @@ class Picoscope:
         ps.ps6000aStop(self.chandle)
         #print('Picoscope stopped')
 
+        self.logger.debug("picoscope stopped")
+
     def close_scope(self):
         """
         This is a function to stop whatever the picoscope is doing and close the connection to it.
@@ -567,6 +606,7 @@ class Picoscope:
         ps.ps6000aCloseUnit(self.chandle)
         #print('Picoscope closed')
 
+        self.logger.debug("picoscope stopped and connection closed")
 
 if __name__ == "__main__":
     ps = Picoscope()
