@@ -1,11 +1,7 @@
-from ast import Raise
-from curses import meta
-import sys
 import os
 import argparse
 import itertools
-from unittest import expectedFailure
-import logging
+import h5py
 
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU0, PSU1
@@ -21,6 +17,7 @@ import config
 OUT_PATH    = config.OUT_PATH
 PMT_NAME    = config.PMT_NAME
 LOG_FILE    = config.LOG_FILE
+LOG_LVL     = config.LOG_LVL
 DATA_FILE   = config.DATA_FILE
 
 COOLDOWN_TIME = config.COOLDOWN_TIME
@@ -43,7 +40,7 @@ def main():
         pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\t")
         DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     os.mkdir(DATA_PATH)
-    setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=20)
+    setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
     # user input to confirm device setup    
@@ -99,7 +96,7 @@ def main():
         exit(104)
 
     #time to reduce noise
-    print(f"OMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
+    print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
         print(f"{remain} minutes of cooldown remaining")
@@ -110,7 +107,7 @@ def main():
     tune_parameters()
 
     # datataking
-    print(f"performing full photocadode scan over:\nHV:\t{HV_LIST}\nPhi:\t{PHI_LIST}\nTheta:\t{THETA_LIST}")
+    print(f"\nperforming full photocadode scan over:\nHV:\t{HV_LIST}\nPhi:\t{PHI_LIST}\nTheta:\t{THETA_LIST}")
     print(f"saving data in {os.path.join(DATA_PATH, DATA_FILE)}")
     with h5py.File(os.path.join(DATA_PATH, DATA_FILE), 'w') as datafile:
         for phi, theta, HV in itertools.product(PHI_LIST, THETA_LIST, HV_LIST): #loop through HV, then Theta, then phi
@@ -118,7 +115,7 @@ def main():
             Rotation.Instance().set_position(phi, theta)
             HV_supply.Instance().SetVoltage(HV)
             time.sleep(config.MEASUREMENT_SLEEP)
-            data_sgnl, data_trg = Ps.block_measurement(trgchannel=0,
+            data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,
                                                        sgnlchannel=2,
                                                        direction=2,
                                                        threshold=2000,
@@ -157,6 +154,7 @@ if __name__ == "__main__":
                                         epilog="for further help, please contact author: niklas.retza@tum.de")
 
     parser.add_argument('-o', '--outpath',  help='path to the program output',  action="store")
+    parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
     parser.add_argument('-p', '--phi', help='list of phi angles to cycle through while datataking', action="append")
@@ -167,6 +165,8 @@ if __name__ == "__main__":
 
     if args.outpath:
         OUT_PATH = args.outpath
+    if args.loglvl:
+        LOG_LVL = args.loglvl
     if args.pmtname:
         PMT_NAME = args.pmtname
     if args.cooldown:

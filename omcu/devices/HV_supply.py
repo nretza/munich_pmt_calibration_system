@@ -79,7 +79,7 @@ class HV_supply(device):
 
 #-----------------------------------------------------------
 
-    def SetVoltage(self, V:float, channel:int=None, tolerance:float=5, max_iter:int=60, wait_time:float=1) -> float:
+    def SetVoltage(self, V:float, channel:int=None, tolerance:float=1, max_iter:int=60, wait_time:float=1) -> float:
         if not channel:
             channel = self.default_ch
         if not self.is_on(channel):

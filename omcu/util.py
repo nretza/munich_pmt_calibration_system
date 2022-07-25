@@ -43,7 +43,7 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
 def filter_dataset_by_threshold(threshold, dataset, triggerset=None):
     dataset_filtered = []
     triggerset_filtered = []
-    if triggerset:
+    if not triggerset == None:
         for data, trigger in zip(dataset, triggerset):
             minval = np.min(data[:, 1])
             if minval < threshold:
