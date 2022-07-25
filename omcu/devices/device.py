@@ -2,7 +2,7 @@ import logging
 import time
 
 from serial import Serial, PARITY_NONE, STOPBITS_ONE, EIGHTBITS # the python serial package
-from omcu.devices.sim_serial import sim_serial #self written stuff to simulate a serial port
+from devices.sim_serial import sim_serial #self written stuff to simulate a serial port
 
 class device:
     """

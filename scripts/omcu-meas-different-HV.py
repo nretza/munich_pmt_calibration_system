@@ -6,7 +6,7 @@ from devices.PSU import PSU
 #from submodules.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
-from omcu.util.Occupancy import Occupancy
+from util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

@@ -2,7 +2,7 @@
 import time
 import numpy as np
 
-from omcu.devices.device import serial_device
+from devices.device import serial_device
 
 
 class Picoamp(serial_device):

@@ -1,5 +1,5 @@
 import pycaenhv.wrappers as hv_connection
-from omcu.devices.device import device
+from devices.device import device
 import time
 
 #TODO: set max V as failsafe

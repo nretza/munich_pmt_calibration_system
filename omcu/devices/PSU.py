@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import gpd3303s
 import time
-from omcu.devices.device import device
+from devices.device import device
 
 
 class PSU(device, gpd3303s.GPD3303S):

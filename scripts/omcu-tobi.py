@@ -6,7 +6,7 @@ from devices.Picoamp import Picoamp
 from devices.PSU import PSU
 from devices.Laser import Laser
 from devices.Rotation import Rotation
-from omcu.util.Occupancy import Occupancy
+from util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

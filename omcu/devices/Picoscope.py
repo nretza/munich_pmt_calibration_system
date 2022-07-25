@@ -2,7 +2,7 @@
 import ctypes
 import numpy as np
 from numpy import trapz
-from omcu.devices.device import device
+from devices.device import device
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
 import matplotlib.pyplot as plt

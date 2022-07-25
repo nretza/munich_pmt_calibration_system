@@ -3,7 +3,7 @@
 
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU
-from omcu.util.Occupancy import Occupancy
+from util.Occupancy import Occupancy
 import time
 import os
 import numpy as np

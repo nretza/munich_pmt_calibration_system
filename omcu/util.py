@@ -2,12 +2,13 @@ import time
 import logging
 import numpy as np
 
-from omcu.Waveform import Waveform
-from omcu.devices.Laser import Laser
-from omcu.devices.Picoscope import Picoscope
-from omcu.devices.HV_supply import HV_supply
-from omcu.devices.Rotation import Rotation
-
+import config
+from Waveform import Waveform
+from devices.Laser import Laser
+from devices.Picoscope import Picoscope
+from devices.HV_supply import HV_supply
+from devices.Rotation import Rotation
+from devices.Powermeter import Powermeter
 #-----------------------------------------------------
 
 def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_formatter=None):
@@ -36,6 +37,41 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
     logging.getLogger().addHandler(log_handler)
 
     return log_handler
+
+#-----------------------------------------------------
+
+def filter_dataset_by_threshold(threshold, dataset, triggerset=None):
+    dataset_filtered = []
+    triggerset_filtered = []
+    if triggerset:
+        for data, trigger in zip(dataset, triggerset):
+            minval = np.min(data[:, 1])
+            if minval < threshold:
+                dataset_filtered.append(data)
+                triggerset_filtered.append(trigger)
+        return dataset_filtered, triggerset_filtered
+    else:
+        for data in dataset:
+            minval = np.min(data[:, 1])
+            if minval < threshold:
+                dataset_filtered.append(data)
+        return dataset_filtered
+
+#-----------------------------------------------------   
+
+def calc_meta_dict():
+    meta_dict = {
+                "theta [°]": Rotation.Instance().get_position()[1],
+                "phi [°]": Rotation.Instance().get_position()[0],
+                "occupancy [%]": measure_occ(),
+                "gain": measure_gain(),
+                "HV [V]": HV_supply.Instance().getHVMon(),
+                "Powermeter": Powermeter.Instance().get_power(),
+                "Laser temp [°C]": Laser.Instance().get_temp(),
+                "Laser tune [%]": Laser.Instance().get_tune_value()/10,
+                "Laser freq [Hz]": Laser.Instance().get_freq(),
+                }
+    return meta_dict
 
 #-----------------------------------------------------
 
@@ -196,3 +232,70 @@ def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> 
     gain = calculate_gain(dataset, threshold_signal=threshold_signal)
     logging.getLogger("OMCU").info(f"measured gain to be {gain}")
     return gain
+
+#-------------------------------------------------------------------------------------
+
+def tune_parameters():
+
+    if config.TUNE_MODE == "single" or config.TUNE_MODE == "only_occ":
+        print(f"tuning occupancy between {config.OCC_MIN} and {config.OCC_MAX}")
+        occ, laser_tune = tune_occ(occ_min=config.OCC_MIN,
+                                   occ_max=config.OCC_MAX,
+                                   laser_tune_start=config.LASER_TUNE_START,
+                                   laser_tune_step=config.LASER__TUNE_STEP,
+                                   threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                                   iterations=config.TUNE_NR_OF_WAVEFORMS)
+        print(f"reached occupancy of {occ} at {laser_tune} laser tune value")
+
+    if config.TUNE_MODE == "single" or config.TUNE_MODE == "only_gain":
+        print(f"tuning gain between {config.GAIN_MIN} and {config.GAIN_MAX}")
+        gain, HV = tune_gain(g_min=config.GAIN_MIN,
+                             g_max=config.GAIN_MAX,
+                             V_start=config.V_START,
+                             V_step=config.V_STEP,
+                             threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                             iterations=config.TUNE_NR_OF_WAVEFORMS)
+        print(f"reached gain {gain} at Voltage of {HV} Volt")
+
+    elif config.TUNE_MODE == "iter":
+        iters = 0
+        print(f"tuning occupancy between {config.OCC_MIN} and {config.OCC_MAX} and gain between {config.GAIN_MIN} and {config.GAIN_MAX} iteratively")
+        while True:
+            iters += 1
+            _, laser_val = tune_occ(occ_min=config.OCC_MIN,
+                                    occ_max=config.OCC_MAX,
+                                    laser_tune_start=config.LASER_TUNE_START,
+                                    laser_tune_step=config.LASER__TUNE_STEP,
+                                    threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                                    iterations=config.TUNE_NR_OF_WAVEFORMS)
+            _, HV_val = tune_gain(g_min=config.GAIN_MIN,
+                                  g_max=config.GAIN_MAX,
+                                  V_start=config.V_START,
+                                  V_step=config.V_STEP,
+                                  threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                                  iterations=config.TUNE_NR_OF_WAVEFORMS)
+            #measure after tuning to avoid cross influence
+            occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                              iterations=config.TUNE_NR_OF_WAVEFORMS)
+            gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                                iterations=config.TUNE_NR_OF_WAVEFORMS)
+            if occ > config.OCC_MIN and occ < config.OCC_MAX and gain > config.GAIN_MIN and gain:
+                print(f"reached occupancy of {occ} at {laser_val} and gain of {gain} at {HV_val}.")
+                break
+            if iters >= config.TUNE_MAX_ITER:
+                print(f"WARNING: could not reach desired tuning values within {config.TUNE_MAX_ITER} iterations. Aborting tuning!")
+                print(f"reached occupancy of {occ} at {laser_val} and gain of {gain} at {HV_val}.")
+
+    elif config.TUNE_MODE == "none":
+        occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                          iterations=config.TUNE_NR_OF_WAVEFORMS)
+        gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                            iterations=config.TUNE_NR_OF_WAVEFORMS)
+        print(f"will not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{gain}")
+
+    else:
+        occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                          iterations=config.TUNE_NR_OF_WAVEFORMS)
+        gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                            iterations=config.TUNE_NR_OF_WAVEFORMS)
+        print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{gain}")
