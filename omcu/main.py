@@ -1,7 +1,5 @@
 import os
 import argparse
-import itertools
-import h5py
 
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU0, PSU1
@@ -9,8 +7,8 @@ from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
-from devices.device import device, serial_device
 from util import *
+from testing_procedure import *
 import config
 
 
@@ -18,28 +16,31 @@ OUT_PATH    = config.OUT_PATH
 PMT_NAME    = config.PMT_NAME
 LOG_FILE    = config.LOG_FILE
 LOG_LVL     = config.LOG_LVL
-DATA_FILE   = config.DATA_FILE
 
 COOLDOWN_TIME = config.COOLDOWN_TIME
 
-HV_LIST       = config.HV_LIST
-PHI_LIST      = config.PHI_LIST
-THETA_LIST    = config.THETA_LIST
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
 
 def main():
 
-    # setup dirs and logging
+    # check that outdir exists
     if not os.path.exists(OUT_PATH):
-        raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist!")
+        raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
+    #set pmt_name and datapath (either by user or config)
     if not PMT_NAME:
-        pmt_name = input("\nPlease enter the Name of the PMT inside the OMCU:\t") #TODO: apply filter for illegal chars here
+        pmt_name = input("Please enter the Name of the PMT inside the OMCU:\n>>> ") #TODO: apply filter for illegal chars here
     else:
         pmt_name = PMT_NAME
     DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     while os.path.exists(DATA_PATH):
-        pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\t")
+        pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\n>>> ")
         DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     os.mkdir(DATA_PATH)
+    #setup logging
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
@@ -111,40 +112,15 @@ def main():
         time.sleep(60)
     print("cooldown completed!")
 
-    #tune parameters (seperate function because its pretty long)
-    tune_parameters()
+    #testing protocols
+    if config.PHOTOCATHODE_SCAN:
+        tune_parameters("iter")
+        photocathode_scan(DATA_PATH)
+    if config.FRONTAL_HV_SCAN:
+        tune_parameters("only_gain")
+        frontal_HV_scan(DATA_PATH)
 
-    # datataking
-    print(f"\nperforming full photocadode scan over:\nHV:\t{HV_LIST}\nPhi:\t{PHI_LIST}\nTheta:\t{THETA_LIST}")
-    print(f"saving data in {os.path.join(DATA_PATH, DATA_FILE)}")
-    with h5py.File(os.path.join(DATA_PATH, DATA_FILE), 'w') as datafile:
-        for phi, theta, HV in itertools.product(PHI_LIST, THETA_LIST, HV_LIST): #loop through HV, then Theta, then phi
-            print(f"\nmeasuring ---- HV:{HV}\tPhi: {phi}\tTheta: {theta}")
-            Rotation.Instance().set_position(phi, theta)
-            HV_supply.Instance().SetVoltage(HV)
-            time.sleep(config.MEASUREMENT_SLEEP)
-            meta_dict = calc_meta_dict()
-            time.sleep(config.MEASUREMENT_SLEEP)
-            data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,
-                                                       sgnlchannel=2,
-                                                       direction=2,
-                                                       threshold=2000,
-                                                       number=config.NR_OF_WAVEFORMS)
-            data_filtr, trigger_filtr = filter_data_and_triggerset_by_threshold(threshold=config.SIGNAL_THRESHOLD,
-                                                                                dataset=data_sgnl,
-                                                                                triggerset=data_trg)
-            nSamples = Picoscope.Instance().get_nSamples()
-            arr_sgnl = datafile.create_dataset(f"theta{theta}/phi{phi}/HV{HV}/signal", (len(data_filtr), nSamples, 2), 'f')
-            arr_trg  = datafile.create_dataset(f"theta{theta}/phi{phi}/HV{HV}/trigger", (len(trigger_filtr), nSamples, 2), 'f')
-
-            arr_sgnl[:] = data_filtr
-            arr_trg[:]  = trigger_filtr
-
-            for key in meta_dict:
-                arr_sgnl.attrs[key] = meta_dict[key]
-                arr_trg.attrs[key] = meta_dict[key]
-
-        print(f"finished photocadode scan, data located at {os.path.join(DATA_PATH, DATA_FILE)}")
+    
     
     #turn devices off
     HV_supply.Instance().off_all()
@@ -154,7 +130,29 @@ def main():
     print("\nend of program reached, nothing to execute anymore.\nPLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU\nGood bye!")
     exit(0)
 
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+
 if __name__ == "__main__":
+
+    print("""
+     ______   __       __   ______   __    __ 
+    /      \ |  \     /  \ /      \ |  \  |  \ 
+   |  $$$$$$\| $$\   /  $$|  $$$$$$\| $$  | $$
+   | $$  | $$| $$$\ /  $$$| $$   \$$| $$  | $$
+   | $$  | $$| $$$$\  $$$$| $$      | $$  | $$
+   | $$  | $$| $$\$$ $$ $$| $$   __ | $$  | $$
+   | $$__/ $$| $$ \$$$| $$| $$__/  \| $$__/ $$
+    \$$    $$| $$  \$ | $$ \$$    $$ \$$    $$
+     \$$$$$$  \$$      \$$  \$$$$$$   \$$$$$$ 
+                                       
+                                           
+       Optical Module Calibration Unit
+   -----------------------------------------
+    """)
 
     parser = argparse.ArgumentParser(   description='Control Software fpr the Optical Module Calibration Unit.',
                                         add_help=True,
@@ -164,9 +162,6 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
-    parser.add_argument('-p', '--phi', help='list of phi angles to cycle through while datataking', action="append")
-    parser.add_argument('-t', '--theta', help='list of theta angles to cycle through while datataking', action="append")
-    parser.add_argument('-v', '--HV', help='list of high voltages to cycle through while datataking', action="append")
 
     args = parser.parse_args()
 
@@ -178,11 +173,5 @@ if __name__ == "__main__":
         PMT_NAME = args.pmtname
     if args.cooldown:
         COOLDOWN_TIME = args.cooldown
-    if args.phi:
-        PHI_LIST = args.phi
-    if args.theta:
-        THETA_LIST = args.theta
-    if args.HV:
-        HV_LIST = args.HV
 
     main()
