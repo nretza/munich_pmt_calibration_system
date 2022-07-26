@@ -123,7 +123,7 @@ def photocathode_scan(DATA_PATH):
                 arr_sgnl.attrs[key] = meta_dict[key]
                 arr_trg.attrs[key] = meta_dict[key]
 
-        print(f"finished photocadode scan, data located at {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
+        print(f"\nFinished photocadode scan\nData located at {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
 
 
 #------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ def frontal_HV_scan(DATA_PATH):
     Rotation.Instance().go_home()
 
     with h5py.File(os.path.join(DATA_PATH, config.FHVS_DATAFILE), 'w') as datafile:
-        for HV in itertools.product(config.FHVS_HV_LIST):  # loop through HV
+        for HV in config.FHVS_HV_LIST:  # loop through HV
             print(f"\nmeasuring ---- HV: {HV}")
             HV_supply.Instance().SetVoltage(HV)
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
@@ -163,4 +163,4 @@ def frontal_HV_scan(DATA_PATH):
                 arr_sgnl.attrs[key] = meta_dict[key]
                 arr_trg.attrs[key] = meta_dict[key]
 
-        print(f"finished frontal HV scan, data located at {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")
+        print(f"\nFinished frontal HV scan\nData located at {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")

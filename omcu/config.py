@@ -9,9 +9,9 @@ OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
 PMT_NAME  = None    #asks for name at runtime if None
 
 LOG_FILE  = "omcu.log"
-LOG_LVL   = 10
+LOG_LVL   = 20
 
-COOLDOWN_TIME = 1
+COOLDOWN_TIME = 30
 
 #------------------------------------------------------
 
@@ -40,7 +40,7 @@ TUNE_OCC_MAX        = 0.10
 TUNE_LASER_START    = None       # will start at current laser tune when None
 TUNE_LASER_STEP     = 5
 
-TUNE_NR_OF_WAVEFORMS  =  50000
+TUNE_NR_OF_WAVEFORMS  =  20000
 TUNE_SIGNAL_THRESHOLD = -3
 
 #-----------------------------------------------------

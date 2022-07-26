@@ -27,6 +27,7 @@ COOLDOWN_TIME = config.COOLDOWN_TIME
 
 def main():
 
+
     # check that outdir exists
     if not os.path.exists(OUT_PATH):
         raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
@@ -44,6 +45,7 @@ def main():
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
+
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
     print("1.)\tThe PMT is connected to the HV supply via the coaxial cable labeled \"HV\" inside the OMCU.")
@@ -56,14 +58,16 @@ def main():
     print("\t\t - the Picoscope")
     print("\t\t - the Picoamp")
     print("\t\t - the HV Supply - Please call your electronics expert to switch this device on!\n")
-    check = input("Please confirm that the OMCU is properly set up [Yes/no]:\t")
+    check = input("Please confirm that the OMCU is properly set up [Yes/no]:\n>>> ")
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
         exit()
 
 
     #Turn relevant devices on
+    print()
     try:
+        print("connecting PSU1")
         PSU1.Instance().on()
     except:
         print(f"\nERROR:\t PSU_1 could not be connected to successfully.\n \
@@ -72,6 +76,7 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(101)
     try:
+        print("connecting Rotation Stage")
         Rotation.Instance().go_home()
     except:
         print(f"\nERROR:\t Rotation Stage could not be connected to successfully.\n \
@@ -80,6 +85,7 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(102)
     try:
+        print("connecting Laser")
         Laser.Instance().on_pulsed()
     except:
         print(f"\nERROR:\t Laser could not be connected to successfully.\n \
@@ -88,6 +94,7 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(103)
     try:
+        print("connecting HV supply")
         HV_supply.Instance().on()
     except:
         print(f"\nERROR:\t HV_supply could not be connected to successfully.\n \
@@ -96,6 +103,7 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(104)
     try:
+        print("connecting Powermeter")
         Powermeter.Instance()
     except:
         print(f"\nERROR:\t Powermeter could not be connected to successfully.\n \
@@ -103,6 +111,7 @@ def main():
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(105)
+
 
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
@@ -112,22 +121,28 @@ def main():
         time.sleep(60)
     print("cooldown completed!")
 
+
     #testing protocols
     if config.PHOTOCATHODE_SCAN:
         tune_parameters("iter")
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
-        tune_parameters("only_gain")
+        tune_parameters("only_occ")
         frontal_HV_scan(DATA_PATH)
 
-    
     
     #turn devices off
     HV_supply.Instance().off_all()
     Laser.Instance().off_pulsed()
     PSU1.Instance().off()
 
-    print("\nend of program reached, nothing to execute anymore.\nPLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU\nGood bye!")
+    print("""
+    \nEnd of program reached, nothing to execute anymore.
+
+    PLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU!
+
+    Good bye!
+    """)
     exit(0)
 
 
@@ -151,12 +166,20 @@ if __name__ == "__main__":
                                        
                                            
        Optical Module Calibration Unit
+              (control software)
+           
+   -----------------------------------------
+    by: Niklas Retza (niklas.retza@tum.de)
+                 July 2022
    -----------------------------------------
     """)
 
     parser = argparse.ArgumentParser(   description='Control Software fpr the Optical Module Calibration Unit.',
                                         add_help=True,
-                                        epilog="for further help, please contact author: niklas.retza@tum.de")
+                                        epilog= """
+                                                Please regard the config file omcu/config.py for further settings not passed through command line arguments.
+                                                In case you need further help, please contact the author: niklas.retza@tum.de
+                                                 """)
 
     parser.add_argument('-o', '--outpath',  help='path to the program output',  action="store")
     parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
