@@ -18,7 +18,7 @@ from util import *
 
 def tune_parameters(tune_mode="from_config"):
 
-    if tune_mode=="from_config":
+    if tune_mode == "from_config":
         tune_mode = config.TUNE_MODE
 
     if tune_mode == "single" or tune_mode == "only_occ":
@@ -41,7 +41,7 @@ def tune_parameters(tune_mode="from_config"):
                              iterations=config.TUNE_NR_OF_WAVEFORMS)
         print(f"reached gain {gain} at Voltage of {HV} Volt")
 
-    elif tune_mode == "iter":
+    if tune_mode == "iter":
         iters = 0
         print(f"\ntuning occupancy between {config.TUNE_OCC_MIN} and {config.TUNE_OCC_MAX} and gain between {config.TUNE_GAIN_MIN} and {config.TUNE_GAIN_MAX} iteratively")
         while True:
@@ -70,21 +70,19 @@ def tune_parameters(tune_mode="from_config"):
                 print(f"WARNING: could not reach desired tuning values within {config.TUNE_MAX_ITER} iterations. Aborting tuning!")
                 print(f"reached occupancy of {occ} at {laser_val} and gain of {gain} at {HV_val}.")
 
-    elif tune_mode == "none":
+    if tune_mode == "none":
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
         print(f"\nwill not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{gain}")
 
-    elif tune_mode not in ["none", "iter", "single", "only_gain", "only_occ"]:
+    if tune_mode not in ["none", "iter", "single", "only_gain", "only_occ"]:
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
         print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{gain}")
-    else:
-        print("\nsomething weird just happened!")
 
 #------------------------------------------------------------------------------
 

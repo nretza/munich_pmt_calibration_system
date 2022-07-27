@@ -8,16 +8,16 @@ import numpy as np
 OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
 PMT_NAME  = None    #asks for name at runtime if None
 
-LOG_FILE  = "omcu.log"
-LOG_LVL   = 20
+LOG_FILE  = "omcu.log"	     # name of the log file
+LOG_LVL   = 20		     # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
-COOLDOWN_TIME = 30
+COOLDOWN_TIME = 30          # Time in minutes before any measurements take place
 
 #------------------------------------------------------
 
 # which test protocols to choose
 
-TUNE_PARAMETERS     = True # not in use right now
+TUNE_PARAMETERS     = True  # not in use right now, will always tune
 PHOTOCATHODE_SCAN   = True
 FRONTAL_HV_SCAN     = True
 
@@ -64,7 +64,7 @@ PCS_MEASUREMENT_SLEEP   =  1                     #Time in seconds that are waite
 
 FHVS_DATAFILE      = "data_frontal_HV.hdf5"
 
-FHVS_HV_LIST       = np.arange(950,1350,50)       #HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(950,1350,20)       #HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  50000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -3                     #Determines when a waveform is considered a signal and will be written in the datafile
