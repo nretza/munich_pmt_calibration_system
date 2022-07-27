@@ -70,7 +70,7 @@ class HV_supply(device):
 
     def off_all(self):
         for i in range(4):
-            hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, 1, "Pw", False)
+            hv_connection.set_channel_parameter(self.hv_handle, self.hv_slot, i, "Pw", False)
         self.logger.info("High Voltage on all channels turned OFF")
 
     def is_on(self, channel:int=None):
