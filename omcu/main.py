@@ -136,13 +136,7 @@ def main():
     Laser.Instance().off_pulsed()
     PSU1.Instance().off()
 
-    print("""
-    \nEnd of program reached, nothing to execute anymore.
-
-    PLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU!
-
-    Good bye!
-    """)
+    print("\nEnd of program reached, nothing to execute anymore.\nPLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU!\nGood bye!")
     exit(0)
 
 

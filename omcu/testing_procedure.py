@@ -109,7 +109,7 @@ def photocathode_scan(DATA_PATH):
                                                                                 triggerset=data_trg)
 
             time.sleep(config.PCS_MEASUREMENT_SLEEP)
-            meta_dict = calc_meta_dict(data_filtr, config.PCS_SIGNAL_THRESHOLD)
+            meta_dict = calc_meta_dict(data_sgnl, config.PCS_SIGNAL_THRESHOLD)
 
             nSamples = Picoscope.Instance().get_nSamples()
             arr_sgnl = datafile.create_dataset(f"theta{theta}/phi{phi}/signal", (len(data_filtr), nSamples, 2),
@@ -150,7 +150,7 @@ def frontal_HV_scan(DATA_PATH):
                                                                                 dataset=data_sgnl,
                                                                                 triggerset=data_trg)
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
-            meta_dict = calc_meta_dict(data_filtr, config.FHVS_SIGNAL_THRESHOLD)
+            meta_dict = calc_meta_dict(data_sgnl, config.FHVS_SIGNAL_THRESHOLD)
 
             nSamples = Picoscope.Instance().get_nSamples()
             arr_sgnl = datafile.create_dataset(f"HV{HV}/signal", (len(data_filtr), nSamples, 2),
