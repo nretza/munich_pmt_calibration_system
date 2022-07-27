@@ -44,6 +44,7 @@ class HV_supply(device):
                                                     password="" #empty
                                                   )
         self.hv_slot = 0
+        self.vmax = 1400
 
         self.off_all()
         for channel in range(4):
@@ -51,7 +52,7 @@ class HV_supply(device):
             self.setHV_rampdown_rate(100, channel)
             self.setHVSet(1000, channel)
             self.setISet(150, channel)
-            self.setHVMax(1500, channel)
+            self.setHVMax(self.vmax + 10, channel)
 
     def on(self, channel:int=None):
         if not channel:
@@ -80,6 +81,9 @@ class HV_supply(device):
 #-----------------------------------------------------------
 
     def SetVoltage(self, V:float, channel:int=None, tolerance:float=1, max_iter:int=60, wait_time:float=1) -> float:
+        if V > self.vmax:
+            self.logger.warning(f"Voltage {V} V exceeds V_Max of {self.vmax} V. Setting voltage to V_Max instead.")
+            V = self.vmax
         if not channel:
             channel = self.default_ch
         if not self.is_on(channel):
