@@ -71,7 +71,7 @@ def calc_meta_dict(dataset=None, threshold_signal=-3):
                 "Laser tune [%]": Laser.Instance().get_tune_value()/10,
                 "Laser freq [Hz]": Laser.Instance().get_freq(),
                 }
-    if dataset == None:
+    if dataset.all() == None:
         meta_dict["occupancy [%]"] = measure_occ(),
         meta_dict["gain"] = measure_gain(),
     else:

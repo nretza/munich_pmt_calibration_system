@@ -18,6 +18,8 @@ from util import *
 
 def tune_parameters(tune_mode="from_config"):
 
+    start_time = time.time()
+
     if tune_mode == "from_config":
         tune_mode = config.TUNE_MODE
 
@@ -64,11 +66,11 @@ def tune_parameters(tune_mode="from_config"):
             gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                                 iterations=config.TUNE_NR_OF_WAVEFORMS)
             if occ > config.TUNE_OCC_MIN and occ < config.TUNE_OCC_MAX and gain > config.TUNE_GAIN_MIN and gain:
-                print(f"reached occupancy of {occ} at {laser_val} and gain of {gain} at {HV_val}.")
+                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {gain} at {HV_val} V.")
                 break
             if iters >= config.TUNE_MAX_ITER:
                 print(f"WARNING: could not reach desired tuning values within {config.TUNE_MAX_ITER} iterations. Aborting tuning!")
-                print(f"reached occupancy of {occ} at {laser_val} and gain of {gain} at {HV_val}.")
+                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {gain} at {HV_val} V.")
 
     if tune_mode == "none":
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
@@ -84,10 +86,15 @@ def tune_parameters(tune_mode="from_config"):
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
         print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{gain}")
 
+    end_time = time.time()
+    print(f"Total time for tuning: {round((end_time - start_time) / 60, 0)} minutes")
+
 #------------------------------------------------------------------------------
 
 
 def photocathode_scan(DATA_PATH):
+
+    start_time = time.time()
 
     print(f"\nperforming photocathode scan over:\nPhi:\t{config.PCS_PHI_LIST}\nTheta:\t{config.PCS_THETA_LIST}")
     print(f"saving data in {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
@@ -124,13 +131,17 @@ def photocathode_scan(DATA_PATH):
                 arr_sgnl.attrs[key] = meta_dict[key]
                 arr_trg.attrs[key] = meta_dict[key]
 
-        print(f"\nFinished photocadode scan\nData located at {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
+    print(f"\nFinished photocadode scan\nData located at {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
 
+    end_time = time.time()
+    print(f"total time for photocathode scan: {round((end_time - start_time) / 60, 0)} minutes")
 
 #------------------------------------------------------------------------------
 
 
 def frontal_HV_scan(DATA_PATH):
+
+    start_time = time.time()
 
     print(f"\nperforming frontal HV scan over:\nHV:\t{config.FHVS_HV_LIST}\n")
     print(f"saving data in {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")
@@ -165,4 +176,7 @@ def frontal_HV_scan(DATA_PATH):
                 arr_sgnl.attrs[key] = meta_dict[key]
                 arr_trg.attrs[key] = meta_dict[key]
 
-        print(f"\nFinished frontal HV scan\nData located at {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")
+    print(f"\nFinished frontal HV scan\nData located at {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")
+
+    end_time = time.time()
+    print(f"Total time for frontal HV scan: {round((end_time - start_time) / 60, 0)} minutes")

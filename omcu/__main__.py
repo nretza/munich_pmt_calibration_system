@@ -1,5 +1,6 @@
 import os
 import argparse
+import time
 
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU0, PSU1
@@ -63,6 +64,7 @@ def main():
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
         exit()
 
+    start_time = time.time()
 
     #Turn relevant devices on
     print()
@@ -124,10 +126,10 @@ def main():
 
     #testing protocols
     if config.PHOTOCATHODE_SCAN:
-        tune_parameters("iter")
+        tune_parameters("from_config")
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
-        tune_parameters("only_occ")
+        tune_parameters("from_config")
         frontal_HV_scan(DATA_PATH)
 
     
@@ -136,7 +138,11 @@ def main():
     Laser.Instance().off_pulsed()
     PSU1.Instance().off()
 
-    print("\nEnd of program reached, nothing to execute anymore.\nPLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU!\nGood bye!")
+    end_time = time.time()
+
+    print("\nEnd of program reached, nothing to execute anymore.")
+    print(f"Total execution time: {round((end_time - start_time)/60,0)} minutes")
+    print("\nPLEASE MAKE SURE TO TURN ALL DEVICES OFF BEFORE OPENING THE OMCU!\nGood bye!\n")
     exit(0)
 
 

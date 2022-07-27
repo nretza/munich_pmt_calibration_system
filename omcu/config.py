@@ -23,6 +23,13 @@ FRONTAL_HV_SCAN     = True
 
 #------------------------------------------------------
 
+#Data-Analysis
+
+ANALYSIS_PERFORM    = False    # perform data analysis after datataking
+ANALYSIS_SHOW_PLOTS = False    # call plt.show()
+
+#------------------------------------------------------
+
 #tune
 
 TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
