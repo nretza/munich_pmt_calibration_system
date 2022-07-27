@@ -2,6 +2,8 @@ import time
 import logging
 import numpy as np
 
+import config
+
 from Waveform import Waveform
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
@@ -59,23 +61,27 @@ def filter_data_and_triggerset_by_threshold(threshold, dataset, triggerset):
 
 #-----------------------------------------------------   
 
-def calc_meta_dict():
+def calc_meta_dict(dataset=None, threshold_signal=-3):
     meta_dict = {
                 "theta [°]": Rotation.Instance().get_position()[1],
                 "phi [°]": Rotation.Instance().get_position()[0],
-                "occupancy [%]": measure_occ(),
-                "gain": measure_gain(),
                 "HV [V]": HV_supply.Instance().getHVMon(),
                 "Powermeter": Powermeter.Instance().get_power(),
                 "Laser temp [°C]": Laser.Instance().get_temp(),
                 "Laser tune [%]": Laser.Instance().get_tune_value()/10,
                 "Laser freq [Hz]": Laser.Instance().get_freq(),
                 }
+    if dataset == None:
+        meta_dict["occupancy [%]"] = measure_occ(),
+        meta_dict["gain"] = measure_gain(),
+    else:
+        meta_dict["occupancy [%]"] = calculate_occ(dataset, threshold_signal)
+        meta_dict["gain"] = calculate_gain(dataset, threshold_signal)
     return meta_dict
 
 #-----------------------------------------------------
 
-def calculate_occ(dataset, threshold_signal=-4) -> float:
+def calculate_occ(dataset, threshold_signal=-3) -> float:
 
         number = len(dataset)
         minval = np.zeros(number)
@@ -85,7 +91,7 @@ def calculate_occ(dataset, threshold_signal=-4) -> float:
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2, threshold_pico=2000,
-             threshold_signal=-4, iterations=10000):
+             threshold_signal=-3, iterations=10000):
 
     if not laser_tune_start:
         laser_tune_start = Laser.Instance().get_tune_value()
@@ -130,7 +136,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
             break
     return occ, laser_tune
 
-def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
+def measure_occ(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> float:
 
     if not Laser.Instance().get_ld() == 1: #laser on
         try:
@@ -153,7 +159,7 @@ def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> f
 
 #-----------------------------------------------------
 
-def calculate_gain(dataset, threshold_signal=-4) -> float:
+def calculate_gain(dataset, threshold_signal=-3) -> float:
     gains = []
     for data in dataset:
         if np.min(data[:, 1]) < threshold_signal:
@@ -161,7 +167,7 @@ def calculate_gain(dataset, threshold_signal=-4) -> float:
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
-def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=2, threshold_signal=-4,
+def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=2, threshold_signal=-3,
               iterations=10000):
 
     if not V_start:
@@ -212,7 +218,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=
 
     return gain, V
 
-def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
+def measure_gain(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> float:
 
     if not Laser.Instance().get_ld() == 1: #laser on
         try:
