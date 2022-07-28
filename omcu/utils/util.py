@@ -1,10 +1,12 @@
+#!/usr/bin/python3
 import time
 import logging
 import numpy as np
 
 import config
 
-from Waveform import Waveform
+from utils.Waveform import Waveform
+
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
 from devices.HV_supply import HV_supply

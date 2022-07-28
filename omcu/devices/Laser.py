@@ -34,7 +34,7 @@ class Laser(serial_device):
         self.off_cw()  # CW laser emission OFF
 
 
-    def print_state(self):  #TODO: prints not whole information
+    def print_state(self):
         """
         This function prints system state information in the format:
         --------------------

@@ -1,8 +1,8 @@
+#!/usr/bin/python3
 import pycaenhv.wrappers as hv_connection
 from devices.device import device
 import time
 
-#TODO: set max V as failsafe
 
 class HV_supply(device):
     """

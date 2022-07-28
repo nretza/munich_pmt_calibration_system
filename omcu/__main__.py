@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import argparse
 import time
@@ -8,8 +9,9 @@ from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
-from util import *
-from testing_procedure import *
+
+from utils.util import *
+from utils.testing_procedure import *
 import config
 
 
@@ -19,6 +21,9 @@ LOG_FILE    = config.LOG_FILE
 LOG_LVL     = config.LOG_LVL
 
 COOLDOWN_TIME = config.COOLDOWN_TIME
+
+#TODO: implement data analysis
+#TODO: round printout numbers (gain, occ)
 
 
 ##########################################################################################
@@ -34,7 +39,7 @@ def main():
         raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
     #set pmt_name and datapath (either by user or config)
     if not PMT_NAME:
-        pmt_name = input("Please enter the Name of the PMT inside the OMCU:\n>>> ") #TODO: apply filter for illegal chars here
+        pmt_name = input("Please enter the Name of the PMT inside the OMCU:\n>>> ")
     else:
         pmt_name = PMT_NAME
     DATA_PATH = os.path.join(OUT_PATH, pmt_name)

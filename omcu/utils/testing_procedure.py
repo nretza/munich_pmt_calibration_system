@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 import numpy
 import time
 import h5py
@@ -12,7 +12,7 @@ from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
-from util import *
+from utils.util import *
 
 #------------------------------------------------------------------------------
 
@@ -88,6 +88,7 @@ def tune_parameters(tune_mode="from_config"):
 
     end_time = time.time()
     print(f"Total time for tuning: {round((end_time - start_time) / 60, 0)} minutes")
+
 
 #------------------------------------------------------------------------------
 

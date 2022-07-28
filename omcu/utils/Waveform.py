@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import numpy as np
 from numpy import trapz
 import scipy.constants as const

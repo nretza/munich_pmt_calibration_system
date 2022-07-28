@@ -12,7 +12,7 @@ from scipy.signal import argrelextrema
 from scipy.interpolate import UnivariateSpline as US
 import scipy.constants as const
 
-from Waveform import Waveform
+from utils.Waveform import Waveform
 
 class Analysis:
 
