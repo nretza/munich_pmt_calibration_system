@@ -43,6 +43,9 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
 
 #-----------------------------------------------------
 
+def gaussian(x, a, mu, sigma):
+     return a * np.exp(- (x - mu) ** 2 / (sigma ** 2))
+
 def filter_dataset_by_threshold(threshold, dataset):
     dataset_filtered = []
     for data in dataset:
@@ -65,19 +68,20 @@ def filter_data_and_triggerset_by_threshold(threshold, dataset, triggerset):
 
 def calc_meta_dict(dataset=None, threshold_signal=-3):
     meta_dict = {
-                "theta [°]": Rotation.Instance().get_position()[1],
-                "phi [°]": Rotation.Instance().get_position()[0],
-                "HV [V]": HV_supply.Instance().getHVMon(),
+                "theta": Rotation.Instance().get_position()[1],
+                "phi": Rotation.Instance().get_position()[0],
+                "HV": HV_supply.Instance().getHVMon(),
                 "Powermeter": Powermeter.Instance().get_power(),
-                "Laser temp [°C]": Laser.Instance().get_temp(),
-                "Laser tune [%]": Laser.Instance().get_tune_value()/10,
-                "Laser freq [Hz]": Laser.Instance().get_freq(),
+                "Laser temp": Laser.Instance().get_temp(),
+                "Laser tune": Laser.Instance().get_tune_value()/10,
+                "Laser freq": Laser.Instance().get_freq(),
+                "sgnl_threshold" : threshold_signal,
                 }
     if dataset.all() == None:
-        meta_dict["occupancy [%]"] = measure_occ(),
+        meta_dict["occ"] = measure_occ(),
         meta_dict["gain"] = measure_gain(),
     else:
-        meta_dict["occupancy [%]"] = calculate_occ(dataset, threshold_signal)
+        meta_dict["occ"] = calculate_occ(dataset, threshold_signal)
         meta_dict["gain"] = calculate_gain(dataset, threshold_signal)
     return meta_dict
 

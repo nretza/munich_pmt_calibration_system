@@ -12,6 +12,9 @@ from devices.Powermeter import Powermeter
 
 from utils.util import *
 from utils.testing_procedure import *
+
+from data_analysis.data_analysis import Data_Analysis
+
 import config
 
 
@@ -93,7 +96,7 @@ def main():
         exit(102)
     try:
         print("connecting Laser")
-        Laser.Instance().on_pulsed()
+        Laser.Instance()
     except:
         print(f"\nERROR:\t Laser could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -122,12 +125,13 @@ def main():
 
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
+    Laser.Instance().off_pulsed()
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
         print(f"{remain} minutes of cooldown remaining")
         time.sleep(60)
+    Laser.Instance().on_pulsed()
     print("cooldown completed!")
-
 
     #testing protocols
     if config.PHOTOCATHODE_SCAN:
@@ -142,6 +146,16 @@ def main():
     HV_supply.Instance().off_all()
     Laser.Instance().off_pulsed()
     PSU1.Instance().off()
+
+    print("finished data taking")
+
+    if config.ANALYSIS_PERFORM:
+        print("analyzing data now")
+        analysis = Data_Analysis(DATA_PATH)
+        if config.FRONTAL_HV_SCAN:
+            analysis.analyze_FHVS()
+        if config.PHOTOCATHODE_SCAN:
+            analysis.analyze_PCS()
 
     end_time = time.time()
 
