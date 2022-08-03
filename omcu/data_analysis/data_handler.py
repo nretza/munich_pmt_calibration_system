@@ -65,3 +65,6 @@ class data_handler:
 
     def plot_angluar_acceptance():
         pass
+
+    def plot_average_wf_all_HV():
+        pass

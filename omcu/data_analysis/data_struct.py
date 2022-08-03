@@ -107,7 +107,7 @@ class data_struct:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.title(f"Waveforms for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveforms-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
+        figname = f"{self.filename[:-5]}-waveforms-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
         save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -135,7 +135,7 @@ class data_struct:
         plt.ylabel('Voltage (mV)')
         plt.axhline(y=threshold, color='red', linestyle='--')
         plt.title(f"Waveform peaks for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveform_peaks_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
+        figname = f"{self.filename[:-5]}-waveform_peaks_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
         save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -157,8 +157,8 @@ class data_struct:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.title(f"Waveforms Mask for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveforms_mask_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
-        save_dir = os.path.join(self.filepath, "wf")
+        figname = f"{self.filename[:-5]}-waveforms_mask_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
+        save_dir = os.path.join(self.filepath, "wf_mask")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
@@ -174,8 +174,8 @@ class data_struct:
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
         plt.title(f"Average waveform for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-average_waveforms_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
-        save_dir = os.path.join(self.filepath, "wf")
+        figname = f"{self.filename[:-5]}-average_waveforms_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "average_wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
@@ -224,7 +224,7 @@ class data_struct:
 
         fig.tight_layout()
         plt.title(f"Waveform {mode}s for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-hist-{mode}s-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
+        figname = f"{self.filename[:-5]}-hist-{mode}s-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
         save_dir = os.path.join(self.filepath, "hist")
         if not os.path.exists(save_dir):
@@ -322,7 +322,7 @@ class data_struct:
         plt.xlim(x[indMax-12], x[indMax+12])
         plt.legend()
         plt.title(f"TTS for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-TTS-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
+        figname = f"{self.filename[:-5]}-TTS-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
         save_dir = os.path.join(self.filepath, "transit_time")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
