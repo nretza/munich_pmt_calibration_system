@@ -13,7 +13,7 @@ from devices.Powermeter import Powermeter
 from utils.util import *
 from utils.testing_procedure import *
 
-from data_analysis.data_analysis import Data_Analysis
+from data_analysis.Data_Analysis import Data_Analysis
 
 import config
 

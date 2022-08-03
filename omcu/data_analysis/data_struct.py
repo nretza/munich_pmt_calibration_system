@@ -19,9 +19,9 @@ import config
 
 class data_struct:
 
-    def __init__(self, signal_data, trigger_data, metadict=None, filename = ""):
+    def __init__(self, signal_data, trigger_data, metadict=None, filename = "", filepath = ""):
 
-        if metadict.all() == None:
+        if metadict == None:
             metadict = {
                 "theta":            -1,
                 "phi":              -1,
@@ -39,6 +39,7 @@ class data_struct:
         self.signalset  = signal_data
         self.triggerset = trigger_data
         self.filename = filename
+        self.filepath = filepath
 
         self.wf_list = []
 
@@ -106,13 +107,14 @@ class data_struct:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.title(f"Waveforms for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename}-waveforms-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
-        save_dir = "wf"
+        figname = f"{self.filename[:-5]}-waveforms-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
+        save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')
 
     def plot_peaks(self, ratio=0.33, width=2):
 
@@ -133,13 +135,14 @@ class data_struct:
         plt.ylabel('Voltage (mV)')
         plt.axhline(y=threshold, color='red', linestyle='--')
         plt.title(f"Waveform peaks for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename}-waveform_peaks_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
-        save_dir = "wf"
+        figname = f"{self.filename[:-5]}-waveform_peaks_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
+        save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')
 
     def plot_wfs_mask(self, number=10, threshold=-3):
 
@@ -149,18 +152,19 @@ class data_struct:
 
         for wf, c in zip(self.wf_list, colors):
             if wf.min < threshold:
-                plt.plotplt.plot(wf.x[wf.mask], wf.y[wf.mask], color=c)
+                plt.plot(wf.x[wf.mask], wf.y[wf.mask], color=c)
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.title(f"Waveforms Mask for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename}-waveforms_mask_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
-        save_dir = "wf_mask"
+        figname = f"{self.filename[:-5]}-waveforms_mask_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.pdf"
+        save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')
 
     def plot_average_wf(self):
         if not hasattr(self, 'average_wf'):
@@ -170,13 +174,14 @@ class data_struct:
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
         plt.title(f"Average waveform for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename}-average_waveforms_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
-        save_dir = "wf"
+        figname = f"{self.filename[:-5]}-average_waveforms_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
+        save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')
 
     def plot_hist(self, mode="amplitude",exclude=['900', '1300']):
 
@@ -193,7 +198,7 @@ class data_struct:
         if mode == "charge":
             data = [wf.charge for wf in self.wf_list]
 
-        nr_entries = len(self.w_list)
+        nr_entries = len(self.wf_list)
         nbins = int(nr_entries / 100)
         entries, edges = np.histogram(data, bins=nbins)
         bin_m = (edges[:-1] + edges[1:]) / 2
@@ -219,14 +224,15 @@ class data_struct:
 
         fig.tight_layout()
         plt.title(f"Waveform {mode}s for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename}-hist-{mode}s-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
+        figname = f"{self.filename[:-5]}-hist-{mode}s-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
 
-        save_dir = "hist_" + mode
+        save_dir = os.path.join(self.filepath, "hist")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')
 
     def get_transit_times(self, ratio=0.33):
 
@@ -316,10 +322,11 @@ class data_struct:
         plt.xlim(x[indMax-12], x[indMax+12])
         plt.legend()
         plt.title(f"TTS for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename}-TTS-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
-        save_dir = "transit_time"
+        figname = f"{self.filename[:-5]}-TTS-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.pdf"
+        save_dir = os.path.join(self.filepath, "transit_time")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
+        plt.close('all')

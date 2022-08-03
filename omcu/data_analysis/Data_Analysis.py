@@ -3,6 +3,7 @@
 from data_analysis.data_handler import data_handler
 import config
 import os
+
 #TODO: logging, printouts, other analysis, PCS
 
 class Data_Analysis:
@@ -12,8 +13,7 @@ class Data_Analysis:
         self.data_path = data_path
 
     def analyze_FHVS(self):
-        file_name = os.path.join(self.data_path, config.FHVS_DATAFILE)
-        handler = data_handler(file_name)
+        handler = data_handler(config.FHVS_DATAFILE, self.data_path)
         handler.plot_wfs()
         handler.plot_peaks()
         handler.plot_average_wf()
