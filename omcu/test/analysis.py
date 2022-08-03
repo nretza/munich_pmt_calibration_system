@@ -14,4 +14,4 @@ handler.plot_hist("charge")
 handler.plot_hist("gain")
 handler.plot_transit_times()
 
-#todo weiter machen
+#TODO weiter machen

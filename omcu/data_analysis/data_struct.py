@@ -15,7 +15,7 @@ from utils.util import *
 from utils.Waveform import Waveform
 import config
 
-#TODO: logging, printouts, other analysis
+#TODO: logging
 
 class data_struct:
 

@@ -4,7 +4,15 @@ import os
 import h5py
 from data_analysis.data_struct import data_struct
 
-#TODO: logging, printouts, other analysis
+#TODO: logging
+#TODO: proper charge/gain hist > change current hists
+#TODO: implement angular acceptance
+#TODO: fix bug in TTS
+#TODO: average over all HVs
+#TODO: gain/HV dependance
+#TODO: dark count rate
+#TODO: QE -> change setup
+
 
 class data_handler:
 

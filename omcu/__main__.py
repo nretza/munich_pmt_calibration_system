@@ -26,8 +26,7 @@ LOG_LVL     = config.LOG_LVL
 COOLDOWN_TIME = config.COOLDOWN_TIME
 
 
-#TODO: implement data analysis
-#TODO: round printout numbers (gain, occ)
+#TODO: implement and test HV base
 #TODO: device controls at start of every function
 
 
