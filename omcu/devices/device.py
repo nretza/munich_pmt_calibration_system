@@ -35,7 +35,8 @@ class serial_device(device):
             "/dev/Laser_control" : 19200,
             "/dev/Picoamp" : 57600,
             "/dev/Powermeter": 38400,
-            "/dev/Rotation" : 9600
+            "/dev/Rotation" : 9600,
+            "/dev/HV_Base": 11500
         }
         assert dev in baudrate_dict
         
