@@ -67,22 +67,24 @@ def filter_data_and_triggerset_by_threshold(threshold, dataset, triggerset):
 #-----------------------------------------------------   
 
 def calc_meta_dict(dataset=None, threshold_signal=-3):
+
     meta_dict = {
-                "theta": Rotation.Instance().get_position()[1],
-                "phi": Rotation.Instance().get_position()[0],
-                "HV": HV_supply.Instance().getHVMon(),
-                "Powermeter": Powermeter.Instance().get_power(),
-                "Laser temp": Laser.Instance().get_temp(),
-                "Laser tune": Laser.Instance().get_tune_value()/10,
-                "Laser freq": Laser.Instance().get_freq(),
-                "sgnl_threshold" : threshold_signal,
+                "theta":            round( Rotation.Instance().get_position()[1], 2),
+                "phi":              round( Rotation.Instance().get_position()[0], 2),
+                "HV":   	        round( HV_supply.Instance().getHVMon(), 2),
+                "Powermeter":       round( Powermeter.Instance().get_power(), 2),
+                "Laser temp":       round( Laser.Instance().get_temp(), 2),
+                "Laser tune":       round( Laser.Instance().get_tune_value()/10, 2),
+                "Laser freq":       round( Laser.Instance().get_freq(), 2),
+                "sgnl_threshold" :  round( threshold_signal, 2),
                 }
+                
     if dataset.all() == None:
-        meta_dict["occ"] = measure_occ(),
-        meta_dict["gain"] = measure_gain(),
+        meta_dict["occ"] = round(measure_occ(), 3)
+        meta_dict["gain"] = round( measure_gain(), 2)
     else:
-        meta_dict["occ"] = calculate_occ(dataset, threshold_signal)
-        meta_dict["gain"] = calculate_gain(dataset, threshold_signal)
+        meta_dict["occ"] = round( calculate_occ(dataset, threshold_signal),  3)
+        meta_dict["gain"] = round( calculate_gain(dataset, threshold_signal),  2)
     return meta_dict
 
 #-----------------------------------------------------
@@ -214,12 +216,12 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=
         gain = calculate_gain(dataset, threshold_signal=threshold_signal)
         if gain < g_min:
             V += V_step
-            logging.getLogger("OMCU").info(f"measured gain to be {gain}, moving HV up to {V} Volt")
+            logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, moving HV up to {V} Volt")
         elif gain > g_max:
             V -= V_step
-            logging.getLogger("OMCU").info(f"measured gain to be {gain}, moving HV down to {V} Volt")
+            logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, moving HV down to {V} Volt")
         else:
-            logging.getLogger("OMCU").info(f"measured gain to be {gain}, leaving gain tuning")
+            logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, leaving gain tuning")
             break
 
     return gain, V
@@ -243,7 +245,7 @@ def measure_gain(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> 
                                                         threshold=threshold_pico, number=iterations)
     
     gain = calculate_gain(dataset, threshold_signal=threshold_signal)
-    logging.getLogger("OMCU").info(f"measured gain to be {gain}")
+    logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}")
     return gain
 
 #-------------------------------------------------------------------------------------

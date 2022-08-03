@@ -66,25 +66,25 @@ def tune_parameters(tune_mode="from_config"):
             gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                                 iterations=config.TUNE_NR_OF_WAVEFORMS)
             if occ > config.TUNE_OCC_MIN and occ < config.TUNE_OCC_MAX and gain > config.TUNE_GAIN_MIN and gain:
-                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {gain} at {HV_val} V.")
+                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {round(gain,2)} at {HV_val} V.")
                 break
             if iters >= config.TUNE_MAX_ITER:
                 print(f"WARNING: could not reach desired tuning values within {config.TUNE_MAX_ITER} iterations. Aborting tuning!")
-                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {gain} at {HV_val} V.")
+                print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {round(gain,2)} at {HV_val} V.")
 
     if tune_mode == "none":
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
-        print(f"\nwill not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{gain}")
+        print(f"\nwill not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{round(gain,2)}")
 
     if tune_mode not in ["none", "iter", "single", "only_gain", "only_occ"]:
         occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                           iterations=config.TUNE_NR_OF_WAVEFORMS)
         gain = measure_gain(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                             iterations=config.TUNE_NR_OF_WAVEFORMS)
-        print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{gain}")
+        print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{round(gain,2)}")
 
     end_time = time.time()
     print(f"Total time for tuning: {round((end_time - start_time) / 60, 0)} minutes")
