@@ -2,6 +2,8 @@
 import os
 import argparse
 import time
+import importlib.machinery
+import importlib.util
 
 from devices.Picoscope import Picoscope
 from devices.PSU import PSU0, PSU1
@@ -14,16 +16,6 @@ from utils.util import *
 from utils.testing_procedure import *
 
 from data_analysis.Data_Analysis import Data_Analysis
-
-import config
-
-
-OUT_PATH    = config.OUT_PATH
-PMT_NAME    = config.PMT_NAME
-LOG_FILE    = config.LOG_FILE
-LOG_LVL     = config.LOG_LVL
-
-COOLDOWN_TIME = config.COOLDOWN_TIME
 
 
 #TODO: implement and test HV base
@@ -205,8 +197,29 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
+    parser.add_argument('-s', '--config', type=str, help="path to an alternative config file, which should be used instead of the default one")
 
     args = parser.parse_args()
+
+    if args.config:
+        try:
+            loader = importlib.machinery.SourceFileLoader("config.py", args.config)
+            spec = importlib.util.spec_from_loader("config.py", loader)
+            config = importlib.util.module_from_spec(spec)
+            loader.exec_module(config)
+        except:
+            print(f"WARNING: Failed to import config file at {args.config}.\nWill import default config file.")
+            import config
+    else: 
+        import config
+
+
+    OUT_PATH    = config.OUT_PATH
+    PMT_NAME    = config.PMT_NAME
+    LOG_FILE    = config.LOG_FILE
+    LOG_LVL     = config.LOG_LVL
+
+    COOLDOWN_TIME = config.COOLDOWN_TIME
 
     if args.outpath:
         OUT_PATH = args.outpath
