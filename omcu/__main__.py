@@ -198,8 +198,24 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
     parser.add_argument('-s', '--config', type=str, help="path to an alternative config file, which should be used instead of the default one")
-
+    parser.add_argument('--printconfig', help="prints the content of the given config file. Exits the program afterwards.")
+    
     args = parser.parse_args()
+
+    if args.printconfig:
+        if args.config:
+            filepath = args.config
+        else:
+            filepath = os.path.join(os.getcwd(), "config.py")
+        try:
+            print(f"\nContent of config file {filepath}:\n")
+            with open(filepath) as file:
+                for line in file:
+                    print(line)
+        except:
+            print(f"Error while handling config file {filepath}. Aborting\nGood Bye!")
+            exit(201)
+        exit(0)
 
     if args.config:
         try:
