@@ -25,19 +25,20 @@ FRONTAL_HV_SCAN     = True
 
 #Data-Analysis
 
-ANALYSIS_PERFORM    = False    # perform data analysis after datataking
+ANALYSIS_PERFORM    = True    # perform data analysis after datataking
 ANALYSIS_SHOW_PLOTS = False    # call plt.show()
 
 #what to plot
 
-ANALYSIS_PLOT_WFS       = False
-ANALYSIS_PLOT_WF_AVG    = True
-ANALYSIS_PLOT_WF_MSK    = False
-ANALYSIS_PLOT_PEAKS     = False
-ANALYSIS_PLOT_HIST_AMP  = False
-ANALYSIS_PLOT_HIST_CHRG = False
-ANALYSIS_PLOT_HIST_GAIN = True
-ANALYSIS_PLOT_TTS       = True
+ANALYSIS_PLOT_WFS                = False
+ANALYSIS_PLOT_WF_AVG             = True
+ANALYSIS_PLOT_WF_MSK             = False
+ANALYSIS_PLOT_PEAKS              = False
+ANALYSIS_PLOT_HIST_AMP           = False
+ANALYSIS_PLOT_HIST_CHRG          = False
+ANALYSIS_PLOT_HIST_GAIN          = False
+ANALYSIS_PLOT_TTS                = True
+ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
 
 #------------------------------------------------------
 

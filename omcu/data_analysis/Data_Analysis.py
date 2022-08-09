@@ -77,6 +77,9 @@ class Data_Analysis:
         if config.ANALYSIS_PLOT_HIST_GAIN:
             print("plotting gain histograms")
             handler.plot_hist("gain")
+        if config.ANALYSIS_PLOT_ANGULAR_ACCEPTANCE:
+            print("plotting angular acceptance")
+            handler.plot_angluar_acceptance()
 
         print(f"\nFinished Photo Cathode Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()

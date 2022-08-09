@@ -3,6 +3,11 @@
 import os
 import h5py
 from data_analysis.data_struct import data_struct
+import matplotlib.pyplot as plt
+import numpy as np
+
+import config
+
 
 #TODO: logging
 #TODO: proper charge/gain hist > change current hists
@@ -71,8 +76,32 @@ class data_handler:
             data.get_dark_count_rate()
         pass
 
-    def plot_angluar_acceptance():
+    def plot_angluar_acceptance(self):
+        occ_list = []
+        theta_list = []
+        for data in self.data_list:
+            occ_list.append(data.metadict["occ"])
+            theta_list.append(data.metadict["theta"])
+        occ_max = max(occ_list)
+        occ_list = [i /occ_max for i in occ_list]
+
+        plt.figure()
+        plt.plot(np.array(theta_list), np.array(occ_list))
+        plt.xlabel('theta')
+        plt.ylabel('relative angular acceptance')
+        plt.title(f"relative angular acceptance from theta={min(theta_list)} to theta={max(theta_list)}")
+        figname = f"{self.filename[:-5]}-angular acceptance.png"
+        save_dir = os.path.join(self.filepath, "angular acceptance")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+        
+
+    def plot_angular_acceptance2D(self):
         pass
 
-    def plot_average_wf_all_HV():
+    def plot_average_wf_all_HV(self):
         pass
