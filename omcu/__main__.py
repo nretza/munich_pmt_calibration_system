@@ -197,8 +197,8 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
-    parser.add_argument('-s', '--config', type=str, help="path to an alternative config file, which should be used instead of the default one")
-    parser.add_argument('--printconfig', help="prints the content of the given config file. Exits the program afterwards.")
+    parser.add_argument('-s', '--config', type=str, help="path to an alternative config file, which should be used instead of the default one", action="store")
+    parser.add_argument('--printconfig', help="prints the content of the given config file. Exits the program afterwards.", action="store_true")
     
     args = parser.parse_args()
 
@@ -206,14 +206,13 @@ if __name__ == "__main__":
         if args.config:
             filepath = args.config
         else:
-            filepath = os.path.join(os.getcwd(), "config.py")
+            filepath = os.path.join(os.getcwd(), "omcu" ,"config.py")
         try:
-            print(f"\nContent of config file {filepath}:\n")
             with open(filepath) as file:
-                for line in file:
-                    print(line)
+                print(f"\nContent of config file {filepath}:\n")
+                print(file.read())
         except:
-            print(f"Error while handling config file {filepath}. Aborting\nGood Bye!")
+            print(f"Error while handling config file {filepath}. Does it exist?\nAborting\nGood Bye!")
             exit(201)
         exit(0)
 
