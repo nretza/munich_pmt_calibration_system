@@ -119,11 +119,15 @@ def main():
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     Laser.Instance().off_pulsed()
+    halftime_reached = False
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
         print(f"{remain} minutes of cooldown remaining")
+        if remain <= COOLDOWN_TIME/2 and not halftime_reached:
+            print("reached cooldown halftime, turning laser on")
+            halftime_reached = True
+            Laser.Instance().on_pulsed()
         time.sleep(60)
-    Laser.Instance().on_pulsed()
     print("cooldown completed!")
 
 
