@@ -106,9 +106,9 @@ class data_handler:
             occ_list.append(metadict["occ"])
             theta_list.append(metadict["theta"])
         occ_max = max(occ_list)
-        occ_list = [i /occ_max for i in occ_list]
+        occ_list = [i / occ_max for i in occ_list]
         plt.figure()
-        plt.plot(np.array(theta_list), np.array(occ_list))
+        plt.scatter(np.array(theta_list), np.array(occ_list))
         plt.xlabel('theta')
         plt.ylabel('relative angular acceptance')
         plt.title(f"relative angular acceptance from theta={min(theta_list)} to theta={max(theta_list)}")
