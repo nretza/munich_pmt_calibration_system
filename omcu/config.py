@@ -69,7 +69,7 @@ TUNE_SIGNAL_THRESHOLD = -3
 
 PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 
-PCS_PHI_LIST      = np.arange(0,90,5)           #phi angles to set while datataking (start,stop,step)
+PCS_PHI_LIST      = [0]           #phi angles to set while datataking (start,stop,step)
 PCS_THETA_LIST    = np.arange(0,90,5)           #theta angles to set while datataking (start,stop,step)
 
 PCS_NR_OF_WAVEFORMS     =  50000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration

@@ -39,6 +39,10 @@ class data_handler:
         h5 = h5py.File(os.path.join(self.filepath, self.filename), "r")
         self.metadicts = []
         for key in self.get_all_keys(h5):
+            try:
+                signl = h5[key]["signal"]
+            except:
+                continue
             metadict = {}
             for key in signl.attrs.keys():
                 metadict[key] = signl.attrs[key]
