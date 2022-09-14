@@ -9,9 +9,9 @@ OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
 PMT_NAME  = None    #asks for name at runtime if None
 
 LOG_FILE  = "omcu.log"	     # name of the log file
-LOG_LVL   = 20		     # logging level (10: Debug, 20: Info, 30: Warning etc...)
+LOG_LVL   = 20		         # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
-COOLDOWN_TIME = 30          # Time in minutes before any measurements take place
+COOLDOWN_TIME = 30           # Time in minutes before any measurements take place
 
 #------------------------------------------------------
 
@@ -19,7 +19,7 @@ COOLDOWN_TIME = 30          # Time in minutes before any measurements take place
 
 TUNE_PARAMETERS     = True  # not in use right now, will always tune
 PHOTOCATHODE_SCAN   = True
-FRONTAL_HV_SCAN     = True
+FRONTAL_HV_SCAN     = False
 
 #------------------------------------------------------
 
@@ -31,13 +31,13 @@ ANALYSIS_SHOW_PLOTS = False    # call plt.show()
 #what to plot
 
 ANALYSIS_PLOT_WFS                = False
-ANALYSIS_PLOT_WF_AVG             = True
+ANALYSIS_PLOT_WF_AVG             = False
 ANALYSIS_PLOT_WF_MSK             = False
 ANALYSIS_PLOT_PEAKS              = False
 ANALYSIS_PLOT_HIST_AMP           = False
 ANALYSIS_PLOT_HIST_CHRG          = False
 ANALYSIS_PLOT_HIST_GAIN          = False
-ANALYSIS_PLOT_TTS                = True
+ANALYSIS_PLOT_TTS                = False
 ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
 
 #------------------------------------------------------
@@ -69,8 +69,8 @@ TUNE_SIGNAL_THRESHOLD = -3
 
 PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 
-PCS_PHI_LIST      = np.arange(0,90,10)           #phi angles to set while datataking (start,stop,step)
-PCS_THETA_LIST    = np.arange(0,90,10)           #theta angles to set while datataking (start,stop,step)
+PCS_PHI_LIST      = np.arange(0,90,5)           #phi angles to set while datataking (start,stop,step)
+PCS_THETA_LIST    = np.arange(0,90,5)           #theta angles to set while datataking (start,stop,step)
 
 PCS_NR_OF_WAVEFORMS     =  50000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
 PCS_SIGNAL_THRESHOLD    = -3                     #Determines when a waveform is considered a signal and will be written in the datafile

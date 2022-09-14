@@ -203,6 +203,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.printconfig:
+        #if --printconfig is called, prints config, then exits programm
         if args.config:
             filepath = args.config
         else:
@@ -217,6 +218,7 @@ if __name__ == "__main__":
         exit(0)
 
     if args.config:
+        #override default config imoport if --config is called
         try:
             loader = importlib.machinery.SourceFileLoader("config.py", args.config)
             spec = importlib.util.spec_from_loader("config.py", loader)
@@ -228,7 +230,7 @@ if __name__ == "__main__":
     else: 
         import config
 
-
+    # config imports
     OUT_PATH    = config.OUT_PATH
     PMT_NAME    = config.PMT_NAME
     LOG_FILE    = config.LOG_FILE
@@ -236,6 +238,7 @@ if __name__ == "__main__":
 
     COOLDOWN_TIME = config.COOLDOWN_TIME
 
+    # override by command line arguments
     if args.outpath:
         OUT_PATH = args.outpath
     if args.loglvl:

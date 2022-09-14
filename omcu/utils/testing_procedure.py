@@ -107,6 +107,7 @@ def photocathode_scan(DATA_PATH):
             Rotation.Instance().set_position(phi, theta)
 
             time.sleep(config.PCS_MEASUREMENT_SLEEP)
+            logging.getLogger("OMCU").info(f"measuring {config.PCS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
             data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,
                                                                          sgnlchannel=2,
                                                                          direction=2,
@@ -153,6 +154,7 @@ def frontal_HV_scan(DATA_PATH):
             print(f"\nmeasuring ---- HV: {HV}")
             HV_supply.Instance().SetVoltage(HV)
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
+            logging.getLogger("OMCU").info(f"measuring {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
             data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,
                                                                          sgnlchannel=2,
                                                                          direction=2,

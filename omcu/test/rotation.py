@@ -12,12 +12,12 @@ err_count = 0
 #TODO: proper pytest stuff
 
 for i in range(3):
-    try:
+   # try:
         print(f"rotation {i}")
         Rotation.Instance().go_home()
-    except:
-        print(f"ERROR in go home run {i}")
-        err_count +=1
+   # except:
+   #     print(f"ERROR in go home run {i}")
+   #     err_count +=1
 
 for i,j in itertools.product(range(5), range(5)):
     try:
