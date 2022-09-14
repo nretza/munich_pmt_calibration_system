@@ -47,6 +47,7 @@ class data_handler:
             for key in signl.attrs.keys():
                 metadict[key] = signl.attrs[key]
             self.metadicts.append(metadict)
+        self.metadicts_loaded = True
 
     def load_data(self):
         #loads all data (can be heavy on memory!)
@@ -65,6 +66,7 @@ class data_handler:
                 metadict[key] = signl.attrs[key]
 
             self.data_list.append(data_struct(signl, trgr, metadict, self.filename, self.filepath))
+        self.data_loaded = True
 
     def plot_wfs(self, number=10, threshold=-3):
         self.load_data()

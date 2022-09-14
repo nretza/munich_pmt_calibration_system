@@ -126,6 +126,7 @@ def main():
     Laser.Instance().on_pulsed()
     print("cooldown completed!")
 
+
     #testing protocols
     if config.PHOTOCATHODE_SCAN:
         tune_parameters("from_config")
