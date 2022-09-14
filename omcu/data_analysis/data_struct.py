@@ -21,6 +21,9 @@ class data_struct:
 
     def __init__(self, signal_data, trigger_data, metadict=None, filename = "", filepath = ""):
 
+        self.logger = logging.getLogger(type(self).__name__)
+        self.logger.debug(f"{type(self).__name__} initialized")
+
         if metadict == None:
             metadict = {
                 "theta":            -1,
