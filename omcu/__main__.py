@@ -110,10 +110,19 @@ def main():
         Powermeter.Instance()
     except:
         print(f"\nERROR:\t Powermeter could not be connected to successfully.\n \
-        Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
+        Please make sure the device is turned on and properly connected.\n \
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(105)
+    try:
+        print("connecting Picoscope")
+        Picoscope.Instance()
+    except:
+        print(f"\nERROR:\t Picoscope could not be connected to successfully.\n \
+        Please make sure the device is turned on and properly connected.\n \
+        Consider the logging file in {DATA_PATH} for further help")
+        print("\n exiting program now. Good bye!")
+        exit(106)
 
 
     #time to reduce noise
