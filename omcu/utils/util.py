@@ -82,10 +82,10 @@ def calc_meta_dict(dataset=None, threshold_signal=-3):
                 
     if dataset.all() == None:
         meta_dict["occ"] = round(measure_occ(), 3)
-        meta_dict["gain"] = round( measure_gain(), 2)
+        meta_dict["gain"] = round(measure_gain(), 2)
     else:
-        meta_dict["occ"] = round( calculate_occ(dataset, threshold_signal),  3)
-        meta_dict["gain"] = round( calculate_gain(dataset, threshold_signal),  2)
+        meta_dict["occ"] = round(calculate_occ(dataset, threshold_signal),  3)
+        meta_dict["gain"] = round(calculate_gain(dataset, threshold_signal),  2)
     return meta_dict
 
 #-----------------------------------------------------
@@ -96,7 +96,7 @@ def calculate_occ(dataset, threshold_signal=-3) -> float:
         minval = np.zeros(number)
         for i in range(number):
             minval[i] = np.min(dataset[i].T[1])
-        occ = np.sum(np.where(minval < threshold_signal, 1, 0))/number  # Occupancy for threshold
+        occ = np.sum(np.where(minval < threshold_signal, 1, 0)) / number  # Occupancy for threshold
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2, threshold_pico=2000,

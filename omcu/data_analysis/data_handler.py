@@ -99,9 +99,6 @@ class data_handler:
             data.plot_transit_times(binsize=binsize)
 
     def plot_dark_count_rate(self):
-        self.load_data()
-        for data in self.data_list:
-            data.get_dark_count_rate()
         pass
 
     def plot_angluar_acceptance(self):
