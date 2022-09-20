@@ -54,13 +54,13 @@ TUNE_V_START     = None          # will start at current voltage when None
 TUNE_V_STEP      = 1
 
 #occ tune
-TUNE_OCC_MIN        = 0.07
+TUNE_OCC_MIN        = 0.09
 TUNE_OCC_MAX        = 0.10
 TUNE_LASER_START    = None       # will start at current laser tune when None
 TUNE_LASER_STEP     = 1
 
-TUNE_NR_OF_WAVEFORMS  =  50000
-TUNE_SIGNAL_THRESHOLD = -3
+TUNE_NR_OF_WAVEFORMS  =  100000
+TUNE_SIGNAL_THRESHOLD = -4
 
 #-----------------------------------------------------
 
@@ -72,8 +72,8 @@ PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 PCS_PHI_LIST      = np.arange(0, 90, 5)          #phi angles to set while datataking (start,stop,step)
 PCS_THETA_LIST    = np.arange(0, 90, 5)          #theta angles to set while datataking (start,stop,step)
 
-PCS_NR_OF_WAVEFORMS     =  50000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
-PCS_SIGNAL_THRESHOLD    = -3                     #Determines when a waveform is considered a signal and will be written in the datafile
+PCS_NR_OF_WAVEFORMS     =  100000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
+PCS_SIGNAL_THRESHOLD    = -4                     #Determines when a waveform is considered a signal and will be written in the datafile
 PCS_MEASUREMENT_SLEEP   =  1                     #Time in seconds that are waited before each recording of data
 
 #------------------------------------------------------
@@ -85,6 +85,6 @@ FHVS_DATAFILE      = "data_frontal_HV.hdf5"
 
 FHVS_HV_LIST       = np.arange(950,1350,20)       #HVs to set while datataking (start,stop,step)
 
-FHVS_NR_OF_WAVEFORMS     =  50000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
-FHVS_SIGNAL_THRESHOLD    = -3                     #Determines when a waveform is considered a signal and will be written in the datafile
+FHVS_NR_OF_WAVEFORMS     =  100000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
+FHVS_SIGNAL_THRESHOLD    = -4                     #Determines when a waveform is considered a signal and will be written in the datafile
 FHVS_MEASUREMENT_SLEEP   =  1                     #Time in seconds that are waited before each recording of data

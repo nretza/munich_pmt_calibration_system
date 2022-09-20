@@ -42,7 +42,7 @@ def main():
     while os.path.exists(DATA_PATH):
         pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\n>>> ")
         DATA_PATH = os.path.join(OUT_PATH, pmt_name)
-    os.mkdir(DATA_PATH)
+    os.makedirs(DATA_PATH)
     #setup logging
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         if args.config:
             filepath = args.config
         else:
-            filepath = os.path.join(os.getcwd(), "omcu" ,"config.py")
+            filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,"config.py")
         try:
             with open(filepath) as file:
                 print(f"\nContent of config file {filepath}:\n")
