@@ -221,7 +221,7 @@ if __name__ == "__main__":
         if args.config:
             filepath = args.config
         else:
-            filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)) ,"config.py")
+            filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config.py")
         try:
             with open(filepath) as file:
                 print(f"\nContent of config file {filepath}:\n")
