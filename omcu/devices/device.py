@@ -36,7 +36,7 @@ class serial_device(device):
             "/dev/Picoamp" : 57600,
             "/dev/Powermeter": 38400,
             "/dev/Rotation" : 9600,
-            "/dev/HV_Base": 11500
+            "/dev/uBase": 57600
         }
         assert dev in baudrate_dict
         
@@ -114,7 +114,7 @@ class serial_device(device):
 
         #read everything thats available
         elif multi_line:
-            return_str = ""
+            return_str = b''
             return_lst = self.serial.readlines()
             for string in return_lst:
                 return_str += string
