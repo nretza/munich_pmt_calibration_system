@@ -200,21 +200,39 @@ if __name__ == "__main__":
    -----------------------------------------
     """)
 
-    parser = argparse.ArgumentParser(   description='Control Software fpr the Optical Module Calibration Unit.',
-                                        add_help=True,
-                                        epilog= """
-                                                Please regard the config file omcu/config.py for further settings not passed through command line arguments.
-                                                In case you need further help, please contact the author: niklas.retza@tum.de
-                                                 """)
+    parser = argparse.ArgumentParser(description='Control Software fpr the Optical Module Calibration Unit.',
+                                     add_help=True,
+                                     epilog="""
+                                               Please regard the config file omcu/config.py for further settings not passed through command line arguments.
+                                               In case you need further help, please contact the author: niklas.retza@tum.de
+                                               """)
 
     parser.add_argument('-o', '--outpath',  help='path to the program output',  action="store")
     parser.add_argument('-l', '--loglvl', help='the logging level for the log output file', action="store")
     parser.add_argument('-n', '--pmtname',  help='name of the PMT inside the omcu',  action="store")
     parser.add_argument('-c', '--cooldown', type=int, help='the cooldown time in minutes to reduce noise before any measurement takes place',  action="store")
-    parser.add_argument('-s', '--config', type=str, help="path to an alternative config file, which should be used instead of the default one", action="store")
+    parser.add_argument('--config', type=str, help="path to an alternative config file, which should be used instead of the default one", action="store")
+    parser.add_argument('--script', type=str, help="executes the given script instead of the main program.", action="store")
     parser.add_argument('--printconfig', help="prints the content of the given config file. Exits the program afterwards.", action="store_true")
     
     args = parser.parse_args()
+
+    if args.script:
+        #if called, run script instead of main routine
+        if os.path.isfile(args.script) and os.path.splitext(args.script)[1] == ".py":
+            with open(args.script) as f:
+                check = input(f"WARNING: You are about to run {args.script} instead of the usual OMCU routine.\nProceed? [Y/N]")
+                if (check.lower() == "yes" or check.lower() == "y"):
+                    print(f"executing {args.script}:\n")
+                    code = compile(f.read(), args.script, 'exec')
+                    exec(code)
+                    exit(0)
+                else:
+                    print("user abort,\nGoodbye!")
+                    exit(0)
+        else:
+            print("Error, please pass a proper Python file to --script!")
+            exit(0)
 
     if args.printconfig:
         #if --printconfig is called, prints config, then exits programm
