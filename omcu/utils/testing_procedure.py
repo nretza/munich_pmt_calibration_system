@@ -12,6 +12,7 @@ from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
+from devices.uBase import uBase
 from utils.util import *
 
 #------------------------------------------------------------------------------
@@ -152,7 +153,7 @@ def frontal_HV_scan(DATA_PATH):
     with h5py.File(os.path.join(DATA_PATH, config.FHVS_DATAFILE), 'w') as datafile:
         for HV in config.FHVS_HV_LIST:  # loop through HV
             print(f"\nmeasuring ---- HV: {HV}")
-            HV_supply.Instance().SetVoltage(HV)
+            uBase.Instance().SetVoltage(HV)
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
             logging.getLogger("OMCU").info(f"measuring {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
             data_sgnl, data_trg = Picoscope.Instance().block_measurement(trgchannel=0,

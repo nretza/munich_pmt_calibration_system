@@ -12,6 +12,7 @@ LOG_FILE  = "omcu.log"	     # name of the log file
 LOG_LVL   = 20		         # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
 COOLDOWN_TIME = 60           # Time in minutes before any measurements take place
+COOLDOWN_HV   = 90
 
 #------------------------------------------------------
 
@@ -50,7 +51,7 @@ TUNE_MAX_ITER = 15          # max iters for iter tune mode
 #gain tune
 TUNE_GAIN_MIN    = 4.95e6
 TUNE_GAIN_MAX    = 5.05e6
-TUNE_V_START     = None          # will start at current voltage when None
+TUNE_V_START     = 90          # will start at current voltage when None
 TUNE_V_STEP      = 1
 
 #occ tune
@@ -83,7 +84,7 @@ PCS_MEASUREMENT_SLEEP   =  1                      #Time in seconds that are wait
 
 FHVS_DATAFILE      = "data_frontal_HV.hdf5"
 
-FHVS_HV_LIST       = np.arange(950,1350,20)       #HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(70,110,2)       #HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                #Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -4                     #Determines when a waveform is considered a signal and will be written in the datafile

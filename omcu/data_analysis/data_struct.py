@@ -15,8 +15,6 @@ from utils.util import *
 from utils.Waveform import Waveform
 import config
 
-#TODO: logging
-
 class data_struct:
 
     def __init__(self, signal_data, trigger_data, metadict=None, filename = "", filepath = ""):
@@ -29,6 +27,7 @@ class data_struct:
                 "theta":            -1,
                 "phi":              -1,
                 "HV":               -1,
+                "Dy10":             -1,
                 "Powermeter":       -1,
                 "Laser temp":       -1,
                 "Laser tune":       -1,
@@ -49,7 +48,7 @@ class data_struct:
         for wf_data in self.signalset:
                 wf = Waveform(self.metadict["theta"],
                               self.metadict["phi"],
-                              self.metadict["HV"],
+                              self.metadict["Dy10"],
                               wf_data[:, 0],
                               wf_data[:, 1],
                               np.min(wf_data[:, 1]))
@@ -62,7 +61,7 @@ class data_struct:
         for trg_data in self.triggerset:
                 wf = Waveform(self.metadict["theta"],
                               self.metadict["phi"],
-                              self.metadict["HV"],
+                              self.metadict["Dy10"],
                               trg_data[:, 0],
                               trg_data[:, 1],
                               np.min(trg_data[:, 1]))
@@ -81,7 +80,7 @@ class data_struct:
 
 
     def validate_gain(self, delta=10):
-        assert (self.metadict["gain"] - calculate_gain(self.dataset, self.metadict["sgnl_threshold"])) < delta
+        assert (self.metadict["gain"] - calculate_gain(self.signalset, self.metadict["sgnl_threshold"])) < delta
 
     def get_baseline_mean(self):
         means = [wf.mean for wf in self.wf_list]
@@ -97,7 +96,7 @@ class data_struct:
     def get_dark_count_rate(self):
         pass
 
-    def plot_wfs(self, number=10, threshold=-3):
+    def plot_wfs(self, number=10, threshold=-4):
 
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, number)))
@@ -109,8 +108,8 @@ class data_struct:
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
-        plt.title(f"Waveforms for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveforms-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
+        plt.title(f"Waveforms for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
+        figname = f"{self.filename[:-5]}-waveforms-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
         save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -137,8 +136,8 @@ class data_struct:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
         plt.axhline(y=threshold, color='red', linestyle='--')
-        plt.title(f"Waveform peaks for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveform_peaks_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
+        plt.title(f"Waveform peaks for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
+        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
         save_dir = os.path.join(self.filepath, "wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -159,8 +158,8 @@ class data_struct:
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
-        plt.title(f"Waveforms Mask for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
-        figname = f"{self.filename[:-5]}-waveforms_mask_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
+        plt.title(f"Waveforms Mask for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}, threshold={threshold}")
+        figname = f"{self.filename[:-5]}-waveforms_mask_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}_threshold={threshold}.png"
         save_dir = os.path.join(self.filepath, "wf_mask")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -176,8 +175,8 @@ class data_struct:
         plt.plot(self.average_wf[0], self.average_wf[1])
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
-        plt.title(f"Average waveform for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-average_waveforms_HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Average waveform for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
         save_dir = os.path.join(self.filepath, "average_wf")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
@@ -188,7 +187,7 @@ class data_struct:
 
     def plot_hist(self, mode="amplitude",exclude=['900', '1300']):
 
-        if self.metadict["HV"] in exclude:
+        if self.metadict["Dy10"] in exclude:
             return
 
         if mode not in ["amplitude", "gain", "charge"]:
@@ -226,8 +225,8 @@ class data_struct:
         ax2.set_xticks([])
 
         fig.tight_layout()
-        plt.title(f"Waveform {mode}s for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-hist-{mode}s-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-hist-{mode}s-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
         save_dir = os.path.join(self.filepath, "hist")
         if not os.path.exists(save_dir):
@@ -324,8 +323,8 @@ class data_struct:
         plt.ylabel('Counts')
         plt.xlim(x[indMax-12], x[indMax+12])
         plt.legend()
-        plt.title(f"TTS for HV={self.metadict['HV']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-TTS-HV={self.metadict['HV']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"TTS for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-TTS-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
         save_dir = os.path.join(self.filepath, "transit_time")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)

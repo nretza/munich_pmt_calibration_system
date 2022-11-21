@@ -11,6 +11,7 @@ from devices.Picoamp import Picoamp
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
+from devices.uBase import uBase
 
 from utils.util import *
 from utils.testing_procedure import *
@@ -50,16 +51,16 @@ def main():
 
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
-    print("1.)\tThe PMT is connected to the HV supply via the coaxial cable labeled \"HV\" inside the OMCU.")
-    print("2.)\tThe PMT is connected to the Picoscope via the coaxial cable labeled \"Data\" inside the OMCU.")
-    print("3.)\tThe OMCU is properly closed and the red handles are shut.")
-    print("4.)\tThe following devices to the left of the OMCU are turned on:")
+    print("1.)\tThe PMT is connected to the Picoscope via the coaxial cable labeled \"Data\" inside the OMCU.")
+    print("2.)\tThe OMCU is properly closed and the red handles are shut.")
+    print("3.)\the uBase is plugged in. (See plug to the right of the OMCU)")
+    print("4.)\tThe following devices to the right of the OMCU are turned on:")
     print("\t\t - the Power Meter")
     print("\t\t - the Laser Control System")
     print("\t\t - both PSU_0 and PSU_1")
     print("\t\t - the Picoscope")
     print("\t\t - the Picoamp")
-    print("\t\t - the HV Supply - Please call your electronics expert to switch this device on!\n")
+    # print("\t\t - the HV Supply - Please call your electronics expert to switch this device on!\n")
     check = input("Please confirm that the OMCU is properly set up [Yes/no]:\n>>> ")
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
@@ -71,7 +72,7 @@ def main():
     print()
     try:
         print("connecting PSU1")
-        PSU1.Instance().on()
+        PSU1.Instance().off()
     except:
         print(f"\nERROR:\t PSU_1 could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -89,22 +90,22 @@ def main():
         exit(102)
     try:
         print("connecting Laser")
-        Laser.Instance()
+        Laser.Instance().off_pulsed()
     except:
         print(f"\nERROR:\t Laser could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(103)
-    try:
-        print("connecting HV supply")
-        HV_supply.Instance().on()
-    except:
-        print(f"\nERROR:\t HV_supply could not be connected to successfully.\n \
-        Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
-        Consider the logging file in {DATA_PATH} for further help")
-        print("\n exiting program now. Good bye!")
-        exit(104)
+    # try:
+    #     print("connecting HV supply")
+    #     HV_supply.Instance().on()
+    # except:
+    #     print(f"\nERROR:\t HV_supply could not be connected to successfully.\n \
+    #     Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
+    #     Consider the logging file in {DATA_PATH} for further help")
+    #     print("\n exiting program now. Good bye!")
+    #     exit(104)
     try:
         print("connecting Powermeter")
         Powermeter.Instance()
@@ -123,11 +124,20 @@ def main():
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(106)
-
+    try:
+        print("connecting uBase")
+        assert len(uBase.Instance().getUID()) > 0
+    except:
+        print(f"\nERROR:\t uBase could not be connected to successfully.\n \
+        Please make sure the device is properly connected.\n \
+        Consider the logging file in {DATA_PATH} for further help")
+        print("\n exiting program now. Good bye!")
+        exit(107)
 
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     Laser.Instance().off_pulsed()
+    uBase.Instance().SetVoltage(config.COOlDOWN_HV)
     halftime_reached = False
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
@@ -150,9 +160,12 @@ def main():
 
     
     #turn devices off
-    HV_supply.Instance().off_all()
+    # HV_supply.Instance().off_all()
     Laser.Instance().off_pulsed()
+    uBase.Instance().SetVoltage(1)
+    Rotation.Instance().go_home()
     PSU1.Instance().off()
+
 
     print("finished data taking")
 
@@ -196,7 +209,7 @@ if __name__ == "__main__":
            
    -----------------------------------------
     by: Niklas Retza (niklas.retza@tum.de)
-                 July 2022
+                 November 2022
    -----------------------------------------
     """)
 

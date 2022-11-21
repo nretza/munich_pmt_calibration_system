@@ -9,7 +9,8 @@ from utils.Waveform import Waveform
 
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
-from devices.HV_supply import HV_supply
+# from devices.HV_supply import HV_supply
+from devices.uBase import uBase
 from devices.Rotation import Rotation
 from devices.Powermeter import Powermeter
 
@@ -67,12 +68,13 @@ def filter_data_and_triggerset_by_threshold(threshold, dataset, triggerset):
 
 #-----------------------------------------------------   
 
-def calc_meta_dict(dataset=None, threshold_signal=-3):
+def calc_meta_dict(dataset=None, threshold_signal=-4):
 
     meta_dict = {
                 "theta":            round( Rotation.Instance().get_position()[1], 2),
                 "phi":              round( Rotation.Instance().get_position()[0], 2),
-                "HV":   	        round( HV_supply.Instance().getHVMon(), 2),
+                # "HV":   	        round( HV_supply.Instance().getHVMon(), 2),
+                "Dy10":   	        round( uBase.Instance().getDy10(), 2),
                 "Powermeter":       round( Powermeter.Instance().get_power(), 2),
                 "Laser temp":       round( Laser.Instance().get_temp(), 2),
                 "Laser tune":       round( Laser.Instance().get_tune_value()/10, 2),
@@ -90,7 +92,7 @@ def calc_meta_dict(dataset=None, threshold_signal=-3):
 
 #-----------------------------------------------------
 
-def calculate_occ(dataset, threshold_signal=-3) -> float:
+def calculate_occ(dataset, threshold_signal=-4) -> float:
 
         number = len(dataset)
         minval = np.zeros(number)
@@ -100,7 +102,7 @@ def calculate_occ(dataset, threshold_signal=-3) -> float:
         return occ
 
 def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2, threshold_pico=2000,
-             threshold_signal=-3, iterations=10000):
+             threshold_signal=-4, iterations=10000):
 
     if not laser_tune_start:
         laser_tune_start = Laser.Instance().get_tune_value()
@@ -115,16 +117,19 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
         except:
             logging.getLogger("OMCU").error("Error while tuning occupancy. Laser cannot be turned on")
             raise RuntimeError
-    if not HV_supply.Instance().is_on(): #HV on
-        try:
-            HV_supply.Instance().on()
-        except:
-            logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
-            raise RuntimeError
+    # if not HV_supply.Instance().is_on(): #HV on
+    #     try:
+    #         HV_supply.Instance().on()
+    #     except:
+    #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
+    #         raise RuntimeError
+    if not len(uBase.getUID()): #uBase reachable
+        logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
+        raise RuntimeError
 
     assert occ_min <= occ_max #numbers match
 
-    logging.getLogger("OMCU").info(f"tuning occupancy to value between {occ_min} and {occ_max}")
+    logging.getLogger("OMCU").info(f"tuning occupancy at Dy10={round(uBase.Instance().getDy10())} to value between {occ_min} and {occ_max}")
 
     laser_tune = laser_tune_start
 
@@ -145,7 +150,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
             break
     return occ, laser_tune
 
-def measure_occ(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> float:
+def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
 
     if not Laser.Instance().get_ld() == 1: #laser on
         try:
@@ -153,12 +158,15 @@ def measure_occ(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> f
         except:
             logging.getLogger("OMCU").error("Error while tuning occupancy. Laser cannot be turned on")
             raise RuntimeError
-    if not HV_supply.Instance().is_on(): #HV on
-        try:
-            HV_supply.Instance().on()
-        except:
-            logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
-            raise RuntimeError
+    # if not HV_supply.Instance().is_on(): #HV on
+    #     try:
+    #         HV_supply.Instance().on()
+    #     except:
+    #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
+    #         raise RuntimeError
+    if not len(uBase.getUID()): #uBase reachable
+        logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
+        raise RuntimeError
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
@@ -168,7 +176,7 @@ def measure_occ(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> f
 
 #-----------------------------------------------------
 
-def calculate_gain(dataset, threshold_signal=-3) -> float:
+def calculate_gain(dataset, threshold_signal=-4) -> float:
     gains = []
     for data in dataset:
         if np.min(data[:, 1]) < threshold_signal:
@@ -176,11 +184,11 @@ def calculate_gain(dataset, threshold_signal=-3) -> float:
             gains.append(wf.calculate_gain())
     return sum(gains)/len(gains)
 
-def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=2, threshold_signal=-3,
+def tune_gain(g_min, g_max, V_start=None, V_step=1, threshold_pico=2000, delay=2, threshold_signal=-4,
               iterations=10000):
 
     if not V_start:
-        V_start = HV_supply.Instance().getHVSet()
+        V_start = uBase.Instance().getDy10()
 
     Rotation.Instance().go_home()
     if not max(Rotation.Instance().get_position()) <= 1: #Rotation stage in home position
@@ -192,12 +200,15 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=
         except:
             logging.getLogger("OMCU").error("Error while tuning occupancy. Laser cannot be turned on")
             raise RuntimeError
-    if not HV_supply.Instance().is_on(): #HV on
-        try:
-            HV_supply.Instance().on()
-        except:
-            logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
-            raise RuntimeError
+    # if not HV_supply.Instance().is_on(): #HV on
+    #     try:
+    #         HV_supply.Instance().on()
+    #     except:
+    #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
+    #         raise RuntimeError
+    if not len(uBase.getUID()): #uBase reachable
+        logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
+        raise RuntimeError
     
     assert g_min <= g_max  # numbers match
 
@@ -208,7 +219,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=
     while True:
 
         # Sets voltage, unblocks when measured voltage in tolerance around set voltage
-        HV_supply.Instance().SetVoltage(V, tolerance=2, max_iter=60, wait_time=1)
+        uBase.Instance().SetVoltage(V, tolerance=1, max_iter=60, wait_time=1)
 
         time.sleep(delay)
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
@@ -227,7 +238,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=10, threshold_pico=2000, delay=
 
     return gain, V
 
-def measure_gain(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> float:
+def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> float:
 
     if not Laser.Instance().get_ld() == 1: #laser on
         try:
@@ -235,12 +246,15 @@ def measure_gain(threshold_pico=2000, threshold_signal=-3, iterations=10000) -> 
         except:
             logging.getLogger("OMCU").error("Error while tuning occupancy. Laser cannot be turned on")
             raise RuntimeError
-    if not HV_supply.Instance().is_on(): #HV on
-        try:
-            HV_supply.Instance().on()
-        except:
-            logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
-            raise RuntimeError 
+    # if not HV_supply.Instance().is_on(): #HV on
+    #     try:
+    #         HV_supply.Instance().on()
+    #     except:
+    #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
+    #         raise RuntimeError
+    if not len(uBase.getUID()): #uBase reachable
+        logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
+        raise RuntimeError
 
     dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,
                                                         threshold=threshold_pico, number=iterations)
