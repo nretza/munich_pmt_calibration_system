@@ -1,5 +1,7 @@
 #!/usr/bin/python3
+import time
 from devices.device import serial_device
+from devices.PSU import PSU1
 
 class Rotation(serial_device):
     """
@@ -33,7 +35,10 @@ class Rotation(serial_device):
         Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param phi: Float (0-360 in 5000 steps)
         """
+        PSU1.Instance().on()
         phi_pos = self.serial_io(f'goY {phi}', wait_for=": ").split(':')[1]
+        time.seep(0.2)
+        PSU1.Instance().off()
         return float(phi_pos)
 
     def set_theta(self, theta):
@@ -41,19 +46,25 @@ class Rotation(serial_device):
         Controls the lower stepper. Phi direction is relative to the PMT and not a global coordinate system
         :param theta: Float (0-360 in 5000 steps)
         """
+        PSU1.Instance().on()
         theta_pos = self.serial_io(f'goX {theta}', wait_for=": ").split(':')[1]
+        time.seep(0.2)
+        PSU1.Instance().off()
         return float(theta_pos) / 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
         
     def go_home(self):
         """
         Sends the Rotation stage to home position.
         """
+        PSU1.Instance().on()
         home_pos = [0,0]
         hpY = self.serial_io(f'goHomeY', wait_for=": ").split(':')[1]
         hpX = self.serial_io(f'goHomeX', wait_for=": ").split(':')[1]
         home_pos[0] = float(hpY)
         home_pos[1] = float(hpX)
         self.logger.info(f"returning to home position: {home_pos}")
+        time.seep(0.2)
+        PSU1.Instance().off()
         return home_pos
 
     def set_position(self, phi, theta):
