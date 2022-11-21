@@ -49,18 +49,18 @@ def tune_parameters(tune_mode="from_config"):
         print(f"\ntuning occupancy between {config.TUNE_OCC_MIN} and {config.TUNE_OCC_MAX} and gain between {config.TUNE_GAIN_MIN} and {config.TUNE_GAIN_MAX} iteratively")
         while True:
             iters += 1
-            _, laser_val = tune_occ(occ_min=config.TUNE_OCC_MIN,
-                                    occ_max=config.TUNE_OCC_MAX,
-                                    laser_tune_start=config.TUNE_LASER_START,
-                                    laser_tune_step=config.TUNE_LASER_STEP,
-                                    threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
-                                    iterations=config.TUNE_NR_OF_WAVEFORMS)
             _, HV_val = tune_gain(g_min=config.TUNE_GAIN_MIN,
                                   g_max=config.TUNE_GAIN_MAX,
                                   V_start=config.TUNE_V_START,
                                   V_step=config.TUNE_V_STEP,
                                   threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                                   iterations=config.TUNE_NR_OF_WAVEFORMS)
+            _, laser_val = tune_occ(occ_min=config.TUNE_OCC_MIN,
+                                    occ_max=config.TUNE_OCC_MAX,
+                                    laser_tune_start=config.TUNE_LASER_START,
+                                    laser_tune_step=config.TUNE_LASER_STEP,
+                                    threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
+                                    iterations=config.TUNE_NR_OF_WAVEFORMS)
             #measure after tuning to avoid cross-influence
             occ = measure_occ(threshold_signal=config.TUNE_SIGNAL_THRESHOLD,
                               iterations=config.TUNE_NR_OF_WAVEFORMS)

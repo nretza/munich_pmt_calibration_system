@@ -123,7 +123,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
     #     except:
     #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
     #         raise RuntimeError
-    if not len(uBase.getUID()): #uBase reachable
+    if not len(uBase.Instance().getUID()): #uBase reachable
         logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
         raise RuntimeError
 
@@ -164,7 +164,7 @@ def measure_occ(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> f
     #     except:
     #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
     #         raise RuntimeError
-    if not len(uBase.getUID()): #uBase reachable
+    if not len(uBase.Instance().getUID()): #uBase reachable
         logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
         raise RuntimeError
 
@@ -206,7 +206,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=1, threshold_pico=2000, delay=2
     #     except:
     #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
     #         raise RuntimeError
-    if not len(uBase.getUID()): #uBase reachable
+    if not len(uBase.Instance().getUID()): #uBase reachable
         logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
         raise RuntimeError
     
@@ -252,7 +252,7 @@ def measure_gain(threshold_pico=2000, threshold_signal=-4, iterations=10000) -> 
     #     except:
     #         logging.getLogger("OMCU").error("Error while tuning occupancy. HV supply cannot be turned on")
     #         raise RuntimeError
-    if not len(uBase.getUID()): #uBase reachable
+    if not len(uBase.Instance().getUID()): #uBase reachable
         logging.getLogger("OMCU").error("Error while tuning occupancy. uBase can not be reached")
         raise RuntimeError
 

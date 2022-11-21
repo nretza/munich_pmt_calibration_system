@@ -37,7 +37,7 @@ class Rotation(serial_device):
         """
         PSU1.Instance().on()
         phi_pos = self.serial_io(f'goY {phi}', wait_for=": ").split(':')[1]
-        time.seep(0.2)
+        time.sleep(0.2)
         PSU1.Instance().off()
         return float(phi_pos)
 
@@ -48,7 +48,7 @@ class Rotation(serial_device):
         """
         PSU1.Instance().on()
         theta_pos = self.serial_io(f'goX {theta}', wait_for=": ").split(':')[1]
-        time.seep(0.2)
+        time.sleep(0.2)
         PSU1.Instance().off()
         return float(theta_pos) / 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
         
@@ -63,7 +63,7 @@ class Rotation(serial_device):
         home_pos[0] = float(hpY)
         home_pos[1] = float(hpX)
         self.logger.info(f"returning to home position: {home_pos}")
-        time.seep(0.2)
+        time.sleep(0.2)
         PSU1.Instance().off()
         return home_pos
 

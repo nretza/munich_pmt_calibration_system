@@ -51,7 +51,7 @@ def main():
 
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
-    print("1.)\tThe PMT is connected to the Picoscope via the coaxial cable labeled \"Data\" inside the OMCU.")
+    print("1.)\tThe PMT is connected to the Picoscope via the coaxial cable labeled \"Signal\" inside the OMCU.")
     print("2.)\tThe OMCU is properly closed and the red handles are shut.")
     print("3.)\the uBase is plugged in. (See plug to the right of the OMCU)")
     print("4.)\tThe following devices to the right of the OMCU are turned on:")
@@ -126,7 +126,7 @@ def main():
         exit(106)
     try:
         print("connecting uBase")
-        assert len(uBase.Instance().getUID()) > 0
+        assert uBase.Instance().getUID() == "0056006b 344b5009 20333353"
     except:
         print(f"\nERROR:\t uBase could not be connected to successfully.\n \
         Please make sure the device is properly connected.\n \
@@ -137,7 +137,7 @@ def main():
     #time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     Laser.Instance().off_pulsed()
-    uBase.Instance().SetVoltage(config.COOlDOWN_HV)
+    uBase.Instance().SetVoltage(config.COOLDOWN_HV)
     halftime_reached = False
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
