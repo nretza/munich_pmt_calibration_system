@@ -34,7 +34,7 @@ class uBase(serial_device):
 
 #-----------------------------------------------------------
 
-    def SetVoltage(self, Voltage:float, tolerance:float=1, max_iter:int=60, wait_time:float=1) -> float:
+    def SetVoltage(self, Voltage:float, tolerance:float=0.1, max_iter:int=60, wait_time:float=1) -> float:
         if Voltage > self.vmax:
             self.logger.warning(f"Voltage {Voltage} V exceeds V_Max of {self.vmax} V. Setting voltage to V_Max instead.")
             Voltage = self.vmax
@@ -60,8 +60,24 @@ class uBase(serial_device):
         self.logger.debug(f"set Dy10 to {Dy10}")
 
     def getDy10(self):
-        Dy10 = self.serial_io(f'Uget_avg_di10').strip()
+        Dy10 = self.serial_io(f'Uget_avg_v10').strip()
         return float(Dy10)
+
+    def getDi10(self):
+        Di10 = self.serial_io(f'Uget_avg_di10').strip()
+        return float(Di10)
+
+    def getISup(self):
+        ISup = self.serial_io(f'Uget_avg_isup').strip()
+        return float(ISup)
+
+    def getVSup(self):
+        VSup = self.serial_io(f'Uget_avg_vsup').strip()
+        return float(VSup)
+
+    def getFrac(self):
+        frac = self.serial_io(f'Uget_avg_frac').strip()
+        return float(frac)
 
     def getUID(self):
         return self.serial_io(f'Uget_uid').strip()

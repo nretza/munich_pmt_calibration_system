@@ -219,7 +219,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=1, threshold_pico=2000, delay=2
     while True:
 
         # Sets voltage, unblocks when measured voltage in tolerance around set voltage
-        uBase.Instance().SetVoltage(V, tolerance=1, max_iter=60, wait_time=1)
+        uBase.Instance().SetVoltage(V)
 
         time.sleep(delay)
         dataset, _ = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2,

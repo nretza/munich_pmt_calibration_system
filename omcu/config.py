@@ -20,7 +20,7 @@ COOLDOWN_HV   = 90
 
 TUNE_PARAMETERS     = True    # not in use right now, will always tune
 PHOTOCATHODE_SCAN   = True
-FRONTAL_HV_SCAN     = False
+FRONTAL_HV_SCAN     = True
 
 #------------------------------------------------------
 
@@ -31,14 +31,14 @@ ANALYSIS_SHOW_PLOTS = False    # call plt.show()
 
 #what to plot
 
-ANALYSIS_PLOT_WFS                = False
-ANALYSIS_PLOT_WF_AVG             = False
-ANALYSIS_PLOT_WF_MSK             = False
-ANALYSIS_PLOT_PEAKS              = False
-ANALYSIS_PLOT_HIST_AMP           = False
-ANALYSIS_PLOT_HIST_CHRG          = False
-ANALYSIS_PLOT_HIST_GAIN          = False
-ANALYSIS_PLOT_TTS                = False
+ANALYSIS_PLOT_WFS                = True
+ANALYSIS_PLOT_WF_AVG             = True
+ANALYSIS_PLOT_WF_MSK             = True
+ANALYSIS_PLOT_PEAKS              = True
+ANALYSIS_PLOT_HIST_AMP           = True
+ANALYSIS_PLOT_HIST_CHRG          = True
+ANALYSIS_PLOT_HIST_GAIN          = True
+ANALYSIS_PLOT_TTS                = True
 ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
 
 #------------------------------------------------------
