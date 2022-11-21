@@ -29,8 +29,8 @@ class HV_base(serial_device):
         super().__init__(dev=dev, simulating=simulating, delay=delay)
 
         self.vmax = 1400
-        self.setSleeping(False)
-        self.SetVoltage(1100)
+        #self.setSleeping(False)
+        #self.SetVoltage(0)
 
 
 #-----------------------------------------------------------
@@ -65,7 +65,7 @@ class HV_base(serial_device):
         return float(Dy10)
 
     def getHV(self):
-        HV = self.serial_io(f'Uget_avg_v10').strip()
+        HV = self.serial_io(f'Uget_avg_v10').strip() * 12
         return float(HV)
     def getUID(self):
         return self.serial_io(f'Uget_uid').strip()
