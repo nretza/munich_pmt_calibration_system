@@ -4,10 +4,9 @@ import time
 
 
 class uBase(serial_device):
+
     """
     Class for connecting to the uBase
-
-    This is a Singleton - google it!
     """
 
     _instance = None

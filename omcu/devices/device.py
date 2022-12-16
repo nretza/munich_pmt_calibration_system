@@ -6,6 +6,7 @@ from serial import Serial, PARITY_NONE, STOPBITS_ONE, EIGHTBITS # the python ser
 from devices.sim_serial import sim_serial #self written stuff to simulate a serial port
 
 class device:
+
     """
     Masterclass for all devices
     """
@@ -16,11 +17,13 @@ class device:
 
 
 class serial_device(device):
+
     """
     Masterclass for serial devices
     """
 
     def __init__(self, dev, simulating=False, delay=0.1):
+        
         """
         sets up the serial port, simulating and delay
         """

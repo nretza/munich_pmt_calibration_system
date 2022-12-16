@@ -4,8 +4,6 @@ from devices.device import serial_device
 class Powermeter(serial_device):
     """
     This is a class for the Newport Optical Powermeter Model 2936-R
-    
-    This is a Singleton - google it!
     """
 
     _instance = None

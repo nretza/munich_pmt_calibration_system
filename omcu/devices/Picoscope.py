@@ -11,10 +11,9 @@ import time
 
 
 class Picoscope(device):
+
     """
     This is a class for the PicoTech Picoscope 6424E
-    
-    This is a Singleton - google it!
     """
 
     _instance = None
@@ -66,8 +65,7 @@ class Picoscope(device):
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
     def get_nSamples(self):
-        nSamples = self.nSamples
-        return nSamples
+        return self.nSamples
 
     def channel_setup(self, trgchannel=0, sgnlchannel=2):
         """

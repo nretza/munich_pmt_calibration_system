@@ -4,10 +4,9 @@ from devices.device import serial_device
 from devices.PSU import PSU1
 
 class Rotation(serial_device):
+    
     """
     Class for the rotation stage consisting of 2 stepper motors
-    
-    This is a Singleton - google it!
     """
 
     _instance = None

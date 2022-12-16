@@ -5,7 +5,9 @@ from devices.device import device
 
 
 class PSU(device, gpd3303s.GPD3303S):
-    """This class makes an instance for the USB power supply.
+
+    """
+    This class makes an instance for the USB power supply.
     It is important that the udev rules allow access to the current user.
     """
 
