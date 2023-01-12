@@ -132,14 +132,16 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
         dataset = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=threshold_pico, number=waveforms)
         occ = dataset.calculate_occ(signal_threshold=threshold_signal)
 
+        if i > iterations:
+            logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(occ,2)}")
+            break
+
         if occ < occ_min:
             laser_tune -= laser_tune_step
             logging.getLogger("OMCU").info(f"measured occupancy to be {occ}, decreasing tune to {laser_tune}")
         elif occ > occ_max:
             laser_tune += laser_tune_step
             logging.getLogger("OMCU").info(f"measured occupancy to be {occ}, increasing tune to {laser_tune}")
-        elif i > iterations:
-            logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(occ,2)}")
         else:
             logging.getLogger("OMCU").info(f"measured occupancy to be {occ}, leaving laser tuning")
             break
@@ -188,14 +190,16 @@ def tune_gain(g_min, g_max, V_start=None, V_step=1, threshold_pico=2000, delay=2
         dataset = Picoscope.Instance().block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=threshold_pico, number=waveforms)
         gain = dataset.calculate_gain(signal_threshold=threshold_signal)
 
+        if i > iterations:
+            logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(gain,2)}")
+            break
+
         if gain < g_min:
             V += V_step
             logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, moving HV up to {V} Volt")
         elif gain > g_max:
             V -= V_step
             logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, moving HV down to {V} Volt")
-        elif i > iterations:
-            logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(gain,2)}")
         else:
             logging.getLogger("OMCU").info(f"measured gain to be {round(gain,2)}, leaving gain tuning")
             break
@@ -206,7 +210,18 @@ def tune_gain(g_min, g_max, V_start=None, V_step=1, threshold_pico=2000, delay=2
 
 #------------------------------------
 
-def tune_parameters(tune_mode, nr_waveforms = None, gain_min = None, gain_max = None, V_start = None, V_step = None, occ_min = None, occ_max = None, laser_start = None, laser_step = None, signal_threshold = None, iterations = None):
+def tune_parameters(tune_mode,
+                    nr_waveforms = None,
+                    gain_min = None,
+                    gain_max = None,
+                    V_start = None,
+                    V_step = None,
+                    occ_min = None,
+                    occ_max = None,
+                    laser_start = None,
+                    laser_step = None,
+                    signal_threshold = None,
+                    iterations = None):
 
     start_time = time.time()
 
@@ -251,12 +266,6 @@ def tune_parameters(tune_mode, nr_waveforms = None, gain_min = None, gain_max = 
 
             iters += 1
 
-            _, HV_val = tune_gain(g_min=gain_min,
-                                  g_max=gain_max,
-                                  V_start=V_start,
-                                  V_step=V_step,
-                                  threshold_signal=signal_threshold,
-                                  waveforms=nr_waveforms)
             _, laser_val = tune_occ(occ_min=occ_min,
                                     occ_max=occ_max,
                                     laser_tune_start=laser_start,
@@ -264,7 +273,15 @@ def tune_parameters(tune_mode, nr_waveforms = None, gain_min = None, gain_max = 
                                     threshold_signal=signal_threshold,
                                     waveforms=nr_waveforms)
 
-            #nmeasure after tuning to avoid cross-influence
+            _, HV_val = tune_gain(g_min=gain_min,
+                                  g_max=gain_max,
+                                  V_start=V_start,
+                                  V_step=V_step,
+                                  threshold_signal=signal_threshold,
+                                  waveforms=nr_waveforms)
+
+
+            # measure after tuning to avoid cross-influence
             dataset = Picoscope.Instance().block_measurement(number=nr_waveforms)
             gain = dataset.calculate_gain(signal_threshold=signal_threshold)
             occ  = dataset.calculate_occ(signal_threshold=signal_threshold)

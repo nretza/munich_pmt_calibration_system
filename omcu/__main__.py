@@ -59,6 +59,7 @@ def main():
     print("\t\t - both PSU_0 and PSU_1")
     print("\t\t - the Picoscope")
     print("\t\t - the Picoamp")
+    print()
     check = input("Please confirm that the OMCU is properly set up [Yes/no]:\n>>> ")
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
@@ -149,7 +150,7 @@ def main():
     
     # turn devices off
     Laser.Instance().off_pulsed()
-    uBase.Instance().SetVoltage(1)
+    uBase.Instance().SetVoltage(10)
     Rotation.Instance().go_home()
     PSU1.Instance().off()
 
@@ -158,7 +159,7 @@ def main():
 
     if config.ANALYSIS_PERFORM:
         print("analyzing data now")
-        analysis = Data_Analysis(DATA_PATH)
+        analysis = data_analysis(DATA_PATH)
         if config.FRONTAL_HV_SCAN:
             analysis.analyze_FHVS()
         if config.PHOTOCATHODE_SCAN:
@@ -196,7 +197,7 @@ if __name__ == "__main__":
            
    -----------------------------------------
     by: Niklas Retza (niklas.retza@tum.de)
-                 November 2022
+                 January 2023
    -----------------------------------------
     """)
 

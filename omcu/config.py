@@ -12,9 +12,9 @@ OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
 PMT_NAME  = None             #asks for name at runtime if None
 
 LOG_FILE  = "omcu.log"	     # name of the log file
-LOG_LVL   = 20		         # logging level (10: Debug, 20: Info, 30: Warning etc...)
+LOG_LVL   = 10		         # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
-COOLDOWN_TIME = 60           # Time in minutes before any measurements take place
+COOLDOWN_TIME = 0           # Time in minutes before any measurements take place
 COOLDOWN_HV   = 90
 
 #------------------------------------------------------
@@ -22,7 +22,7 @@ COOLDOWN_HV   = 90
 # which test protocols to choose
 
 PHOTOCATHODE_SCAN   = True
-FRONTAL_HV_SCAN     = True
+FRONTAL_HV_SCAN     = False
 
 #------------------------------------------------------
 
@@ -57,7 +57,7 @@ PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 
 #tune
 
-PCS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
+PCS_TUNE_MODE     = "none"      # (none, iter, single, only_gain, only_occ)
 PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 
 #gain tune
@@ -77,8 +77,8 @@ PCS_TUNE_SIGNAL_THRESHOLD = -4
 
 #-----------------------------------------------------
 
-PCS_PHI_LIST      = np.arange(0,  90, 5)          #phi angles to set while datataking (start,stop,step)
-PCS_THETA_LIST    = np.arange(0, 105, 5)          #theta angles to set while datataking (start,stop,step)
+PCS_PHI_LIST      = np.arange(0,  90, 60)          #phi angles to set while datataking (start,stop,step)
+PCS_THETA_LIST    = np.arange(0, 105, 60)          #theta angles to set while datataking (start,stop,step)
 
 PCS_NR_OF_WAVEFORMS     =  100000                 #Number of waveforms the picoscope should record per HV,phi,theta - configuration
 PCS_SIGNAL_THRESHOLD    = -4                      #Determines when a waveform is considered a signal and will be written in the datafile
@@ -119,7 +119,7 @@ FHVS_TUNE_SIGNAL_THRESHOLD = -4
 
 #------------------------------------------------------
 
-FHVS_HV_LIST       = np.arange(70,110,2)       #HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(70,110,1)       #HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                #Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -4                     #Determines when a waveform is considered a signal and will be written in the datafile

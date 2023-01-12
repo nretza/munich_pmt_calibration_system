@@ -19,16 +19,18 @@ class Waveform:
 
     # class to handle a single Waveform
 
-    def __init__(self, time, signal, trigger):
-
-        assert len(time) == len(signal)
-        assert len(time) == len(trigger)
+    def __init__(self, time, signal, trigger, signal_threshold = None):
         
         self.time    = np.array(time)
         self.signal  = np.array(signal)
         self.trigger = np.array(trigger)
 
-        self.trigger_val = 1
+        assert len(self.time) == len(self.signal)
+        assert len(self.time) == len(self.trigger)
+
+        self.trigger_val = 2000
+        self.default_trigger_index = 100
+        self.signal_threshold = signal_threshold
 
     @property
     def mean(self):
@@ -43,9 +45,17 @@ class Waveform:
         return self.time[np.argmin(self.signal)]
 
     @property
+    def has_signal(self):
+        if self.signal_threshold: return self.min_value < self.signal_threshold
+        else: return True
+
+    @property
     def trigger_time(self):
-        trigger_index = np.flatnonzero((self.trigger[:-1] < self.trigger_val) & (self.trigger[1:] > self.trigger_val))+1
-        return self.time[trigger_index[0]]
+        try:
+            trigger_index = np.flatnonzero((self.trigger[:-1] < self.trigger_val) & (self.trigger[1:] > self.trigger_val))[0]
+        except:
+            trigger_index = self.default_trigger_index
+        return self.time[trigger_index]
 
     @property
     def tt(self):
@@ -75,6 +85,8 @@ class Waveform:
         expected_tt_min = 190
         expected_waveform_length = 20
 
+        # TODO: Review this
+
         # get relevant part out of total waveform
         if (self.min_time > self.trigger_time + expected_tt_min) and (self.min_time < self.trigger_time + expected_tt_max):
             mask = (self.time > self.min_time - expected_waveform_length) & (self.time < self.min_time + expected_waveform_length)
@@ -100,7 +112,7 @@ class Waveform:
 
 class Measurement:
 
-    # class designed to handle a meassurement (multiple waveforms taken in bulk)
+    # class designed to handle a measurement (multiple waveforms taken in bulk)
 
     def __init__(self, waveform_list=None, signal_data=None, trigger_data=None, time_data = None, metadict=None, filename=None, filepath=None, hdf5_key=None):
 
@@ -117,14 +129,19 @@ class Measurement:
                 "Powermeter":       -1,
                 "Laser temp":       -1,
                 "Laser tune":       -1,
-                "Laser freq":       -1,
+                "Laser pulse freq": -1,
+                "Laser wavelength": -1,
                 "sgnl_threshold":   -1,
                 "occ":              -1,
                 "gain":             -1,
+                "charge":           -1,
                 "time":             -1,
+                "darkbox temp":     -1,
                 }
 
-        if waveform_list or (signal_data and trigger_data and time_data): self.setWaveforms(waveforms = waveform_list, signal=signal_data, trigger=trigger_data, time=time_data)
+        self.waveforms = [] # needed for logger warnings to work correctly
+        if waveform_list or signal_data.any() or trigger_data.any() or time_data.any():
+            self.setWaveforms(waveforms = waveform_list, signal=signal_data, trigger=trigger_data, time=time_data)
         if metadict: self.setMetadict(metadict)
         if filename: self.setFilename(filename)
         if filepath: self.setFilepath(filepath)
@@ -134,12 +151,13 @@ class Measurement:
 
     def setWaveforms(self, waveforms = None, signal = None, trigger = None, time = None):
         if waveforms:
-            if signal or trigger or time: self.logger.warning("Both Waveforms and signal arrays handed to data struct. Will only use waveforms!")
+            if signal.any() or trigger.any() or time.any():
+                self.logger.warning("Both Waveforms and signal arrays handed to data struct. Will only use waveforms!")
             self.waveforms = waveforms
-        elif signal and trigger and time:
+        elif signal.any() and trigger.any() and time.any():
             self.waveforms = []
-            for time, signal, trigger in zip(time, signal, trigger):
-                self.waveforms.append(Waveform(time=time, signal=signal, trigger=trigger))
+            for time_i, signal_i, trigger_i in zip(time, signal, trigger):
+                self.waveforms.append(Waveform(time=time_i, signal=signal_i, trigger=trigger_i))
         else: raise Exception("ERROR: either waveforms or signal, trigger and time arrays need to be handed over")
 
     def getWaveforms(self):
@@ -180,6 +198,7 @@ class Measurement:
 ###-----------------------------------------------------------------
 
     def calculate_occ(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating occupancy without having Waveforms stored!")
         if self.filtered_by_threshold:
             print("WARNING: calculating occupancy on filtered Dataset. Value might be incorrect")
             self.logger.warning("calculating occupancy on filtered Dataset. Value might be incorrect")
@@ -189,12 +208,21 @@ class Measurement:
         return float(i)/float(len(self.waveforms))
 
     def calculate_gain(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating gain without having Waveforms stored!")
         gains = []
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: gains.append(wf.calculate_gain())
         return sum(gains)/len(gains)
 
+    def calculate_charge(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating charge without having Waveforms stored!")
+        charges = []
+        for wf in self.waveforms:
+            if wf.min_value < signal_threshold: charges.append(wf.calculate_charge())
+        return sum(charges)/len(charges)
+
     def get_average_wf(self):
+        if not self.waveforms: self.logger.warning("calculating average WF without having Waveforms stored!")
         xValues = np.array([wf.time for wf in self.waveforms])
         averageX = np.mean(xValues, axis=0)
         yValues = np.array([wf.signal for wf in self.waveforms])
@@ -202,16 +230,19 @@ class Measurement:
         return (averageX, averageY)
     
     def get_baseline_mean(self):
+        if not self.waveforms: self.logger.warning("calculating baseline without having Waveforms stored!")
         means = [wf.mean for wf in self.waveforms]
         return np.mean(means), np.std(means)
 
     def subtract_baseline(self, baseline=None):
+        if not self.waveforms: self.logger.warning("subtracting baseline without having Waveforms stored!")
         if baseline == None:
             baseline = self.get_baseline_mean()
         for wf in self.waveforms:
             wf.subtract_baseline(baseline[0])
 
     def filter_by_threshold(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("filter Waveforms without having Waveforms stored!")
         for wf in self.waveforms:
             if wf.min > signal_threshold:
                 self.waveforms.remove(wf)
@@ -226,12 +257,13 @@ class Measurement:
             "Powermeter":       round( Powermeter.Instance().get_power(), 2),
             "Laser temp":       round( Laser.Instance().get_temp(), 2),
             "Laser tune":       round( Laser.Instance().get_tune_value()/10, 2),
-            "Laser freq":       round( Laser.Instance().get_freq(), 2),
-            "sgnl_threshold" :  round( signal_threshold, 2),
+            "Laser pulse freq": round( Laser.Instance().get_freq(), 2),
+            "sgnl_threshold" :  round( signal_threshold, 2)
             }
                 
-        meta_dict["occ"] = round(self.calculate_occ(signal_threshold),  3)
-        meta_dict["gain"] = round(self.calculate_gain(signal_threshold),  2)
+        meta_dict["occ"]    = round(self.calculate_occ(signal_threshold),  3)
+        meta_dict["gain"]   = round(self.calculate_gain(signal_threshold),  2)
+        meta_dict["charge"] = round(self.calculate_charge(signal_threshold), 2)
 
         self.setMetadict(meta_dict)
 
@@ -299,6 +331,8 @@ class Measurement:
 
 ###-----------------------------------------------------------------
 
+    # TODO Plotting
+
     def plot_wfs(self):
         pass
 
@@ -319,7 +353,6 @@ class Measurement:
     
     def plot_dark_count_rate(self):
         pass
-
 
 
 ###-----------------------------------------------------------------
@@ -384,6 +417,8 @@ class data_handler:
         self.data_loaded = True
 
 ###-----------------------------------------------------------------
+
+    # TODO plotting
 
     def plot_angular_acceptance(self):
     

@@ -111,10 +111,10 @@ def frontal_HV_scan(DATA_PATH):
             logging.getLogger("OMCU").info(f"measuring {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
 
             dataset = Picoscope.Instance().block_measurement(trgchannel=0,
-                                                                         sgnlchannel=2,
-                                                                         direction=2,
-                                                                         threshold=2000,
-                                                                         number=config.FHVS_NR_OF_WAVEFORMS)
+                                                             sgnlchannel=2,
+                                                             direction=2,
+                                                             threshold=2000,
+                                                             number=config.FHVS_NR_OF_WAVEFORMS)
 
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
             dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
