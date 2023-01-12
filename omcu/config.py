@@ -1,6 +1,9 @@
+#!/usr/bin/python3
+
 import numpy as np
 
-
+#------------------------------------------------------
+#--------------   GENERAL          --------------------
 #------------------------------------------------------
 
 #setup
@@ -18,7 +21,6 @@ COOLDOWN_HV   = 90
 
 # which test protocols to choose
 
-TUNE_PARAMETERS     = True    # not in use right now, will always tune
 PHOTOCATHODE_SCAN   = True
 FRONTAL_HV_SCAN     = True
 
@@ -41,34 +43,39 @@ ANALYSIS_PLOT_HIST_GAIN          = True
 ANALYSIS_PLOT_TTS                = True
 ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
 
+
+
+#------------------------------------------------------
+#--------------   PHOTOCATHODE SCAN   -----------------
 #------------------------------------------------------
 
-#tune
+# an angular scan under constant gain / HV
 
-TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
-TUNE_MAX_ITER = 15          # max iters for iter tune mode
-
-#gain tune
-TUNE_GAIN_MIN    = 4.95e6
-TUNE_GAIN_MAX    = 5.05e6
-TUNE_V_START     = 90          # will start at current voltage when None
-TUNE_V_STEP      = 1
-
-#occ tune
-TUNE_OCC_MIN        = 0.09
-TUNE_OCC_MAX        = 0.10
-TUNE_LASER_START    = None       # will start at current laser tune when None
-TUNE_LASER_STEP     = 1
-
-TUNE_NR_OF_WAVEFORMS  =  100000
-TUNE_SIGNAL_THRESHOLD = -4
+PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 
 #-----------------------------------------------------
 
-# photo-cathode scan
-# A scan of different angles to determine e.g. angular acceptance
+#tune
 
-PCS_DATAFILE      = "data_photocathode_scan.hdf5"
+PCS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
+PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
+
+#gain tune
+PCS_TUNE_GAIN_MIN    = 4.95e6
+PCS_TUNE_GAIN_MAX    = 5.05e6
+PCS_TUNE_V_START     = 90          # will start at current voltage when None
+PCS_TUNE_V_STEP      = 1
+
+#occ tune
+PCS_TUNE_OCC_MIN        = 0.09
+PCS_TUNE_OCC_MAX        = 0.10
+PCS_TUNE_LASER_START    = None       # will start at current laser tune when None
+PCS_TUNE_LASER_STEP     = 1
+
+PCS_TUNE_NR_OF_WAVEFORMS  =  100000
+PCS_TUNE_SIGNAL_THRESHOLD = -4
+
+#-----------------------------------------------------
 
 PCS_PHI_LIST      = np.arange(0,  90, 5)          #phi angles to set while datataking (start,stop,step)
 PCS_THETA_LIST    = np.arange(0, 105, 5)          #theta angles to set while datataking (start,stop,step)
@@ -77,12 +84,40 @@ PCS_NR_OF_WAVEFORMS     =  100000                 #Number of waveforms the picos
 PCS_SIGNAL_THRESHOLD    = -4                      #Determines when a waveform is considered a signal and will be written in the datafile
 PCS_MEASUREMENT_SLEEP   =  1                      #Time in seconds that are waited before each recording of data
 
+
+
+
+#------------------------------------------------------
+#--------------   FRONTAL HV SCAN     -----------------
 #------------------------------------------------------
 
-# frontal HV scan
-# A scan of different HVs at frontal facing light source
+# a scan of different HVs at frontal facing light source
 
 FHVS_DATAFILE      = "data_frontal_HV.hdf5"
+
+#------------------------------------------------------
+
+#tune
+
+FHVS_TUNE_MODE     = "only_occ"      # (none, iter, single, only_gain, only_occ)
+FHVS_TUNE_MAX_ITER = 15              # max iters for iter tune mode
+
+#gain tune
+FHVS_TUNE_GAIN_MIN    = None
+FHVS_TUNE_GAIN_MAX    = None
+FHVS_TUNE_V_START     = None          # will start at current voltage when None
+FHVS_TUNE_V_STEP      = None
+
+#occ tune
+FHVS_TUNE_OCC_MIN        = 0.09
+FHVS_TUNE_OCC_MAX        = 0.10
+FHVS_TUNE_LASER_START    = None       # will start at current laser tune when None
+FHVS_TUNE_LASER_STEP     = 1
+
+FHVS_TUNE_NR_OF_WAVEFORMS  =  100000
+FHVS_TUNE_SIGNAL_THRESHOLD = -4
+
+#------------------------------------------------------
 
 FHVS_HV_LIST       = np.arange(70,110,2)       #HVs to set while datataking (start,stop,step)
 

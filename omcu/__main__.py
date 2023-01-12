@@ -1,26 +1,21 @@
 #!/usr/bin/python3
+
 import os
 import argparse
+import logging
 import time
 import importlib.machinery
 import importlib.util
 
 from devices.Picoscope import Picoscope
-from devices.PSU import PSU0, PSU1
-from devices.Picoamp import Picoamp
+from devices.PSU import PSU1
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
 from devices.uBase import uBase
 
-from utils.util import *
-from utils.testing_procedure import *
-
-from data_analysis.Data_Analysis import Data_Analysis
-
-
-#TODO: implement and test HV base
-#TODO: device controls at start of every function
+from utils.util import setup_file_logging
+from utils.testing_procedures import photocathode_scan, frontal_HV_scan
 
 
 ##########################################################################################
@@ -34,17 +29,21 @@ def main():
     # check that outdir exists
     if not os.path.exists(OUT_PATH):
         raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
-    #set pmt_name and datapath (either by user or config)
+        
+    # set pmt_name and datapath (either by user or config)
     if not PMT_NAME:
         pmt_name = input("Please enter the Name of the PMT inside the OMCU:\n>>> ")
     else:
         pmt_name = PMT_NAME
+
+    # check that datapath does not already exists (no data is overwritten)
     DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     while os.path.exists(DATA_PATH):
         pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\n>>> ")
         DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     os.makedirs(DATA_PATH)
-    #setup logging
+
+    # setup logging
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
@@ -60,7 +59,6 @@ def main():
     print("\t\t - both PSU_0 and PSU_1")
     print("\t\t - the Picoscope")
     print("\t\t - the Picoamp")
-    # print("\t\t - the HV Supply - Please call your electronics expert to switch this device on!\n")
     check = input("Please confirm that the OMCU is properly set up [Yes/no]:\n>>> ")
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
@@ -97,15 +95,6 @@ def main():
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(103)
-    # try:
-    #     print("connecting HV supply")
-    #     HV_supply.Instance().on()
-    # except:
-    #     print(f"\nERROR:\t HV_supply could not be connected to successfully.\n \
-    #     Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
-    #     Consider the logging file in {DATA_PATH} for further help")
-    #     print("\n exiting program now. Good bye!")
-    #     exit(104)
     try:
         print("connecting Powermeter")
         Powermeter.Instance()
@@ -134,7 +123,7 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(107)
 
-    #time to reduce noise
+    # time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
     Laser.Instance().off_pulsed()
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
@@ -147,20 +136,18 @@ def main():
             halftime_reached = True
             Laser.Instance().on_pulsed()
         time.sleep(60)
+    Laser.Instance().off_pulsed()
     print("cooldown completed!")
 
 
-    #testing protocols
+    # testing protocols
     if config.PHOTOCATHODE_SCAN:
-        tune_parameters("from_config")
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
-        tune_parameters("from_config")
         frontal_HV_scan(DATA_PATH)
 
     
-    #turn devices off
-    # HV_supply.Instance().off_all()
+    # turn devices off
     Laser.Instance().off_pulsed()
     uBase.Instance().SetVoltage(1)
     Rotation.Instance().go_home()

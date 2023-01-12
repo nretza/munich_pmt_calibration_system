@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV
 import time
 
+from utils.data_structs import Measurement
+
 
 class Picoscope(device):
 
@@ -399,7 +401,11 @@ class Picoscope(device):
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
         self.logger.debug(f"block measurement of {number} Waveforms performed. trigger_ch: {trgchannel}, signal_ch: {sgnlchannel}")
-        return data_sgnl, data_trg  # filename_sgnl, filename_trg
+        #return data_sgnl, data_trg  # filename_sgnl, filename_trg
+
+        dataset = Measurement(time_data=timevals, signal_data=adc2mVMax_sgnlch_list, trigger_data=adc2mVMax_trgch_list)
+        return dataset
+
 
     def block_measurement_one_ch(self, channel=2, number=10):
         """
@@ -506,8 +512,7 @@ class Picoscope(device):
         # print('files have been saved under', filename_sgnl, 'and', filename_trg)
 
         self.logger.info(f"Single channel block measurement of {number} Waveforms performed. ch: {channel}")
-
-        return data
+        # return data
 
     def adc2v(self, data, vrange=7):
         """

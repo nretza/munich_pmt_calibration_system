@@ -4,14 +4,12 @@ if __name__ == "__main__":
     import sys
     sys.path.append("..")
 
-from data_analysis.data_handler import data_handler
+from utils.data_structs import data_handler
 import config
 import time
 import logging
 
-#TODO: logging
-
-class Data_Analysis:
+class data_analysis:
 
     def __init__(self, data_path):
 
@@ -41,7 +39,7 @@ class Data_Analysis:
         if config.ANALYSIS_PLOT_WF_AVG:
             print("Plotting average waveforms")
             self.logger.info("Plotting average waveforms")
-            handler.plot_average_wf()
+            handler.plot_average_wfs()
         if config.ANALYSIS_PLOT_TTS:
             print("plotting transit time data")
             self.logger.info("plotting transit time data")
@@ -84,7 +82,7 @@ class Data_Analysis:
         if config.ANALYSIS_PLOT_WF_AVG:
             print("Plotting average waveforms")
             self.logger.info("Plotting average waveforms")
-            handler.plot_average_wf()
+            handler.plot_average_wfs()
         if config.ANALYSIS_PLOT_TTS:
             print("plotting transit time data")
             self.logger.info("plotting transit time data")
@@ -104,7 +102,7 @@ class Data_Analysis:
         if config.ANALYSIS_PLOT_ANGULAR_ACCEPTANCE:
             print("plotting angular acceptance")
             self.logger.info("plotting angular acceptance")
-            handler.plot_angluar_acceptance()
+            handler.plot_angular_acceptance()
 
         print(f"\nFinished Photo Cathode Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()
@@ -116,7 +114,7 @@ if __name__ == "__main__":
     DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/test_pmt/clean_and_dark"
 
     print("analyzing data now")
-    analysis = Data_Analysis(DATA_PATH)
+    analysis = data_analysis(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
         analysis.analyze_FHVS()
     if config.PHOTOCATHODE_SCAN:
