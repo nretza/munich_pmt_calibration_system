@@ -35,6 +35,7 @@ class Rotation(serial_device):
         :param phi: Float (0-360 in 5000 steps)
         """
         PSU1.Instance().on()
+        self.logger.info(f"rotating to phi: {phi}")
         phi_pos = self.serial_io(f'goY {phi}', wait_for=": ").split(':')[1]
         time.sleep(0.2)
         PSU1.Instance().off()
@@ -46,6 +47,7 @@ class Rotation(serial_device):
         :param theta: Float (0-360 in 5000 steps)
         """
         PSU1.Instance().on()
+        self.logger.info(f"rotating to theta: {theta}")
         theta_pos = self.serial_io(f'goX {theta}', wait_for=": ").split(':')[1]
         time.sleep(0.2)
         PSU1.Instance().off()
@@ -72,8 +74,6 @@ class Rotation(serial_device):
         :param phi: Float (0-360 in 5000 steps)
         :param theta: Float (0-360 in 5000 steps)
         """
-        self.logger.info(f"rotating to phi: {phi}, theta: {theta}")
-
         pos = [0, 0]
         pos[0] = self.set_phi(phi)
         pos[1] = self.set_theta(theta)
@@ -110,7 +110,6 @@ class Rotation(serial_device):
         """
         Returns the delay time in-between single steps in milliseconds. Minimum value is 300.
         """
-
         speed_str = self.serial_io('getspeed', wait_for=": ").split(':')[1]
         speed_val = float(speed_str)
         return speed_val

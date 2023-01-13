@@ -35,7 +35,7 @@ class PSU(device, gpd3303s.GPD3303S):
         """
         self.setVoltage(channel, voltage)
         self.setCurrent(channel, current)
-        self.logger.debug(f"set settings. ch: {channel}, voltage: {voltage}, current: {current}")
+        self.logger.info(f"set settings. ch: {channel}, voltage: {voltage}, current: {current}")
         return self.state
 
     def on(self):

@@ -16,6 +16,7 @@ from devices.uBase import uBase
 
 from utils.util import setup_file_logging
 from utils.testing_procedures import photocathode_scan, frontal_HV_scan
+from utils.data_analysis import data_analysis
 
 
 ##########################################################################################
@@ -28,7 +29,7 @@ def main():
 
     # check that outdir exists
     if not os.path.exists(OUT_PATH):
-        raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
+        raise FileNotFoundError(f"ERROR: given path '{OUT_PATH}' does not exist! Please adjust in config.py.")
         
     # set pmt_name and datapath (either by user or config)
     if not PMT_NAME:
@@ -45,6 +46,7 @@ def main():
 
     # setup logging
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
+    logging.getLogger("OMCU").info(f"--- OMCU INITIALIZING ---")
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
 
@@ -64,7 +66,7 @@ def main():
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
         exit()
-
+    logging.getLogger("OMCU").info(f"omcu marked as set up by user. Performing checks...")
     start_time = time.time()
 
     #Turn relevant devices on
@@ -72,6 +74,7 @@ def main():
     try:
         print("connecting PSU1")
         PSU1.Instance().off()
+        logging.getLogger("OMCU").info(f"PSU1 functional")
     except:
         print(f"\nERROR:\t PSU_1 could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -81,6 +84,7 @@ def main():
     try:
         print("connecting Rotation Stage")
         Rotation.Instance().go_home()
+        logging.getLogger("OMCU").info(f"rotation stage functional")
     except:
         print(f"\nERROR:\t Rotation Stage could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -90,6 +94,8 @@ def main():
     try:
         print("connecting Laser")
         Laser.Instance().off_pulsed()
+        logging.getLogger("OMCU").info(f"laser functional")
+
     except:
         print(f"\nERROR:\t Laser could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -99,6 +105,7 @@ def main():
     try:
         print("connecting Powermeter")
         Powermeter.Instance()
+        logging.getLogger("OMCU").info(f"powermeter functional")
     except:
         print(f"\nERROR:\t Powermeter could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -108,6 +115,7 @@ def main():
     try:
         print("connecting Picoscope")
         Picoscope.Instance()
+        logging.getLogger("OMCU").info(f"picoscope functional")
     except:
         print(f"\nERROR:\t Picoscope could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -117,6 +125,7 @@ def main():
     try:
         print("connecting uBase")
         assert uBase.Instance().getUID() == "0056006b 344b5009 20333353"
+        logging.getLogger("OMCU").info(f"uBase functional")
     except:
         print(f"\nERROR:\t uBase could not be connected to successfully.\n \
         Please make sure the device is properly connected.\n \
@@ -126,6 +135,7 @@ def main():
 
     # time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
+    logging.getLogger("OMCU").info(f"entering cooldown time of {COOLDOWN_TIME} minutes")
     Laser.Instance().off_pulsed()
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
     halftime_reached = False
@@ -139,6 +149,7 @@ def main():
         time.sleep(60)
     Laser.Instance().off_pulsed()
     print("cooldown completed!")
+    logging.getLogger("OMCU").info(f"cooldown completed")
 
 
     # testing protocols
@@ -219,7 +230,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.script:
-        #if called, run script instead of main routine
+        #if --script is called, run script instead of main routine
         if os.path.isfile(args.script) and os.path.splitext(args.script)[1] == ".py":
             with open(args.script) as f:
                 check = input(f"WARNING: You are about to run {args.script} instead of the usual OMCU routine.\nProceed? [Y/N]")

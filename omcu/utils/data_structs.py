@@ -64,7 +64,7 @@ class Waveform:
 ###-----------------------------------------------------------------
 
     def __eq__(self, other):
-        return self.time == other.time and self.signal == other.signal and self.trigger == other.trigger
+        return np.array_equal(self.time, other.time) and np.array_equal(self.signal, other.signal) and np.array_equal(self.trigger, other.trigger)
 
     def __len__(self):
         return len(self.time)
@@ -140,12 +140,15 @@ class Measurement:
                 }
 
         self.waveforms = [] # needed for logger warnings to work correctly
+        self.metadict  = {} # also needed for something
+
         if waveform_list or signal_data.any() or trigger_data.any() or time_data.any():
-            self.setWaveforms(waveforms = waveform_list, signal=signal_data, trigger=trigger_data, time=time_data)
+            self.setWaveforms(waveforms=waveform_list, signal=signal_data, trigger=trigger_data, time=time_data)
         if metadict: self.setMetadict(metadict)
-        if filename: self.setFilename(filename)
-        if filepath: self.setFilepath(filepath)
-        if hdf5_key: self.setHDF5_key(hdf5_key)
+
+        self.setFilename(filename)
+        self.setFilepath(filepath)
+        self.setHDF5_key(hdf5_key)
 
 ###-----------------------------------------------------------------
 
@@ -205,13 +208,16 @@ class Measurement:
         i = 0
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: i +=1
+        if float(len(self.waveforms)) == 0: return 0
         return float(i)/float(len(self.waveforms))
 
     def calculate_gain(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating gain without having Waveforms stored!")
         gains = []
         for wf in self.waveforms:
-            if wf.min_value < signal_threshold: gains.append(wf.calculate_gain())
+            if wf.min_value < signal_threshold:
+                gains.append(wf.calculate_gain())
+        if len(gains) == 0: return 0
         return sum(gains)/len(gains)
 
     def calculate_charge(self, signal_threshold):
@@ -243,9 +249,7 @@ class Measurement:
 
     def filter_by_threshold(self, signal_threshold):
         if not self.waveforms: self.logger.warning("filter Waveforms without having Waveforms stored!")
-        for wf in self.waveforms:
-            if wf.min > signal_threshold:
-                self.waveforms.remove(wf)
+        self.waveforms = [wf for wf in self.waveforms if wf.min_value <= signal_threshold]
         self.filtered_by_threshold = True
 
     def meassure_metadict(self, signal_threshold):
@@ -278,8 +282,8 @@ class Measurement:
             hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'a')
             close_on_end = True
 
-        key = self.hdf5_key if self.hdf5_key else f"theta{self.metadict['theta']}/phi{self.metadict['phi']}"
-        dataset = hdf5_connection.create_dataset(f"{key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), 'f')
+        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10']}/theta{self.metadict['theta']}/phi{self.metadict['phi']}"
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), 'f')
 
         dataset[:,:,0] = [wf.time for wf in self.waveforms]
         dataset[:,:,1] = [wf.signal for wf in self.waveforms]

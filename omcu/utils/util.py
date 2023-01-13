@@ -133,7 +133,7 @@ def tune_occ(occ_min, occ_max, laser_tune_start=None, laser_tune_step=1, delay=2
         occ = dataset.calculate_occ(signal_threshold=threshold_signal)
 
         if i > iterations:
-            logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(occ,2)}")
+            logging.getLogger("OMCU").warning(f"could not tune ocupancy in {iterations} iterations. Leaving with occupancy of {round(occ,2)}")
             break
 
         if occ < occ_min:

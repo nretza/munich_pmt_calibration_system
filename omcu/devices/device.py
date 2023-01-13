@@ -60,7 +60,7 @@ class serial_device(device):
                                         timeout=2
                                         )
 
-    def serial_io(self, cmd: str, 
+    def serial_io(self, cmd: str,
                         read_only: bool=False,
                         delay: float=None, 
                         line_ending: str='\r\n',

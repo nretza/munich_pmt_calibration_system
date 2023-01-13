@@ -18,6 +18,8 @@ from utils.util import tune_parameters
 
 def photocathode_scan(DATA_PATH):
 
+    logging.getLogger("OMCU").info(f"entering PCS measurement")
+
     Laser.Instance().on_pulsed()
     Rotation.Instance().go_home()
 
@@ -49,7 +51,7 @@ def photocathode_scan(DATA_PATH):
             Rotation.Instance().set_position(phi, theta)
 
             time.sleep(config.PCS_MEASUREMENT_SLEEP)
-            logging.getLogger("OMCU").info(f"measuring {config.PCS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
+            logging.getLogger("OMCU").info(f"measuring dataset of {config.PCS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
 
             dataset = Picoscope.Instance().block_measurement(trgchannel=0,
                                                              sgnlchannel=2,
@@ -57,8 +59,12 @@ def photocathode_scan(DATA_PATH):
                                                              threshold=2000,
                                                              number=config.PCS_NR_OF_WAVEFORMS)
 
+            logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
             dataset.filter_by_threshold(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"writing dataset to harddrive")
+            dataset.setHDF5_key(f"theta {theta}/phi {phi}")
             dataset.write_to_file(hdf5_connection=h5_connection)
 
             time.sleep(config.PCS_MEASUREMENT_SLEEP)
@@ -72,10 +78,15 @@ def photocathode_scan(DATA_PATH):
     end_time = time.time()
     print(f"total time for photocathode scan: {round((end_time - start_time) / 60, 0)} minutes")
 
+    logging.getLogger("OMCU").info(f"PCS measurement complete")
+
+
 #------------------------------------------------------------------------------
 
 
 def frontal_HV_scan(DATA_PATH):
+
+    logging.getLogger("OMCU").info(f"entering FHVS measurement")
 
     Laser.Instance().on_pulsed()
     Rotation.Instance().go_home()
@@ -108,7 +119,7 @@ def frontal_HV_scan(DATA_PATH):
             uBase.Instance().SetVoltage(HV)
 
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
-            logging.getLogger("OMCU").info(f"measuring {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
+            logging.getLogger("OMCU").info(f"measuring dataset of {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
 
             dataset = Picoscope.Instance().block_measurement(trgchannel=0,
                                                              sgnlchannel=2,
@@ -116,8 +127,12 @@ def frontal_HV_scan(DATA_PATH):
                                                              threshold=2000,
                                                              number=config.FHVS_NR_OF_WAVEFORMS)
 
+            logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
             dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"writing dataset to harddrive")
+            dataset.setHDF5_key(f"HV {HV}")
             dataset.write_to_file(hdf5_connection=h5_connection)
 
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
@@ -129,3 +144,5 @@ def frontal_HV_scan(DATA_PATH):
 
     end_time = time.time()
     print(f"Total time for frontal HV scan: {round((end_time - start_time) / 60, 0)} minutes")
+
+    logging.getLogger("OMCU").info(f"FHVS measurement complete")
