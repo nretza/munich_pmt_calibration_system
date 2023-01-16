@@ -86,7 +86,7 @@ class Picoscope(device):
     def open_connection(self):
     
         # open connection to picoscope
-        self.status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)  # opens connection
+        self.status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)
         assert_pico_ok(self.status["openunit"])
 
 
@@ -100,7 +100,7 @@ class Picoscope(device):
         assert_pico_ok(self.status["setSignalCh"])
 
         # turn other channels off
-        for channel in range(3):
+        for channel in range(4):
             if channel in [self.channel_sgnl, self.channel_trg]: continue
             self.status["setChannel", channel] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(self.status["setChannel", channel])
@@ -134,14 +134,13 @@ class Picoscope(device):
                                                                      self.trigger_delay,
                                                                      self.autotrigger)
         assert_pico_ok(self.status["setSimpleTrigger"])
-        self.logger.info(f"setup trigger direction {self.trigger_direction} at {self.trigger_threshold} threshold")
 
 
     def buffer_setup(self, number):
 
         assert number < self.max_nwf
-
-        self.logger.info(f"will store data without downsampling. One trigger channel and one signal channel, several waveforms - indicated by number")
+        self.logger.debug(f"setting up buffer for {number} waveforms")
+        self.logger.debug(f"will store data without downsampling. One trigger channel and one signal channel, several waveforms - indicated by number")
 
         # Create buffers
         self.buffer_trg  = ((ctypes.c_int16 * self.nSamples) * number)()
@@ -153,9 +152,11 @@ class Picoscope(device):
         clear          = enums.PICO_ACTION["PICO_CLEAR_ALL"]
         add            = enums.PICO_ACTION["PICO_ADD"]
 
+        # action for very fist buffer. then overwritten in code
         action = clear | add
+
         for i in range(0, number):
-            self.status["set_trg_buffer"] = ps.ps6000aSetDataBuffers(self.chandle,
+            self.status["set_trg_buffer"] = ps.ps6000aSetDataBuffer(self.chandle,
                                                                     self.channel_trg,
                                                                     ctypes.byref(self.buffer_trg[i]),
                                                                     self.nSamples,
@@ -164,7 +165,9 @@ class Picoscope(device):
                                                                     downSampleMode,
                                                                     action)
             assert_pico_ok(self.status["set_trg_buffer"])
-            self.status["set_sgnl_buffer"] = ps.ps6000aSetDataBuffers(self.chandle,
+
+            action = add
+            self.status["set_sgnl_buffer"] = ps.ps6000aSetDataBuffer(self.chandle,
                                                                         self.channel_sgnl,
                                                                         ctypes.byref(self.buffer_sgnl[i]),
                                                                         self.nSamples,
@@ -173,7 +176,7 @@ class Picoscope(device):
                                                                         downSampleMode,
                                                                         action)
             assert_pico_ok(self.status["set_sgnl_buffer"])
-            action = add
+
 
     def block_measurement(self, number = 10):
 
@@ -215,7 +218,7 @@ class Picoscope(device):
 
         # Get data from scope
         noOfSamples = ctypes.c_uint64(self.nSamples)
-        end = number-1
+        end = number - 1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
 
         # Creates an overflow location for each segment
@@ -243,13 +246,12 @@ class Picoscope(device):
         adc2mVMax_trgch_list = np.zeros((number, self.nSamples))
         for i, buffers in enumerate(self.buffer_trg):
             adc2mVMax_trgch_list[i] = adc2mV(buffers, self.voltrange_trg, maxADC)
-
         adc2mVMax_sgnlch_list = np.zeros((number, self.nSamples))
         for i, buffers in enumerate(self.buffer_sgnl):
             adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange_sgnl, maxADC)
 
         # Create time data
-        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval * 1000000000, self.nSamples), (number, 1))
+        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples), (number, 1))
 
         self.logger.info(f"block measurement of {number} Waveforms performed. trigger_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
 
@@ -257,12 +259,10 @@ class Picoscope(device):
         dataset = Measurement(time_data=timevals, signal_data=adc2mVMax_sgnlch_list, trigger_data=adc2mVMax_trgch_list)
         return dataset
 
-        # TODO this produces weird data
-
     
     def get_datastream(channel = 2):
         
-        # TODO: put in studd for continuous data stream here
+        # TODO: put in stuff for continuous data stream here
         pass
 
     def stop_scope(self):
@@ -275,7 +275,7 @@ class Picoscope(device):
     def close_connection(self):
  
         self.status["stop"] = ps.ps6000aStop(self.chandle)
-        assert_pico_ok(status["stop"])
+        assert_pico_ok(self.status["stop"])
 
         self.status["close"] = ps.ps6000aCloseUnit(self.chandle)
         assert_pico_ok(self.status["close"])

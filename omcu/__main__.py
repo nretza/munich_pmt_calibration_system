@@ -262,7 +262,7 @@ if __name__ == "__main__":
         exit(0)
 
     if args.config:
-        #override default config imoport if --config is called
+        #override default config import if --config is called
         try:
             loader = importlib.machinery.SourceFileLoader("config.py", args.config)
             spec = importlib.util.spec_from_loader("config.py", loader)
