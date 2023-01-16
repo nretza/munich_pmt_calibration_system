@@ -127,6 +127,7 @@ class Measurement:
                 "HV":               -1,
                 "Dy10":             -1,
                 "Powermeter":       -1,
+                "Picoamp":          -1,
                 "Laser temp":       -1,
                 "Laser tune":       -1,
                 "Laser pulse freq": -1,
@@ -370,6 +371,7 @@ class data_handler:
     # only used for data analysis (-> data extracted from hdf5)
 
     def __init__(self, filename, filepath):
+
         self.filename = filename
         self.filepath = filepath
 
@@ -386,6 +388,7 @@ class data_handler:
                 except:
                     continue
                 self.meassurements.append(Measurement(filename=filename, filepath=filepath, hdf5_key=key))
+
 
 ###-----------------------------------------------------------------
 
@@ -424,6 +427,9 @@ class data_handler:
 
     # TODO plotting
 
+    # plotting behavour depents on the type of measurement (PCS, FHVS...).
+    # One should call only those functions that correspond to the desired measurement the datahandler has its data from
+
     def plot_angular_acceptance(self):
     
         # load data
@@ -456,7 +462,7 @@ class data_handler:
     def plot_peaks(self):
         pass
     
-    def plot_wf_masks(self):
+    def plot_wfs_mask(self):
         pass
 
     def plot_average_wfs(self):
