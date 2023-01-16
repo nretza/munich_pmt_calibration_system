@@ -270,7 +270,7 @@ class Picoscope(device):
         self.status["stop"] = ps.ps6000aStop(self.chandle)
         assert_pico_ok(self.status["stop"])
 
-        self.logger.info("picoscope stopped")
+        self.logger.debug("picoscope stopped")
 
     def close_connection(self):
  
