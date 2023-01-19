@@ -4,10 +4,15 @@ import os
 import logging
 import h5py
 import numpy as np
-from scipy import constants
+
+import math
+from scipy import constants, optimize
+from scipy.signal import find_peaks
 from matplotlib import pyplot as plt
 
 import config
+
+from utils.util import gaussian
 
 from devices.Laser import Laser
 from devices.uBase import uBase
@@ -61,6 +66,22 @@ class Waveform:
     def tt(self):
         return self.min_time - self.trigger_time
 
+    @property
+    def mask(self):
+
+        # expected transit time
+        expected_tt_max = 220
+        expected_tt_min = 190
+        expected_waveform_length = 20
+
+        # get relevant part out of total waveform
+        if (self.min_time > self.trigger_time + expected_tt_min) and (self.min_time < self.trigger_time + expected_tt_max):
+            mask = (self.time > self.min_time - expected_waveform_length) & (self.time < self.min_time + expected_waveform_length)
+        else:
+            mask = (self.time > expected_tt_min) & (self.time < expected_tt_max)
+        
+        return mask
+
 ###-----------------------------------------------------------------
 
     def __eq__(self, other):
@@ -79,22 +100,11 @@ class Waveform:
     def calculate_gain(self):
 
         if hasattr(self, "gain"): return self.gain
-
-        # expected transit time
-        expected_tt_max = 220
-        expected_tt_min = 190
-        expected_waveform_length = 20
-
+    
         # TODO: Review this
 
-        # get relevant part out of total waveform
-        if (self.min_time > self.trigger_time + expected_tt_min) and (self.min_time < self.trigger_time + expected_tt_max):
-            mask = (self.time > self.min_time - expected_waveform_length) & (self.time < self.min_time + expected_waveform_length)
-        else:
-            mask = (self.time > expected_tt_min) & (self.time < expected_tt_max)
-    
         # calculate area and gain
-        area = np.trapz(self.signal[mask]*1e-3, self.time[mask]*1e-9)
+        area = np.trapz(self.signal[self.mask]*1e-3, self.time[self.mask]*1e-9)
         self.charge = area/50
         self.gain = abs(self.charge)/constants.e
         return self.gain
@@ -102,6 +112,21 @@ class Waveform:
     def calculate_charge(self):
         self.calculate_gain()
         return self.charge
+
+###-----------------------------------------------------------------
+
+    def plot(self, out_file):
+
+        plt.figure()
+        plt.plot(self.time, self.signal)
+        plt.xlabel('time [ns]')
+        plt.ylabel('Voltage [mV]')
+        plt.title(f"single Waveform")
+        plt.vlines([self.trigger_time], label="trigger time", colors=["tab:red"], linestyles="dasheed")
+        plt.savefig(out_file)
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
 
 
 ###-----------------------------------------------------------------
@@ -221,6 +246,9 @@ class Measurement:
         if len(gains) == 0: return 0
         return sum(gains)/len(gains)
 
+    def validate_gain(self, delta=10):
+        assert (self.metadict["gain"] - self.calculate_gain(self.metadict["sgnl_threshold"])) < delta
+
     def calculate_charge(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating charge without having Waveforms stored!")
         charges = []
@@ -334,31 +362,231 @@ class Measurement:
         if close_on_end:
             hdf5_connection.close()
 
+
+    def clear(self):
+
+        # clears the waveform list (in an attempt to use less memory when not needed)
+
+        del self.waveforms
+        self.waveforms = []
+
 ###-----------------------------------------------------------------
 
     # TODO Plotting
 
-    def plot_wfs(self):
-        pass
+    def plot_wfs(self, how_many):
 
-    def plot_peaks(self):
-        pass
-    
-    def plot_wf_masks(self):
-        pass
+        if not self.waveforms: self.logger.exception("plotting waveforms without having Waveforms stored!")
+
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, how_many)))
+        plt.figure()
+
+        for wf, c in zip(self.waveforms, colors): plt.plot(wf.time, wf.signal, color=c)
+
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        plt.title(f"Waveforms for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveforms-Dy10={self.metadict['Dy10']}_V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "waveforms")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
+
+    def plot_peaks(self, ratio=0.33, width=2):
+
+        if not self.waveforms: self.logger.exception("plotting waveform peaks without having Waveforms stored!")
+
+        average_wf = self.get_average_wf()
+        threshold = np.min(average_wf[1]) * ratio
+
+
+        plt.figure()
+        
+        for wf in self.waveforms:
+            peaks = find_peaks(-wf.signal, height=-threshold, width=width)
+            l = len(peaks[0])
+            if l > 0:
+                plt.plot(wf.time, wf.signal, 'green')
+            if l == 0:
+                plt.plot(wf.time, wf.signal, 'yellow')
+
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        plt.axhline(y=threshold, color='red', linestyle='--')
+        plt.title(f"Waveform peaks for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "waveforms")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
+
+    def plot_wf_masks(self, how_many=10):
+
+        if not self.waveforms: self.logger.exception("plotting waveform masks without having Waveforms stored!")
+
+        cmap = plt.cm.viridis
+        colors = iter(cmap(np.linspace(0, 0.7, how_many)))
+        plt.figure()
+
+        for wf, c in zip(self.waveforms, colors):
+                plt.plot(wf.time[wf.mask], wf.signal[wf.mask], color=c)
+
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Voltage (mV)')
+        plt.title(f"Waveform masks for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "waveforms")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
 
     def plot_average_wfs(self):
-        pass
 
-    def plot_hist(self):
-        pass
+        if not self.waveforms: self.logger.exception("plotting average waveforms without having Waveforms stored!")
 
-    def plot_transit_times(self):
-        pass
+        average_wf = self.get_average_wf()
+
+        plt.figure()
+        plt.plot(average_wf[0], average_wf[1])
+        plt.xlabel('Time [ns]')
+        plt.ylabel('Voltage [mV]')
+        plt.title(f"Average waveform for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "average_waveforms")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
+
+    def plot_hist(self, mode="amplitude"):
+
+        if not self.waveforms: self.logger.exception("plotting histogram without having Waveforms stored!")
+
+        if mode not in ["amplitude", "gain", "charge"]:
+            return
+
+        if mode == "amplitude": data = [wf.min_value for wf in self.waveforms]
+        if mode == "gain":      data = [wf.gain for wf in self.waveforms]
+        if mode == "charge":    data = [wf.charge for wf in self.waveforms]
+
+        nr_entries = len(self.waveforms)
+        nbins = int(nr_entries / 100)
+        entries, edges = np.histogram(data, bins=nbins)
+        bin_m = (edges[:-1] + edges[1:]) / 2
+
+        x = bin_m
+        y = entries
+
+        fig, ax1 = plt.subplots()
+        ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
+
+        if mode == "amplitude": ax1.set_xlabel('Amplitude [mV]')
+        if mode == "gain":      ax1.set_xlabel('Gain')
+        if mode == "charge":    ax1.set_xlabel('Charge')
+        ax1.set_ylabel('Counts')
+        ax1.set_ylim(5e-1, np.max(y) + 100)
+        #ax1.legend(loc='upper left')
+
+        ax2 = ax1.twiny()
+        ax2.set_xticks([])
+
+        fig.tight_layout()
+        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-hist-{mode}s-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+
+        save_dir = os.path.join(self.filepath, "histograms")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
+
+    def plot_transit_times(self, binsize=0.4):
+
+        if not self.waveforms: self.logger.exception("plotting transit times without having Waveforms stored!")
+
+        transit_times = [wf.tt for wf in self.waveforms]
+        bins = np.arange(np.min(transit_times), np.max(transit_times), binsize)
+        entries, edges = np.histogram(transit_times, bins=bins)
+        bin_m = (edges[:-1] + edges[1:])/2
+
+        x = bin_m
+        y = entries
+
+        yMax = np.max(y)
+        indMax = np.argmax(y)
+        a0 = yMax
+        mu0 = x[indMax]
+
+        x_halb = x[int(indMax/2)]
+        x_ymax = x[indMax]
+        sigma0 = 2 * abs(x_halb + x_ymax)
+
+        popt, pcov = optimize.curve_fit(gaussian, x, y, p0=(a0, mu0, sigma0), maxfev=int(1e4))
+        perr = np.sqrt(np.diag(pcov))
+        a = popt[0]
+        da = perr[0]
+        mu = popt[1]
+        dmu = perr[1]
+        sigma = popt[2]
+        dsigma = perr[2]
+        y_val = a / 2
+        dy_val = da / 2
+
+        fehler1 = (da ** 2) * ((sigma ** 2) / (4 * a ** 2)) * ((-math.log(1/2)) ** (-1))
+        fehler2 = dmu ** 2
+        fehler3 = (dsigma ** 2) * (-math.log(1/2))
+        fehler4 = (dy_val ** 2) * ((sigma ** 2) / (4 * y_val ** 2)) * ((-math.log(1/2)) ** (-1))
+
+        dx = (fehler1 + fehler2 + fehler3 + fehler4) ** (1 / 2)
+
+        xfit = np.linspace(np.min(x), np.max(x), 10000)
+        yfit = gaussian(xfit, *popt)
+        mask2 = yfit >= a / 2
+        x1 = xfit[mask2][0]
+        x2 = xfit[mask2][-1]
+
+        tts_val = x2 - x1
+        dtts = (2*(dx**2))**(1/2)
+
+        plt.figure()
+        plt.hist(x=edges[:-1], bins=edges, weights=entries, histtype='step', linewidth=2.0)
+        plt.plot(xfit, gaussian(xfit, *popt), color='black', linewidth=2.0,
+                    label=r'$\mu$=' + str(np.round(popt[1], 3)) + '\n$\sigma$=' + str(np.round(popt[2], 3)))
+        plt.hlines(y_val, x1, x2, 'orange', linewidth=3.0,
+                    label='FWHM=' + str(np.round(tts_val, 2))+r'$\pm$'+str(np.round(dtts,2)))
+        plt.xlabel('Transit time [ns]')
+        plt.ylabel('Counts')
+        plt.xlim(x[indMax-12], x[indMax+12])
+        plt.legend()
+        plt.title(f"TTS for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-TTS-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        save_dir = os.path.join(self.filepath, "transit_times")
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
     
-    def plot_dark_count_rate(self):
-        pass
-
 
 ###-----------------------------------------------------------------
 ###-----------------------------------------------------------------
@@ -411,7 +639,7 @@ class data_handler:
 
         self.metadicts_loaded = True
 
-    def load_data(self):
+    def load_all_data(self):
 
         # load full data set (heavy on memory!)
 
@@ -456,23 +684,86 @@ class data_handler:
             plt.show()
         plt.close('all')
 
-    def plot_wfs(self):
-        pass
+    def plot_wfs(self, how_many = 10):
 
-    def plot_peaks(self):
-        pass
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+                data.plot_wfs(how_many)
+                if clear: data.clear()
+                
+
+    def plot_peaks(self, ratio=0.33, width=2):
+        
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+                data.plot_peaks(ratio, width)
+                if clear: data.clear()
+
     
-    def plot_wfs_mask(self):
-        pass
+    def plot_wf_masks(self, how_many):
+        
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+                data.plot_wf_masks(how_many)
+                if clear: data.clear()
 
     def plot_average_wfs(self):
-        pass
+        
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-    def plot_hist(self):
-        pass
+            for data in self.meassurements:
 
-    def plot_transit_times(self):
-        pass
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+                data.plot_average_wfs()
+                if clear: data.clear()
+                
 
-    def plot_dark_count_rate(self):
-        pass
+    def plot_hist(self, mode="amplitude"):
+
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+
+                data.plot_hist(mode)
+                if clear: data.clear()
+
+
+    def plot_transit_times(self, binsize = 0.4):
+
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms.any():
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+
+                data.plot_transit_times(binsize)
+                if clear: data.clear()
