@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import logging
 import time
 import h5py
@@ -117,7 +118,7 @@ def frontal_HV_scan(DATA_PATH):
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
             logging.getLogger("OMCU").info(f"measuring dataset of {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
 
-            dataset = Picoscope.Instance().block_measurement(onfig.FHVS_NR_OF_WAVEFORMS)
+            dataset = Picoscope.Instance().block_measurement(config.FHVS_NR_OF_WAVEFORMS)
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)

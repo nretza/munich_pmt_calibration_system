@@ -43,7 +43,13 @@ ANALYSIS_PLOT_HIST_GAIN          = True
 ANALYSIS_PLOT_TTS                = True
 ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
 
+ANALYSIS_PLOT_ANGLE_TO_GAIN      = True
+ANALYSIS_PLOT_ANGLE_TO_TTS       = True
+ANALYSIS_PLOT_ANGLE_TO_RISE_TIME = True
 
+ANALYSIS_PLOT_HV_TO_GAIN         = True
+ANALYSIS_PLOT_HV_TO_TTS          = True
+ANALYSIS_PLOT_HV_TO_RISE_TIME    = True
 
 #------------------------------------------------------
 #--------------   PHOTOCATHODE SCAN   -----------------
