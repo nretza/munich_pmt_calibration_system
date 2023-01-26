@@ -13,7 +13,6 @@ from datetime import datetime
 
 import config
 
-from utils.util import gaussian
 from utils.Waveform import Waveform
 
 from devices.Laser import Laser
@@ -22,11 +21,25 @@ from devices.Rotation import Rotation
 from devices.Powermeter import Powermeter
 
 
+
+#placed here to avoid circular imports
+def gaussian(x, a, mu, sigma):
+    return a * np.exp(- (x - mu) ** 2 / (sigma ** 2))
+
+
 class Measurement:
 
     # class designed to handle a measurement (multiple waveforms taken in bulk)
 
-    def __init__(self, waveform_list=None, signal_data=None, trigger_data=None, time_data=None, metadict=None, filename=None, filepath=None, hdf5_key=None):
+    def __init__(self,
+                 waveform_list=None,
+                 signal_data=np.array([]),
+                 trigger_data=np.array([]),
+                 time_data=np.array([]),
+                 metadict=None,
+                 filename=None,
+                 filepath=None,
+                 hdf5_key=None):
 
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f"{type(self).__name__} initialized")
@@ -64,9 +77,11 @@ class Measurement:
         self.waveforms = [] # needed for logger warnings to work correctly
         self.metadict  = self.default_metadict
 
-        if waveform_list or signal_data.any() or trigger_data.any() or time_data.any():
+        if waveform_list or signal_data.size or trigger_data.size or time_data.size:
             self.setWaveforms(waveforms=waveform_list, signal=signal_data, trigger=trigger_data, time=time_data)
-        if metadict: self.setMetadict(metadict)
+
+        if metadict:
+            self.setMetadict(metadict)
 
         self.setFilename(filename)
         self.setFilepath(filepath)
@@ -74,12 +89,12 @@ class Measurement:
 
 ###-----------------------------------------------------------------
 
-    def setWaveforms(self, waveforms = None, signal = None, trigger = None, time = None):
+    def setWaveforms(self, waveforms = None, signal = np.array([]), trigger = np.array([]), time = np.array([])):
         if waveforms:
-            if signal.any() or trigger.any() or time.any():
+            if signal.size or trigger.size or time.size:
                 self.logger.warning("Both Waveforms and signal arrays handed to data struct. Will only use waveforms!")
             self.waveforms = waveforms
-        elif signal.any() and trigger.any() and time.any():
+        elif signal.size and trigger.size and time.size:
             self.waveforms = []
             for time_i, signal_i, trigger_i in zip(time, signal, trigger):
                 self.waveforms.append(Waveform(time=time_i, signal=signal_i, trigger=trigger_i))
@@ -89,6 +104,7 @@ class Measurement:
         return self.waveforms
 
     def setMetadict(self, metadict):
+        if not metadict: return # check for None
         self.metadict = metadict
         for key in self.default_metadict:
             if key not in self.metadict.keys():
@@ -130,7 +146,7 @@ class Measurement:
         i = 0
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: i +=1
-        if float(len(self.waveforms)) == 0: return 0
+        if float(len(self.waveforms)) == 0: return 0,0
         return float(i)/float(len(self.waveforms))
 
 
@@ -140,7 +156,7 @@ class Measurement:
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
                 np.append(gains, wf.calculate_gain())
-        if len(gains) == 0: return 0
+        if len(gains) == 0: return 0,0
         return np.mean(gains), np.std(gains)
 
 
@@ -266,7 +282,7 @@ class Measurement:
             metadict[key] = dataset.attrs[key]
         self.setMetadict(metadict)
 
-        self.setWaveforms(time=dataset[0], signal=dataset[1], trigger=dataset[2])
+        self.setWaveforms(time=dataset[:,:,0], signal=dataset[:,:,1], trigger=dataset[:,:,2])
 
         if close_on_end:
             hdf5_connection.close()
@@ -327,7 +343,7 @@ class Measurement:
         plt.close('all')
 
 
-    def plot_peaks(self, ratio=0.33, width=2):
+    def plot_peaks(self, ratio=0.33, width=2, how_many=10):
 
         if not self.waveforms: self.logger.exception("plotting waveform peaks without having Waveforms stored!")
 
@@ -336,7 +352,8 @@ class Measurement:
 
         plt.figure()
         
-        for wf in self.waveforms:
+        for i in range(how_many):
+            wf = self.waveforms[i]
             peaks = find_peaks(-wf.signal, height=-threshold, width=width)
             l = len(peaks[0])
             color = "yellow" if l == 0 else "green"
@@ -423,8 +440,8 @@ class Measurement:
         fig, ax1 = plt.subplots()
 
         if mode == "amplitude": data = [wf.min_value for wf in self.waveforms]
-        if mode == "gain":      data = [wf.gain for wf in self.waveforms]
-        if mode == "charge":    data = [wf.charge for wf in self.waveforms]
+        if mode == "gain":      data = [wf.calculate_gain() for wf in self.waveforms]
+        if mode == "charge":    data = [wf.calculate_charge() for wf in self.waveforms]
 
         ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
 

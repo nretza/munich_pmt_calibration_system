@@ -84,7 +84,7 @@ def meassure_gain(threshold_signal=-4, iterations=10000):
 
     # take data and calc gain
     dataset = Picoscope.Instance().block_measurement(iterations)
-    gain = dataset.calculate_gain(threshold_signal=threshold_signal)
+    gain, _ = dataset.calculate_gain(threshold_signal=threshold_signal)
 
     logging.getLogger("OMCU").info(f"measured occupancy to be {gain}")
 
@@ -188,7 +188,7 @@ def tune_gain(g_min, g_max, V_start=None, V_step=1, delay=2, threshold_signal=-4
         uBase.Instance().SetVoltage(V)
         time.sleep(delay)
         dataset = Picoscope.Instance().block_measurement(waveforms)
-        gain = dataset.calculate_gain(signal_threshold=threshold_signal)
+        gain, _ = dataset.calculate_gain(signal_threshold=threshold_signal)
 
         if i > iterations:
             logging.getLogger("OMCU").warning(f"could not tune gain in {iterations} iterations. Leaving with gain of {round(gain,2)}")
@@ -283,8 +283,8 @@ def tune_parameters(tune_mode,
 
             # measure after tuning to avoid cross-influence
             dataset = Picoscope.Instance().block_measurement(nr_waveforms)
-            gain = dataset.calculate_gain(signal_threshold=signal_threshold)
-            occ  = dataset.calculate_occ(signal_threshold=signal_threshold)
+            gain, _ = dataset.calculate_gain(signal_threshold=signal_threshold)
+            occ     = dataset.calculate_occ(signal_threshold=signal_threshold)
 
             if occ > occ_min and occ < occ_max and gain > gain_min and gain:
                 print(f"reached occupancy of {occ} at {laser_val} laser tune value and gain of {round(gain,2)} at {HV_val} V.")
@@ -296,15 +296,15 @@ def tune_parameters(tune_mode,
     if tune_mode == "none":
 
         dataset = Picoscope.Instance().block_measurement(nr_waveforms)
-        gain = dataset.calculate_gain(signal_threshold=signal_threshold)
-        occ  = dataset.calculate_occ(signal_threshold=signal_threshold)
+        gain, _ = dataset.calculate_gain(signal_threshold=signal_threshold)
+        occ     = dataset.calculate_occ(signal_threshold=signal_threshold)
         print(f"\nwill not tune gain and occupancy. measured:\nocc:\t{occ}\ngain:\t{round(gain,2)}")
 
     if tune_mode not in ["none", "iter", "single", "only_gain", "only_occ"]:
 
         dataset = Picoscope.Instance().block_measurement(nr_waveforms)
-        gain = dataset.calculate_gain(signal_threshold=signal_threshold)
-        occ  = dataset.calculate_occ(signal_threshold=signal_threshold)
+        gain, _ = dataset.calculate_gain(signal_threshold=signal_threshold)
+        occ     = dataset.calculate_occ(signal_threshold=signal_threshold)
         print(f"WARNING: Can not make sense of tuning mode. Will proceed without tuning. measured:\nocc:\t{occ}\ngain:\t{round(gain,2)}")
 
     end_time = time.time()

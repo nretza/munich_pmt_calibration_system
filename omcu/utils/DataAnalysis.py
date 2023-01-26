@@ -142,7 +142,7 @@ class DataAnalysis:
 
 if __name__ == "__main__":
 
-    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/test_pmt/clean_and_dark"
+    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/test/8/"
 
     print("analyzing data now")
     analysis = DataAnalysis(DATA_PATH)

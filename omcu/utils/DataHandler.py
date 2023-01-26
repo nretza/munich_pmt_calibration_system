@@ -89,8 +89,8 @@ class DataHandler:
         occ_list = []
         theta_list = []
         for data in self.meassurements:
-            occ_list.append(data.getMetadict["occ"])
-            theta_list.append(data.getMetadict["theta"])
+            occ_list.append(data.metadict["occ"])
+            theta_list.append(data.metadict["theta"])
         occ_max = max(occ_list)
         occ_list = [i / occ_max for i in occ_list]
 
@@ -121,8 +121,8 @@ class DataHandler:
         gain_list = []
         teta_list = []
         for data in self.meassurements:
-            gain_list.append(data.getMetadict["gain"])
-            teta_list.append(data.getMetadict["theta"])
+            gain_list.append(data.metadict["gain"])
+            teta_list.append(data.metadict["theta"])
 
         plt.figure()
 
@@ -151,8 +151,8 @@ class DataHandler:
         tts_list = []
         theta_list = []
         for data in self.meassurements:
-            tts_list.append(data.getMetadict["transit time spread"])
-            theta_list.append(data.getMetadict["theta"])
+            tts_list.append(data.metadict["transit time spread"])
+            theta_list.append(data.metadict["theta"])
 
         plt.figure()
 
@@ -181,8 +181,8 @@ class DataHandler:
         rise_time_list = []
         theta_list = []
         for data in self.meassurements:
-            rise_time_list.append(data.getMetadict["rise time"])
-            theta_list.append(data.getMetadict["theta"])
+            rise_time_list.append(data.metadict["rise time"])
+            theta_list.append(data.metadict["theta"])
 
         plt.figure()
 
@@ -211,8 +211,8 @@ class DataHandler:
         gain_list = []
         HV_list = []
         for data in self.meassurements:
-            gain_list.append(data.getMetadict["gain"])
-            HV_list.append(data.getMetadict["Dy10"])
+            gain_list.append(data.metadict["gain"])
+            HV_list.append(data.metadict["Dy10"])
 
         plt.figure()
 
@@ -241,8 +241,8 @@ class DataHandler:
         tts_list = []
         HV_list = []
         for data in self.meassurements:
-            tts_list.append(data.getMetadict["transit time spread"])
-            HV_list.append(data.getMetadict["Dy10"])
+            tts_list.append(data.metadict["transit time spread"])
+            HV_list.append(data.metadict["Dy10"])
 
         plt.figure()
 
@@ -271,8 +271,8 @@ class DataHandler:
         rise_time_list = []
         HV_list = []
         for data in self.meassurements:
-            rise_time_list.append(data.getMetadict["rise time"])
-            HV_list.append(data.getMetadict["Dy10"])
+            rise_time_list.append(data.metadict["rise time"])
+            HV_list.append(data.metadict["Dy10"])
 
         plt.figure()
 
@@ -301,8 +301,8 @@ class DataHandler:
         laser_tune_list = []
         charge_list = []
         for data in self.meassurements:
-            laser_tune_list.append(data.getMetadict["laser tune"])
-            charge_list.append(data.getMetadict["charge"])
+            laser_tune_list.append(data.metadict["laser tune"])
+            charge_list.append(data.metadict["charge"])
 
         plt.figure()
 
@@ -330,14 +330,14 @@ class DataHandler:
 
     # plotting of Measurement-plots
 
-    def plot_wfs(self, how_many = 10):
+    def plot_wfs(self, how_many=10):
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
                 data.plot_wfs(how_many)
@@ -351,21 +351,21 @@ class DataHandler:
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
                 data.plot_peaks(ratio, width)
                 if clear: data.clear()
 
     
-    def plot_wf_masks(self, how_many):
+    def plot_wf_masks(self, how_many=10):
         
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
                 data.plot_wf_masks(how_many)
@@ -378,7 +378,7 @@ class DataHandler:
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
                 data.plot_average_wfs()
@@ -392,7 +392,7 @@ class DataHandler:
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
 
@@ -407,7 +407,7 @@ class DataHandler:
             for data in self.meassurements:
 
                 clear = False
-                if not data.waveforms.any():
+                if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
 
