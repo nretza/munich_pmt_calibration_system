@@ -7,7 +7,7 @@ from picosdk.PicoDeviceEnums import picoEnum as enums
 from picosdk.functions import adc2mV, assert_pico_ok
 
 from devices.device import device
-from utils.data_structs import Measurement
+from utils.Measurement import Measurement
 
 
 class Picoscope(device):

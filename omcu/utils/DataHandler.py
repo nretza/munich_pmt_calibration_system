@@ -9,10 +9,10 @@ from matplotlib import pyplot as plt
 
 import config
 
-from utils.data_structs import Measurement
+from utils.Measurement import Measurement
 
 
-class data_handler:
+class DataHandler:
 
     # class to handle all measurements of a given testing procedure
     # only used for data analysis (-> data extracted from hdf5)

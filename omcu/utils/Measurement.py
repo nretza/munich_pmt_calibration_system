@@ -14,7 +14,7 @@ from datetime import datetime
 import config
 
 from utils.util import gaussian
-from utils.data_structs import Waveform
+from utils.Waveform import Waveform
 
 from devices.Laser import Laser
 from devices.uBase import uBase
@@ -26,7 +26,7 @@ class Measurement:
 
     # class designed to handle a measurement (multiple waveforms taken in bulk)
 
-    def __init__(self, waveform_list=None, signal_data=None, trigger_data=None, time_data = None, metadict=None, filename=None, filepath=None, hdf5_key=None):
+    def __init__(self, waveform_list=None, signal_data=None, trigger_data=None, time_data=None, metadict=None, filename=None, filepath=None, hdf5_key=None):
 
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f"{type(self).__name__} initialized")

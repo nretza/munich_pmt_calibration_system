@@ -8,9 +8,9 @@ import config
 import time
 import logging
 
-from utils.data_structs import data_handler
+from utils.DataHandler import DataHandler
 
-class data_analysis:
+class DataAnalysis:
 
     def __init__(self, data_path):
 
@@ -22,7 +22,7 @@ class data_analysis:
     def analyze_PCS(self):
         print("\nPerforming Photo Cathode Scan Analysis")
         start_time = time.time()
-        handler = data_handler(config.PCS_DATAFILE, self.data_path)
+        handler = DataHandler(config.PCS_DATAFILE, self.data_path)
 
         if config.ANALYSIS_PLOT_WFS:
             print("Plotting waveform data")
@@ -85,7 +85,7 @@ class data_analysis:
         print("\nPerforming Frontal HV Scan Analysis")
         self.logger.info("Performing Frontal HV Scan Analysis")
         start_time = time.time()
-        handler = data_handler(config.FHVS_DATAFILE, self.data_path)
+        handler = DataHandler(config.FHVS_DATAFILE, self.data_path)
 
         if config.ANALYSIS_PLOT_WFS:
             print("Plotting waveform data")
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/test_pmt/clean_and_dark"
 
     print("analyzing data now")
-    analysis = data_analysis(DATA_PATH)
+    analysis = DataAnalysis(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
         analysis.analyze_FHVS()
     if config.PHOTOCATHODE_SCAN:

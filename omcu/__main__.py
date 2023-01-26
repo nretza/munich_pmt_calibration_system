@@ -15,8 +15,8 @@ from devices.Powermeter import Powermeter
 from devices.uBase import uBase
 
 from utils.util import setup_file_logging
-from utils.testing_procedures import photocathode_scan, frontal_HV_scan
-from utils.data_analysis import data_analysis
+from utils.TestingProcedures import photocathode_scan, frontal_HV_scan
+from utils.DataAnalysis import DataAnalysis
 
 
 ##########################################################################################
@@ -170,7 +170,7 @@ def main():
 
     if config.ANALYSIS_PERFORM:
         print("analyzing data now")
-        analysis = data_analysis(DATA_PATH)
+        analysis = DataAnalysis(DATA_PATH)
         if config.FRONTAL_HV_SCAN:
             analysis.analyze_FHVS()
         if config.PHOTOCATHODE_SCAN:
