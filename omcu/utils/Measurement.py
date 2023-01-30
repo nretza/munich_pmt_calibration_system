@@ -155,7 +155,7 @@ class Measurement:
         gains = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
-                np.append(gains, wf.calculate_gain())
+                gains = np.append(gains, wf.calculate_gain())
         if len(gains) == 0: return 0,0
         return np.mean(gains), np.std(gains)
 
@@ -168,7 +168,7 @@ class Measurement:
         if not self.waveforms: self.logger.warning("calculating charge without having Waveforms stored!")
         charges = np.array([])
         for wf in self.waveforms:
-            if wf.min_value < signal_threshold: np.append(charges, wf.calculate_charge())
+            if wf.min_value < signal_threshold: charges = np.append(charges, wf.calculate_charge())
         return np.mean(charges), np.std(charges)
 
 
@@ -176,7 +176,7 @@ class Measurement:
         if not self.waveforms: self.logger.warning("calculating rise time without having Waveforms stored!")
         rise_times = np.array([])
         for wf in self.waveforms:
-            if wf.min_value < signal_threshold: np.append(rise_times, wf.rise_time)
+            if wf.min_value < signal_threshold: rise_times = np.append(rise_times, wf.rise_time)
         return np.mean(rise_times), np.std(rise_times)
 
 
@@ -184,7 +184,7 @@ class Measurement:
         if not self.waveforms: self.logger.warning("calculating transit time without having Waveforms stored!")
         transit_times = np.array([])
         for wf in self.waveforms:
-            if wf.min_value < signal_threshold: np.append(transit_times, wf.transit_time)
+            if wf.min_value < signal_threshold: transit_times = np.append(transit_times, wf.transit_time)
         return np.mean(transit_times), np.std(transit_times)
 
 
