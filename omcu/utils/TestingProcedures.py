@@ -56,6 +56,11 @@ def photocathode_scan(DATA_PATH):
 
             dataset = Picoscope.Instance().block_measurement(config.PCS_NR_OF_WAVEFORMS)
 
+            if not dataset.calculate_occ(config.PCS_SIGNAL_THRESHOLD):
+                logging.getLogger("OMCU").warning("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                continue
+
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
             logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
@@ -120,6 +125,11 @@ def frontal_HV_scan(DATA_PATH):
 
             dataset = Picoscope.Instance().block_measurement(config.FHVS_NR_OF_WAVEFORMS)
 
+            if not dataset.calculate_occ(config.FHVS_SIGNAL_THRESHOLD):
+                logging.getLogger("OMCU").warning("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                continue
+
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
             logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
@@ -182,6 +192,11 @@ def charge_linearity_scan(DATA_PATH):
             logging.getLogger("OMCU").info(f"measuring dataset of {config.CLS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
 
             dataset = Picoscope.Instance().block_measurement(config.CLS_NR_OF_WAVEFORMS)
+
+            if not dataset.calculate_occ(config.CLS_SIGNAL_THRESHOLD):
+                logging.getLogger("OMCU").warning("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
+                continue
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
