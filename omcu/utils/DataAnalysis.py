@@ -139,6 +139,10 @@ class DataAnalysis:
 
 
 
+    def analyse_CLS():
+        pass
+
+
 
 if __name__ == "__main__":
 

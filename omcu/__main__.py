@@ -15,7 +15,7 @@ from devices.Powermeter import Powermeter
 from devices.uBase import uBase
 
 from utils.util import setup_file_logging
-from utils.TestingProcedures import photocathode_scan, frontal_HV_scan
+from utils.TestingProcedures import photocathode_scan, frontal_HV_scan, charge_linearity_scan
 from utils.DataAnalysis import DataAnalysis
 
 
@@ -157,6 +157,8 @@ def main():
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
         frontal_HV_scan(DATA_PATH)
+    if config.CHARGE_LINEARITY_SCAN:
+        charge_linearity_scan(DATA_PATH)
 
     
     # turn devices off
@@ -175,6 +177,8 @@ def main():
             analysis.analyze_FHVS()
         if config.PHOTOCATHODE_SCAN:
             analysis.analyze_PCS()
+        if config.CHARGE_LINEARITY_SCAN:
+            analysis.analyze_CLS()
 
     end_time = time.time()
 

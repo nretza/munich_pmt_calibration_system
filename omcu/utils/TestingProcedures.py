@@ -139,3 +139,66 @@ def frontal_HV_scan(DATA_PATH):
     print(f"Total time for frontal HV scan: {round((end_time - start_time) / 60, 0)} minutes")
 
     logging.getLogger("OMCU").info(f"FHVS measurement complete")
+    
+
+#------------------------------------------------------------------------------
+
+
+def charge_linearity_scan(DATA_PATH):
+
+    logging.getLogger("OMCU").info(f"entering CLS measurement")
+
+    Laser.Instance().on_pulsed()
+    Rotation.Instance().go_home()
+
+    tune_parameters(tune_mode=config.CLS_TUNE_MODE,
+                    nr_waveforms=config.CLS_TUNE_NR_OF_WAVEFORMS,
+                    gain_min=config.CLS_TUNE_GAIN_MIN,
+                    gain_max=config.CLS_TUNE_GAIN_MAX,
+                    V_start=config.CLS_TUNE_V_START,
+                    V_step=config.CLS_TUNE_V_STEP,
+                    occ_min=config.CLS_TUNE_OCC_MIN,
+                    occ_max=config.CLS_TUNE_OCC_MAX,
+                    laser_start=config.CLS_TUNE_LASER_START,
+                    laser_step=config.CLS_TUNE_LASER_STEP,
+                    signal_threshold=config.CLS_TUNE_SIGNAL_THRESHOLD,
+                    iterations=config.CLS_TUNE_MAX_ITER)
+
+    start_time = time.time()
+
+    print(f"\nperforming charge linearity scan over:\nlaser tune:\t{config.CLS_LASER_TUNE_LIST}\n")
+    print(f"saving data in {os.path.join(DATA_PATH, config.CLS_DATAFILE)}")
+    Rotation.Instance().go_home()
+
+    with h5py.File(os.path.join(DATA_PATH, config.CLS_DATAFILE), 'w') as h5_connection:
+
+        # loop through HV
+        for laser_tune in config.CLS_LASER_TUNE_LIST: 
+
+            print(f"\nmeasuring ---- laser tune: {laser_tune}")
+            uBase.Instance().SetVoltage(laser_tune)
+
+            time.sleep(config.CLS_MEASUREMENT_SLEEP)
+            logging.getLogger("OMCU").info(f"measuring dataset of {config.CLS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
+
+            dataset = Picoscope.Instance().block_measurement(config.CLS_NR_OF_WAVEFORMS)
+
+            logging.getLogger("OMCU").info(f"determining dataset metadata")
+            dataset.meassure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.CLS_SIGNAL_THRESHOLD} mV")
+            dataset.filter_by_threshold(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
+            logging.getLogger("OMCU").info(f"writing dataset to harddrive")
+            dataset.setHDF5_key(f"laser tune {laser_tune}")
+            dataset.write_to_file(hdf5_connection=h5_connection)
+
+            time.sleep(config.CLS_MEASUREMENT_SLEEP)
+
+    print(f"\nFinished charge linearity scan\nData located at {os.path.join(DATA_PATH, config.CLS_DATAFILE)}")
+
+    Laser.Instance().off_pulsed()
+    Rotation.Instance().go_home()
+
+    end_time = time.time()
+    print(f"Total time for charge linearity scan: {round((end_time - start_time) / 60, 0)} minutes")
+
+    logging.getLogger("OMCU").info(f"CLS measurement complete")
