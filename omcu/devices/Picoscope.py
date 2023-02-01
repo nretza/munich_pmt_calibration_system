@@ -36,11 +36,13 @@ class Picoscope(device):
         self.status = {}
         self.chandle = ctypes.c_int16()
 
-        # maximum number of waveforms as to not overflow buffer (1 Gigasamples)
-        self.max_nwf = int ( 1e9 / (2 * post_trigger_samples + pre_trigger_samples)) 
+        # maximum number of waveforms as to not overflow buffer (5 Gigasamples)
+        self.max_nwf = int ( 5e9 / (2 * post_trigger_samples + pre_trigger_samples)) 
         
         # current wf number the picoscope is set up to
-        self.current_nwf = None
+        self.current_nwf_block  = None
+        self.current_nwf_stream = None
+        self.current_nr_samples_stream  = None
 
         # resolution and timebase (set later)
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
@@ -78,10 +80,13 @@ class Picoscope(device):
         self.noOfPostTriggerSamples = post_trigger_samples
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
+        
         self.open_connection()
-        self.channel_setup()
-        self.set_timebase()
-        self.set_trigger()
+        self.channel_setup_for_block()
+        self.timebase_setup()
+        self.trigger_setup_for_block()
+        self.set_up_for = "block_measurement"
+    
 
     def open_connection(self):
     
@@ -90,7 +95,10 @@ class Picoscope(device):
         assert_pico_ok(self.status["openunit"])
 
 
-    def channel_setup(self):
+#---------------------------
+
+
+    def channel_setup_for_block(self):
         
         # turn signal and trigger channels on
         self.logger.info(f"Setting up channels. trig_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
@@ -110,7 +118,7 @@ class Picoscope(device):
         assert_pico_ok(self.status["getADCimits"])
 
 
-    def set_timebase(self):
+    def timebase_setup(self):
 
         # Get fastest available timebase
         self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
@@ -122,7 +130,7 @@ class Picoscope(device):
         self.logger.info("Setup to get the fastest available timebase.")
 
 
-    def set_trigger(self):
+    def trigger_setup_for_block(self):
 
         # Set simple trigger on the given channel, [thresh] mV rising with autotrigger
         self.logger.info(f"setting trigger threshold {self.trigger_threshold} mV on channel {self.channel_trg}")
@@ -136,7 +144,7 @@ class Picoscope(device):
         assert_pico_ok(self.status["setSimpleTrigger"])
 
 
-    def buffer_setup(self, number):
+    def buffer_setup_for_block(self, number):
 
         assert number < self.max_nwf
         self.logger.debug(f"setting up buffer for {number} waveforms")
@@ -182,7 +190,20 @@ class Picoscope(device):
 
         assert number < self.max_nwf
 
-        if number != self.current_nwf:
+        if self.set_up_for != "block_measurement":
+            
+            self.close_connection()
+            self.open_connection()
+            self.logger.info(f"configuring for block measurements")
+            self.channel_setup_for_block()
+            self.timebase_setup()
+            self.trigger_setup_for_block()
+            self.setup_for = "block_measurement"
+
+            self.current_nwf_stream        = None
+            self.current_nr_samples_stream = None
+
+        if number != self.current_nwf_block:
 
             # set memory segments in buffer (segment per waveform)
             maxSegments = ctypes.c_uint64(number)
@@ -194,9 +215,9 @@ class Picoscope(device):
             assert_pico_ok(self.status["SetNrofCaptures"])
 
             # setup buffer
-            self.buffer_setup(number)
+            self.buffer_setup_for_block(number)
 
-            self.current_nwf = number
+            self.current_nwf_block = number
 
         # run block
         timeIndisposedMs = ctypes.c_double(0)
@@ -234,12 +255,6 @@ class Picoscope(device):
                                                             ctypes.byref(overflow))
         assert_pico_ok(self.status["getValues"])
 
-        # get max ADC value
-        minADC = ctypes.c_int16()
-        maxADC = ctypes.c_int16()
-
-        self.status["getADCLimit"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(minADC), ctypes.byref(maxADC))
-        assert_pico_ok(self.status["getADCLimit"])
         self.stop_scope()
 
         # convert ADC counts data to mV
@@ -259,11 +274,142 @@ class Picoscope(device):
         dataset = Measurement(time_data=timevals, signal_data=adc2mVMax_sgnlch_list, trigger_data=adc2mVMax_trgch_list)
         return dataset
 
-    
-    def get_datastream(channel = 2):
+
+#---------------------------
+
+
+    def chanel_setup_for_stream(self):
+
+        # turn on signal channel
+        self.logger.info(f"Setting up signal_ch: {self.channel_sgnl}")
+        self.status["setSignalCh"]  = ps.ps6000aSetChannelOn(self.chandle, self.channel_sgnl, self.coupling_sgnl, self.voltrange_sgnl, 0, self.bandwidth)
+        assert_pico_ok(self.status["setSignalCh"])
+
+        # turn other channels off
+        for channel in range(4):
+            if channel == self.channel_sgnl: continue
+            self.status["setChannel", channel] = ps.ps6000aSetChannelOff(self.chandle, channel)
+            assert_pico_ok(self.status["setChannel", channel])
         
-        # TODO: put in stuff for continuous data stream here
-        pass
+        # ADC limits
+        self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
+        assert_pico_ok(self.status["getADCimits"])
+
+
+    def buffer_setup_for_stream(self, nr_samples, nr_waveforms):
+
+        self.logger.debug(f"setting up buffer for {nr_waveforms} waveforms of {nr_samples} samples")
+        self.logger.debug(f"will store data without downsampling. One signal channel, several waveforms - indicated by number")
+
+        # Set data buffer
+        self.buffer_stream = ((ctypes.c_int16 * nr_samples) * nr_waveforms)()
+        dataType       = enums.PICO_DATA_TYPE["PICO_INT16_T"]
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
+        clear          = enums.PICO_ACTION["PICO_CLEAR_ALL"]
+        add            = enums.PICO_ACTION["PICO_ADD"]
+        action = clear | add
+
+        for i in range(0, nr_waveforms):
+            self.status["set_stream_buffer"] = ps.ps6000aSetDataBuffer(self.chandle,
+                                                                    self.channel_sgnl,
+                                                                    ctypes.byref(self.buffer_stream[i]),
+                                                                    self.nSamples,
+                                                                    dataType,
+                                                                    i,
+                                                                    downSampleMode,
+                                                                    action)
+            assert_pico_ok(self.status["set_stream_buffer"])
+            action = add
+
+    
+    def get_datastream(self, nr_samples, nr_waveforms):
+        
+        if self.set_up_for != "streaming":
+
+            self.close_connection()
+            self.open_connection()
+            self.logger.info(f"Configuring for streaming data")
+            self.chanel_setup_for_stream()
+            self.timebase_setup()
+            self.set_up_for = "streaming"
+
+            self.current_nwf_block = None
+
+        if nr_samples != self.current_nr_samples_stream or nr_waveforms != self.current_nwf_stream:
+
+            # set memory segments in buffer (segment per waveform)
+            maxSegments = ctypes.c_uint64(nr_samples)
+            self.status["SetNrofSegments"] = ps.ps6000aMemorySegments(self.chandle, nr_samples, ctypes.byref(maxSegments))
+            assert_pico_ok(self.status["SetNrofSegments"])
+
+            # Set number of captures
+            self.status["SetNrofCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, nr_samples)
+            assert_pico_ok(self.status["SetNrofCaptures"])
+
+            # setup buffer
+            self.buffer_setup_for_block(nr_samples, nr_waveforms)
+
+            self.current_nwf_stream        = nr_waveforms
+            self.current_nr_samples_stream = nr_samples
+
+        # run block
+        timeIndisposedMs = ctypes.c_double(0)
+        self.status["runBlock"] = ps.ps6000aRunBlock(self.chandle,
+                                                     0,
+                                                     nr_samples,
+                                                     self.timebase,
+                                                     ctypes.byref(timeIndisposedMs),
+                                                     0,
+                                                     None,
+                                                     None)
+        assert_pico_ok(self.status["runBlock"])
+
+        # Check for data collection to finish using ps6000aIsReady
+        ready = ctypes.c_int16(0)
+        check = ctypes.c_int16(0)
+        while ready.value == check.value:
+            ps.ps6000aIsReady(self.chandle, ctypes.byref(ready))
+
+        # Get data from scope
+        noOfSamples = ctypes.c_uint64(nr_samples)
+        end = nr_waveforms - 1
+        downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
+
+        # Creates an overflow location for each segment
+        overflow = (ctypes.c_int16 * nr_waveforms)()
+
+        self.status["getValues"] = ps.ps6000aGetValuesBulk(self.chandle,
+                                                            0,
+                                                            ctypes.byref(noOfSamples),
+                                                            0,
+                                                            end,
+                                                            1,
+                                                            downSampleMode,
+                                                            ctypes.byref(overflow))
+        assert_pico_ok(self.status["getValues"])
+
+        self.stop_scope()
+
+        # convert ADC counts data to mV
+        adc2mVMax_sgnlch_list = np.zeros((nr_waveforms, nr_samples))
+        for i, buffers in enumerate(self.buffer_stream):
+            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange_sgnl, self.maxADC)
+
+        # Create time data
+        timevals = np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples)
+
+        data_sgnl = np.zeros((nr_waveforms, nr_samples, 2))
+        data_sgnl[:, :, 0] = timevals
+        data_sgnl[:, :, 1] = adc2mVMax_sgnlch_list
+
+        self.logger.info(f"block measurement of {nr_waveforms} Waveforms of {nr_samples} samples performed. signal_ch: {self.channel_sgnl}")
+
+        return data_sgnl
+
+
+
+#---------------------------------------------
+
 
     def stop_scope(self):
 
@@ -284,6 +430,5 @@ class Picoscope(device):
 
 
 if __name__ == "__main__":
-    ps = Picoscope()
-    ps.block_measurement(trgchannel=0, sgnlchannel=2, direction=2, threshold=2000, number=100)
-    ps.close_scope()
+    Picoscope.Instance().block_measurement(100)
+    Picoscope.Instance().close_connection()
