@@ -138,10 +138,65 @@ class DataAnalysis:
         print(f"Total time for FHVS Analysis: {round((end_time - start_time) / 60, 0)} minutes")
 
 
+    def analyze_CLS(self):
+        
+        print("\nPerforming Charge Linearity Scan Analysis")
+        self.logger.info("Performing Frontal HV Scan Analysis")
+        start_time = time.time()
+        handler = DataHandler(config.CLS_DATAFILE, self.data_path)
 
-    def analyse_CLS():
-        pass
+        if config.ANALYSIS_PLOT_WFS:
+            print("Plotting waveform data")
+            self.logger.info("Plotting waveform data")
+            handler.plot_wfs()
+        if config.ANALYSIS_PLOT_PEAKS:
+            print("Plotting peaks")
+            self.logger.info("Plotting peaks")
+            handler.plot_peaks()
+        if config.ANALYSIS_PLOT_WF_MSK:
+            print("Plotting waveform masks")
+            self.logger.info("Plotting waveform masks")
+            handler.plot_wf_masks()
+        if config.ANALYSIS_PLOT_WF_AVG:
+            print("Plotting average waveforms")
+            self.logger.info("Plotting average waveforms")
+            handler.plot_average_wfs()
+        if config.ANALYSIS_PLOT_HIST_AMP:
+            print("plotting amlitude histograms")
+            self.logger.info("plotting amlitude histograms")
+            handler.plot_hist("amplitude")
+        if config.ANALYSIS_PLOT_HIST_CHRG:
+            print("plotting charge histograms")
+            self.logger.info("plotting charge histograms")
+            handler.plot_hist("charge")
+        if config.ANALYSIS_PLOT_HIST_GAIN:
+            print("plotting gain histograms")
+            self.logger.info("plotting gain histograms")
+            handler.plot_hist("gain")
+        if config.ANALYSIS_PLOT_TTS:
+            print("plotting transit time data")
+            self.logger.info("plotting transit time data")
+            handler.plot_transit_times()
 
+        # TODO
+
+        print(f"\nFinished Charge Linearity Scan Analysis\nData located in {self.data_path}")
+        end_time = time.time()
+        print(f"Total time for CLS Analysis: {round((end_time - start_time) / 60, 0)} minutes")
+
+
+
+    def analyze_DCS(self):
+        
+        print("\nPerforming Dark Count Scan Analysis")
+        self.logger.info("Performing Dark Count Scan Analysis")
+        start_time = time.time()
+       
+       # TODO
+
+        print(f"\nFinished Dark Count Scan Analysis\nData located in {self.data_path}")
+        end_time = time.time()
+        print(f"Total time for DCS Analysis: {round((end_time - start_time) / 60, 0)} minutes")
 
 
 if __name__ == "__main__":
@@ -153,4 +208,8 @@ if __name__ == "__main__":
     if config.FRONTAL_HV_SCAN:
         analysis.analyze_FHVS()
     if config.PHOTOCATHODE_SCAN:
-         analysis.analyze_PCS()
+        analysis.analyze_PCS()
+    if config.CHARGE_LINEARITY_SCAN:
+        analysis.analyze_CLS()
+    if config.DARK_COUNT_SCAN:
+        analysis.analyze_DCS()

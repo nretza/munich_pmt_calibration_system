@@ -202,3 +202,24 @@ def charge_linearity_scan(DATA_PATH):
     print(f"Total time for charge linearity scan: {round((end_time - start_time) / 60, 0)} minutes")
 
     logging.getLogger("OMCU").info(f"CLS measurement complete")
+
+
+
+#------------------------------------------------------------------------------
+
+
+def dark_count_scan(DATA_PATH):
+
+    logging.getLogger("OMCU").info(f"entering DCS measurement")
+
+    Laser.Instance().off_pulsed()
+    Rotation.Instance().go_home()
+
+    start_time = time.time()
+
+    # TODO
+
+    end_time = time.time()
+    print(f"Total time for Dark Count Scan: {round((end_time - start_time) / 60, 0)} minutes")
+
+    logging.getLogger("OMCU").info(f"DCS measurement complete")

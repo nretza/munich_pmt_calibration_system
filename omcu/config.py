@@ -24,6 +24,7 @@ COOLDOWN_HV   = 90
 PHOTOCATHODE_SCAN     = True
 FRONTAL_HV_SCAN       = True
 CHARGE_LINEARITY_SCAN = True
+DARK_COUNT_SCAN       = True
 
 #------------------------------------------------------
 
@@ -51,6 +52,9 @@ ANALYSIS_PLOT_ANGLE_TO_RISE_TIME = True
 ANALYSIS_PLOT_HV_TO_GAIN         = True
 ANALYSIS_PLOT_HV_TO_TTS          = True
 ANALYSIS_PLOT_HV_TO_RISE_TIME    = True
+
+
+
 
 #------------------------------------------------------
 #--------------   PHOTOCATHODE SCAN   -----------------
@@ -133,6 +137,8 @@ FHVS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform i
 FHVS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
 
 
+
+
 #------------------------------------------------------
 #-----------   CHARGE LINEARITY SCAN     --------------
 #------------------------------------------------------
@@ -170,3 +176,23 @@ CLS_LASER_TUNE_LIST     = np.arange(720,600,-2)  # Laser tunes to set while data
 CLS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per configuration
 CLS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
 CLS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
+
+
+
+
+#------------------------------------------------------
+#-------------    DARK COUNT SCAN      ----------------
+#------------------------------------------------------
+
+# a long time scan with turned off laser under different HVs
+
+DCS_DATAFILE      = "data_dark_count.hdf5"
+
+#------------------------------------------------------
+
+DCS_HV_LIST             = np.arange(70,110,1)    # HVs to set while data taking (start,stop,step)
+
+DCS_NR_OF_SAMPLES       = 10000                  # Number of amples the picoscope should record per iteration
+DCS_NR_OF_ITERATIONS    = 10000                  # Number of sample collection iterations per configuration
+DCS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal
+DCS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
