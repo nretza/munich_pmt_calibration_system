@@ -29,7 +29,7 @@ CHARGE_LINEARITY_SCAN = True
 
 #Data-Analysis
 
-ANALYSIS_PERFORM    = False    # perform data analysis after datataking
+ANALYSIS_PERFORM    = True     # perform data analysis after datataking
 ANALYSIS_SHOW_PLOTS = False    # call plt.show()
 
 #what to plot
