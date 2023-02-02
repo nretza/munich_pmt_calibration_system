@@ -4,6 +4,7 @@ import os
 import argparse
 import logging
 import time
+import shutil
 import importlib.machinery
 import importlib.util
 
@@ -49,6 +50,10 @@ def main():
     logging.getLogger("OMCU").info(f"--- OMCU INITIALIZING ---")
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
+    # copy config file to datapath
+    config_path = os.path.abspath(config.__file__)
+    shutil.copyfile(config_path, os.path.join((DATA_PATH), "config.py"))
+    logging.getLogger("OMCU").info(f"copying OMCU configuration to {DATA_PATH}")
 
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
@@ -66,7 +71,7 @@ def main():
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
         exit()
-    logging.getLogger("OMCU").info(f"omcu marked as set up by user. Performing checks...")
+    logging.getLogger("OMCU").info(f"OMCU marked as set up by user. Performing checks...")
     start_time = time.time()
 
     #Turn relevant devices on
