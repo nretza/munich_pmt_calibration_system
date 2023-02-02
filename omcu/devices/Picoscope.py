@@ -4,7 +4,7 @@ import numpy as np
 
 from picosdk.ps6000a import ps6000a as ps
 from picosdk.PicoDeviceEnums import picoEnum as enums
-from picosdk.functions import adc2mV, assert_pico_ok
+from picosdk.functions import assert_pico_ok
 
 from devices.device import device
 from utils.Measurement import Measurement
@@ -94,6 +94,11 @@ class Picoscope(device):
         self.status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)
         assert_pico_ok(self.status["openunit"])
 
+    def adc2mV(self, bufferADC, range, maxADC):
+        channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
+        vRange = channelInputRanges[range]
+        convert = (np.array(bufferADC) * vRange) / maxADC.value
+        return convert
 
 #---------------------------
 
@@ -198,7 +203,7 @@ class Picoscope(device):
             self.channel_setup_for_block()
             self.timebase_setup()
             self.trigger_setup_for_block()
-            self.setup_for = "block_measurement"
+            self.set_up_for = "block_measurement"
 
             self.current_nwf_stream        = None
             self.current_nr_samples_stream = None
@@ -258,12 +263,8 @@ class Picoscope(device):
         self.stop_scope()
 
         # convert ADC counts data to mV
-        adc2mVMax_trgch_list = np.zeros((number, self.nSamples))
-        for i, buffers in enumerate(self.buffer_trg):
-            adc2mVMax_trgch_list[i] = adc2mV(buffers, self.voltrange_trg, maxADC)
-        adc2mVMax_sgnlch_list = np.zeros((number, self.nSamples))
-        for i, buffers in enumerate(self.buffer_sgnl):
-            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange_sgnl, maxADC)
+        adc2mVMax_trgch_list  = self.adc2mV(self.buffer_trg, self.voltrange_trg, self.maxADC)
+        adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_sgnl, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
         timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples), (number, 1))
@@ -313,7 +314,7 @@ class Picoscope(device):
             self.status["set_stream_buffer"] = ps.ps6000aSetDataBuffer(self.chandle,
                                                                     self.channel_sgnl,
                                                                     ctypes.byref(self.buffer_stream[i]),
-                                                                    self.nSamples,
+                                                                    nr_samples,
                                                                     dataType,
                                                                     i,
                                                                     downSampleMode,
@@ -338,16 +339,16 @@ class Picoscope(device):
         if nr_samples != self.current_nr_samples_stream or nr_waveforms != self.current_nwf_stream:
 
             # set memory segments in buffer (segment per waveform)
-            maxSegments = ctypes.c_uint64(nr_samples)
-            self.status["SetNrofSegments"] = ps.ps6000aMemorySegments(self.chandle, nr_samples, ctypes.byref(maxSegments))
+            maxSegments = ctypes.c_uint64(nr_waveforms)
+            self.status["SetNrofSegments"] = ps.ps6000aMemorySegments(self.chandle, nr_waveforms, ctypes.byref(maxSegments))
             assert_pico_ok(self.status["SetNrofSegments"])
 
             # Set number of captures
-            self.status["SetNrofCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, nr_samples)
+            self.status["SetNrofCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, nr_waveforms)
             assert_pico_ok(self.status["SetNrofCaptures"])
 
             # setup buffer
-            self.buffer_setup_for_block(nr_samples, nr_waveforms)
+            self.buffer_setup_for_stream(nr_samples, nr_waveforms)
 
             self.current_nwf_stream        = nr_waveforms
             self.current_nr_samples_stream = nr_samples
@@ -391,12 +392,10 @@ class Picoscope(device):
         self.stop_scope()
 
         # convert ADC counts data to mV
-        adc2mVMax_sgnlch_list = np.zeros((nr_waveforms, nr_samples))
-        for i, buffers in enumerate(self.buffer_stream):
-            adc2mVMax_sgnlch_list[i] = adc2mV(buffers, self.voltrange_sgnl, self.maxADC)
+        adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_stream, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples)
+        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples)
 
         data_sgnl = np.zeros((nr_waveforms, nr_samples, 2))
         data_sgnl[:, :, 0] = timevals

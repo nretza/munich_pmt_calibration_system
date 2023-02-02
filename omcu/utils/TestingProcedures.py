@@ -49,11 +49,11 @@ def photocathode_scan(DATA_PATH):
         for phi, theta in itertools.product(config.PCS_PHI_LIST, config.PCS_THETA_LIST):  
 
             print(f"\nmeasuring ---- Phi: {phi}\tTheta: {theta}")
+
             Rotation.Instance().set_position(phi, theta)
 
             time.sleep(config.PCS_MEASUREMENT_SLEEP)
             logging.getLogger("OMCU").info(f"measuring dataset of {config.PCS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
-
             dataset = Picoscope.Instance().block_measurement(config.PCS_NR_OF_WAVEFORMS)
 
             if not dataset.calculate_occ(config.PCS_SIGNAL_THRESHOLD):
@@ -115,11 +115,11 @@ def frontal_HV_scan(DATA_PATH):
         for HV in config.FHVS_HV_LIST: 
 
             print(f"\nmeasuring ---- HV: {HV}")
+
             uBase.Instance().SetVoltage(HV)
 
             time.sleep(config.FHVS_MEASUREMENT_SLEEP)
             logging.getLogger("OMCU").info(f"measuring dataset of {config.FHVS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
-
             dataset = Picoscope.Instance().block_measurement(config.FHVS_NR_OF_WAVEFORMS)
 
             if not dataset.calculate_occ(config.FHVS_SIGNAL_THRESHOLD):
@@ -181,11 +181,11 @@ def charge_linearity_scan(DATA_PATH):
         for laser_tune in config.CLS_LASER_TUNE_LIST: 
 
             print(f"\nmeasuring ---- laser tune: {laser_tune}")
+
             Laser.Instance().set_tune_value(laser_tune)
 
             time.sleep(config.CLS_MEASUREMENT_SLEEP)
             logging.getLogger("OMCU").info(f"measuring dataset of {config.CLS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
-
             dataset = Picoscope.Instance().block_measurement(config.CLS_NR_OF_WAVEFORMS)
 
             if not dataset.calculate_occ(config.CLS_SIGNAL_THRESHOLD):
@@ -234,20 +234,18 @@ def dark_count_scan(DATA_PATH):
         for HV in config.DCS_HV_LIST: 
 
             print(f"\nmeasuring ---- HV: {HV}")
+
             uBase.Instance().SetVoltage(HV)
 
             time.sleep(config.DCS_MEASUREMENT_SLEEP)
-            logging.getLogger("OMCU").info(f"measuring dataset of {config.DCS_NR_OF_WAVEFORMS} Waveforms from Picoscope")
+            for i in range(config.DCS_NR_OF_ITERATIONS):
+                logging.getLogger("OMCU").info(f"measuring dataset of {config.DCS_NR_OF_WAVEFORMS} Waveforms with {config.DCS_NR_OF_SAMPLES} samples from Picoscope")
+                dataset = Picoscope.Instance().get_datastream(config.DCS_NR_OF_SAMPLES, config.DCS_NR_OF_WAVEFORMS)
+                arr_sgnl             = h5_connection.create_dataset(f"HV {HV}/data-{i}", (config.DCS_NR_OF_WAVEFORMS, config.DCS_NR_OF_SAMPLES, 2),'f')
+                arr_sgnl[:]          = dataset
+                arr_sgnl.attrs["HV"] = uBase.getDy10()
 
-            dataset = Picoscope.Instance().get_datastream(config.DCS_NR_OF_SAMPLES, config.CLS_NR_OF_WAVEFORMS)
-
-            arr_sgnl             = h5_connection.create_dataset(f"HV {HV}/data", (config.CLS_NR_OF_WAVEFORMS, config.DCS_NR_OF_SAMPLES, 2),'f')
-            arr_sgnl[:]          = dataset
-            arr_sgnl.attrs["HV"] = HV
-
-            time.sleep(config.CLS_MEASUREMENT_SLEEP)
-
-    print(f"\nFinished charge linearity scan\nData located at {os.path.join(DATA_PATH, config.CLS_DATAFILE)}")
+    print(f"\nFinished charge linearity scan\nData located at {os.path.join(DATA_PATH, config.DCS_DATAFILE)}")
 
     Laser.Instance().off_pulsed()
     Rotation.Instance().go_home()

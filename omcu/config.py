@@ -30,8 +30,8 @@ DARK_COUNT_SCAN       = True
 
 #Data-Analysis
 
-ANALYSIS_PERFORM    = True     # perform data analysis after datataking
-ANALYSIS_SHOW_PLOTS = False    # call plt.show()
+ANALYSIS_PERFORM    = False     # perform data analysis after datataking
+ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
 #what to plot
 
@@ -130,7 +130,7 @@ FHVS_TUNE_SIGNAL_THRESHOLD = -4
 
 #------------------------------------------------------
 
-FHVS_HV_LIST       = np.arange(70,110,1)       # HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(70,110,1)          # HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
@@ -190,9 +190,10 @@ DCS_DATAFILE      = "data_dark_count.hdf5"
 
 #------------------------------------------------------
 
-DCS_HV_LIST             = np.arange(70,110,1)    # HVs to set while data taking (start,stop,step)
+DCS_HV_LIST             = np.arange(70,105,1)    # HVs to set while data taking (start,stop,step)
 
-DCS_NR_OF_SAMPLES       = 10000                  # Number of amples the picoscope should record per iteration
-DCS_NR_OF_WAVEFORMS     = 10000                  # Number of sample collection iterations per configuration
+DCS_NR_OF_SAMPLES       = 10000                  # Number of samples the picoscope should record per waveform
+DCS_NR_OF_WAVEFORMS     = 10000                  # Number of waveforms per iteration
+DCS_NR_OF_ITERATIONS    = 20                     # Number of iterations per HV-configuration
 DCS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal
 DCS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
