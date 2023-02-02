@@ -130,7 +130,7 @@ FHVS_TUNE_SIGNAL_THRESHOLD = -4
 
 #------------------------------------------------------
 
-FHVS_HV_LIST       = np.arange(70,110,1)          # HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(75,105,1)          # HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
@@ -175,7 +175,7 @@ CLS_LASER_TUNE_LIST     = np.arange(720,600,-2)  # Laser tunes to set while data
 
 CLS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per configuration
 CLS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
-CLS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
+CLS_MEASUREMENT_SLEEP   =  30                    # Time in seconds that are waited before each recording of data
 
 
 
@@ -190,7 +190,7 @@ DCS_DATAFILE      = "data_dark_count.hdf5"
 
 #------------------------------------------------------
 
-DCS_HV_LIST             = np.arange(70,105,1)    # HVs to set while data taking (start,stop,step)
+DCS_HV_LIST             = np.arange(75,105,1)    # HVs to set while data taking (start,stop,step)
 
 DCS_NR_OF_SAMPLES       = 10000                  # Number of samples the picoscope should record per waveform
 DCS_NR_OF_WAVEFORMS     = 10000                  # Number of waveforms per iteration
