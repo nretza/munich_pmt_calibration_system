@@ -75,18 +75,14 @@ class Picoscope(device):
         self.autotrigger = 1000000
         self.trigger_delay = 0
 
-        # nr of samples
+        # nr of samples in block mode
         self.noOfPreTriggerSamples = pre_trigger_samples
         self.noOfPostTriggerSamples = post_trigger_samples
         self.nSamples = self.noOfPreTriggerSamples + self.noOfPostTriggerSamples
 
-        
         self.open_connection()
-        self.channel_setup_for_block()
-        self.timebase_setup()
-        self.trigger_setup_for_block()
-        self.set_up_for = "block_measurement"
-    
+        self.set_up_for = "none"
+
 
     def open_connection(self):
     
@@ -94,13 +90,44 @@ class Picoscope(device):
         self.status["openunit"] = ps.ps6000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution)
         assert_pico_ok(self.status["openunit"])
 
+
     def adc2mV(self, bufferADC, range, maxADC):
         channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
-        vRange = channelInputRanges[range]
-        convert = (np.array(bufferADC) * vRange) / maxADC.value
-        return convert
+        return (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
 
-#---------------------------
+
+    def timebase_setup(self):
+
+        # Get fastest available timebase
+        self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
+                                                                                           self.enabledChannelFlags,
+                                                                                           ctypes.byref(self.timebase),
+                                                                                           ctypes.byref(self.timeInterval),
+                                                                                           self.resolution)
+        assert_pico_ok(self.status["getMinimumTimebaseStateless"])
+        self.logger.info("Setup to get the fastest available timebase.")
+
+
+    def stop_scope(self):
+
+        self.status["stop"] = ps.ps6000aStop(self.chandle)
+        assert_pico_ok(self.status["stop"])
+
+        self.logger.debug("picoscope stopped")
+
+
+    def close_connection(self):
+
+        self.status["stop"] = ps.ps6000aStop(self.chandle)
+        assert_pico_ok(self.status["stop"])
+
+        self.status["close"] = ps.ps6000aCloseUnit(self.chandle)
+        assert_pico_ok(self.status["close"])
+
+        self.logger.info("picoscope stopped and connection closed")
+
+
+    #---------------------------
 
 
     def channel_setup_for_block(self):
@@ -117,23 +144,10 @@ class Picoscope(device):
             if channel in [self.channel_sgnl, self.channel_trg]: continue
             self.status["setChannel", channel] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(self.status["setChannel", channel])
-        
-        # ADC limits
+
+        # get ADC limits
         self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
         assert_pico_ok(self.status["getADCimits"])
-
-
-    def timebase_setup(self):
-
-        # Get fastest available timebase
-        self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
-                                                                                           self.enabledChannelFlags,
-                                                                                           ctypes.byref(self.timebase),
-                                                                                           ctypes.byref(self.timeInterval),
-                                                                                           self.resolution)
-        assert_pico_ok(self.status["getMinimumTimebaseStateless"])
-        self.logger.info("Setup to get the fastest available timebase.")
-
 
     def trigger_setup_for_block(self):
 
@@ -291,8 +305,8 @@ class Picoscope(device):
             if channel == self.channel_sgnl: continue
             self.status["setChannel", channel] = ps.ps6000aSetChannelOff(self.chandle, channel)
             assert_pico_ok(self.status["setChannel", channel])
-        
-        # ADC limits
+
+        # get ADC limits
         self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
         assert_pico_ok(self.status["getADCimits"])
 
@@ -391,6 +405,9 @@ class Picoscope(device):
 
         self.stop_scope()
 
+        self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
+        assert_pico_ok(self.status["getADCimits"])
+
         # convert ADC counts data to mV
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_stream, self.voltrange_sgnl, self.maxADC)
 
@@ -408,25 +425,6 @@ class Picoscope(device):
 
 
 #---------------------------------------------
-
-
-    def stop_scope(self):
-
-        self.status["stop"] = ps.ps6000aStop(self.chandle)
-        assert_pico_ok(self.status["stop"])
-
-        self.logger.debug("picoscope stopped")
-
-    def close_connection(self):
- 
-        self.status["stop"] = ps.ps6000aStop(self.chandle)
-        assert_pico_ok(self.status["stop"])
-
-        self.status["close"] = ps.ps6000aCloseUnit(self.chandle)
-        assert_pico_ok(self.status["close"])
-
-        self.logger.info("picoscope stopped and connection closed")
-
 
 if __name__ == "__main__":
     Picoscope.Instance().block_measurement(100)
