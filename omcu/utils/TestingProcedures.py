@@ -245,7 +245,7 @@ def dark_count_scan(DATA_PATH):
                 arr_sgnl             = h5_connection.create_dataset(f"HV {HV}/data-{i}", (config.DCS_NR_OF_WAVEFORMS, config.DCS_NR_OF_SAMPLES, 2),'f')
                 arr_sgnl[:]          = dataset
 
-                arr_sgnl.attrs["HV"]             = uBase.getDy10()
+                arr_sgnl.attrs["HV"]             = uBase.Instance().getDy10()
                 arr_sgnl.attrs["sgnl_threshold"] = config.DCS_SIGNAL_THRESHOLD
                 arr_sgnl.attrs["peaks"]          = len(find_peaks(-dataset[:,:,1].flatten(), height=-config.DCS_SIGNAL_THRESHOLD, width=2)[0])
 

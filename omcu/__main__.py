@@ -162,10 +162,11 @@ def main():
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
         frontal_HV_scan(DATA_PATH)
-    if config.CHARGE_LINEARITY_SCAN:
-        charge_linearity_scan(DATA_PATH)
     if config.DARK_COUNT_SCAN:
         dark_count_scan(DATA_PATH)
+    if config.CHARGE_LINEARITY_SCAN:
+        charge_linearity_scan(DATA_PATH)
+
 
 
     
