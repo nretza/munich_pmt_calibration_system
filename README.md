@@ -19,20 +19,20 @@ Please make sure that the following conditions are met before the OMCU is turned
 		 
 ### comand line arguments
 
-usage: omcu [-h] [-o OUTPATH] [-n PMTNAME] [-c COOLDOWN] [-p PHI] [-t THETA] [-v HV]
+usage: omcu [-h] [-l LOGLVL] [-o OUTPATH] [-n PMTNAME] [-c COOLDOWN] [--config CONFIG] [--script SCRIPT] [--printconfig]
 
 optional arguments:
 
 
-| short       | long                | description                                                                     |
-|-------------|---------------------|---------------------------------------------------------------------------------|
-| -h          | --help              | show this help message and exit                                                 |
-| -o OUTPATH  | --outpath OUTPATH   | path to the program output                                                      |
-| -n PMTNAME  | --pmtname PMTNAME   | name of the PMT inside the omcu                                                 |
-| -c COOLDOWN | --cooldown COOLDOWN | the cooldown time in minutes to reduce noise before any measurement takes place |
-| -p PHI      | --phi PHI           | list of phi angles to cycle through while datataking                            |
-| -t THETA    | --theta THETA       | list of theta angles to cycle through while datataking                          |
-| -v HV       | --HV HV             | list of high voltages to cycle through while datataking                         |
+| short       | long                | description                                                                         |
+|-------------|---------------------|-------------------------------------------------------------------------------------|
+| -h          | --help              | show this help message and exit                                                     |
+| -o OUTPATH  | --outpath OUTPATH   | path to the program output                                                          |
+| -n PMTNAME  | --pmtname PMTNAME   | name of the PMT inside the omcu                                                     |
+| -c COOLDOWN | --cooldown COOLDOWN | the cooldown time in minutes to reduce noise before any measurement takes place     |
+|             | --config CONFIG     | path to an alternative config file, which should be used instead of the default one | 
+|             | --script SCRIPT     | executes the given script instead of the main program                               |
+|             | --printconfig       | prints the content of the given config file. Exits the program afterwards           |
 
 If no argument is given, the omcu defaults to the value in omcu/config.py
 
