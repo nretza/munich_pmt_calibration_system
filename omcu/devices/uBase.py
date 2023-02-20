@@ -4,10 +4,9 @@ import time
 
 
 class uBase(serial_device):
+
     """
     Class for connecting to the uBase
-
-    This is a Singleton - google it!
     """
 
     _instance = None
@@ -35,6 +34,8 @@ class uBase(serial_device):
 #-----------------------------------------------------------
 
     def SetVoltage(self, Voltage:float, tolerance:float=0.1, max_iter:int=60, wait_time:float=1) -> float:
+
+        self.logger.info(f"setting Dy10 voltage to {Voltage} V")
         if Voltage > self.vmax:
             self.logger.warning(f"Voltage {Voltage} V exceeds V_Max of {self.vmax} V. Setting voltage to V_Max instead.")
             Voltage = self.vmax

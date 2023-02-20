@@ -5,10 +5,9 @@ import time
 
 
 class HV_supply(device):
+
     """
     Class for connecting to the CAEN DT5533EM HV supply
-
-    This is a Singleton - google it!
     """
 
     _instance = None
@@ -38,10 +37,10 @@ class HV_supply(device):
         self.default_ch = default_ch # This is the default channel, i.e. the channel the PMT is connected to
         
         self.hv_handle = hv_connection.init_system( system_type=11, #CAENHV_SYSTEM_TYPE[system], #DT55XXE
-                                                    link_type=5, #LinkType[link], #USB_VCP
-                                                    argument=args, #devie address
-                                                    username="", #empty
-                                                    password="" #empty
+                                                    link_type=5,    #LinkType[link], #USB_VCP
+                                                    argument=args,  #devie address
+                                                    username="",    #empty
+                                                    password=""     #empty
                                                   )
         self.hv_slot = 0
         self.vmax = 1400

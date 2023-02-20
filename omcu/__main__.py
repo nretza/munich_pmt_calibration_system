@@ -1,26 +1,23 @@
 #!/usr/bin/python3
+
 import os
 import argparse
+import logging
 import time
+import shutil
 import importlib.machinery
 import importlib.util
 
 from devices.Picoscope import Picoscope
-from devices.PSU import PSU0, PSU1
-from devices.Picoamp import Picoamp
+from devices.PSU import PSU1
 from devices.Rotation import Rotation
 from devices.Laser import Laser
 from devices.Powermeter import Powermeter
 from devices.uBase import uBase
 
-from utils.util import *
-from utils.testing_procedure import *
-
-from data_analysis.Data_Analysis import Data_Analysis
-
-
-#TODO: implement and test HV base
-#TODO: device controls at start of every function
+from utils.util import setup_file_logging
+from utils.TestingProcedures import photocathode_scan, frontal_HV_scan, charge_linearity_scan, dark_count_scan
+from utils.DataAnalysis import DataAnalysis
 
 
 ##########################################################################################
@@ -33,21 +30,30 @@ def main():
 
     # check that outdir exists
     if not os.path.exists(OUT_PATH):
-        raise FileNotFoundError(f"ERROR: given path {OUT_PATH} does not exist! Please adjust in config.py.")
-    #set pmt_name and datapath (either by user or config)
+        raise FileNotFoundError(f"ERROR: given path '{OUT_PATH}' does not exist! Please adjust in config.py.")
+        
+    # set pmt_name and datapath (either by user or config)
     if not PMT_NAME:
         pmt_name = input("Please enter the Name of the PMT inside the OMCU:\n>>> ")
     else:
         pmt_name = PMT_NAME
+
+    # check that datapath does not already exists (no data is overwritten)
     DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     while os.path.exists(DATA_PATH):
         pmt_name = input("ERROR: given PMT name seems to have Data stored already! Please choose another name:\n>>> ")
         DATA_PATH = os.path.join(OUT_PATH, pmt_name)
     os.makedirs(DATA_PATH)
-    #setup logging
+
+    # setup logging
     setup_file_logging(logging_file=os.path.join(DATA_PATH,LOG_FILE), logging_level=LOG_LVL)
+    logging.getLogger("OMCU").info(f"--- OMCU INITIALIZING ---")
     logging.getLogger("OMCU").info(f"storing data in {DATA_PATH}")
 
+    # copy config file to datapath
+    config_path = os.path.abspath(config.__file__)
+    shutil.copyfile(config_path, os.path.join((DATA_PATH), "config.py"))
+    logging.getLogger("OMCU").info(f"copying OMCU configuration to {DATA_PATH}")
 
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
@@ -60,12 +66,12 @@ def main():
     print("\t\t - both PSU_0 and PSU_1")
     print("\t\t - the Picoscope")
     print("\t\t - the Picoamp")
-    # print("\t\t - the HV Supply - Please call your electronics expert to switch this device on!\n")
+    print()
     check = input("Please confirm that the OMCU is properly set up [Yes/no]:\n>>> ")
     if not (check.lower() == "yes" or check.lower() == "y"):
         print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
         exit()
-
+    logging.getLogger("OMCU").info(f"OMCU marked as set up by user. Performing checks...")
     start_time = time.time()
 
     #Turn relevant devices on
@@ -73,6 +79,7 @@ def main():
     try:
         print("connecting PSU1")
         PSU1.Instance().off()
+        logging.getLogger("OMCU").info(f"PSU1 functional")
     except:
         print(f"\nERROR:\t PSU_1 could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -82,6 +89,7 @@ def main():
     try:
         print("connecting Rotation Stage")
         Rotation.Instance().go_home()
+        logging.getLogger("OMCU").info(f"rotation stage functional")
     except:
         print(f"\nERROR:\t Rotation Stage could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -91,24 +99,18 @@ def main():
     try:
         print("connecting Laser")
         Laser.Instance().off_pulsed()
+        logging.getLogger("OMCU").info(f"laser functional")
+
     except:
         print(f"\nERROR:\t Laser could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
         Consider the logging file in {DATA_PATH} for further help")
         print("\n exiting program now. Good bye!")
         exit(103)
-    # try:
-    #     print("connecting HV supply")
-    #     HV_supply.Instance().on()
-    # except:
-    #     print(f"\nERROR:\t HV_supply could not be connected to successfully.\n \
-    #     Please make sure the device is turned on by the hands of an electronic expert and properly connected.\n \
-    #     Consider the logging file in {DATA_PATH} for further help")
-    #     print("\n exiting program now. Good bye!")
-    #     exit(104)
     try:
         print("connecting Powermeter")
         Powermeter.Instance()
+        logging.getLogger("OMCU").info(f"powermeter functional")
     except:
         print(f"\nERROR:\t Powermeter could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -118,6 +120,7 @@ def main():
     try:
         print("connecting Picoscope")
         Picoscope.Instance()
+        logging.getLogger("OMCU").info(f"picoscope functional")
     except:
         print(f"\nERROR:\t Picoscope could not be connected to successfully.\n \
         Please make sure the device is turned on and properly connected.\n \
@@ -127,6 +130,7 @@ def main():
     try:
         print("connecting uBase")
         assert uBase.Instance().getUID() == "0056006b 344b5009 20333353"
+        logging.getLogger("OMCU").info(f"uBase functional")
     except:
         print(f"\nERROR:\t uBase could not be connected to successfully.\n \
         Please make sure the device is properly connected.\n \
@@ -134,8 +138,9 @@ def main():
         print("\n exiting program now. Good bye!")
         exit(107)
 
-    #time to reduce noise
+    # time to reduce noise
     print(f"\nOMCU turned on successfully. Entering cooldown time of {COOLDOWN_TIME} minutes before taking measurements")
+    logging.getLogger("OMCU").info(f"entering cooldown time of {COOLDOWN_TIME} minutes")
     Laser.Instance().off_pulsed()
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
     halftime_reached = False
@@ -147,22 +152,27 @@ def main():
             halftime_reached = True
             Laser.Instance().on_pulsed()
         time.sleep(60)
+    Laser.Instance().off_pulsed()
     print("cooldown completed!")
+    logging.getLogger("OMCU").info(f"cooldown completed")
 
 
-    #testing protocols
+    # testing protocols
     if config.PHOTOCATHODE_SCAN:
-        tune_parameters("from_config")
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
-        tune_parameters("from_config")
         frontal_HV_scan(DATA_PATH)
+    if config.DARK_COUNT_SCAN:
+        dark_count_scan(DATA_PATH)
+    if config.CHARGE_LINEARITY_SCAN:
+        charge_linearity_scan(DATA_PATH)
+
+
 
     
-    #turn devices off
-    # HV_supply.Instance().off_all()
+    # turn devices off
     Laser.Instance().off_pulsed()
-    uBase.Instance().SetVoltage(1)
+    uBase.Instance().SetVoltage(10)
     Rotation.Instance().go_home()
     PSU1.Instance().off()
 
@@ -171,11 +181,15 @@ def main():
 
     if config.ANALYSIS_PERFORM:
         print("analyzing data now")
-        analysis = Data_Analysis(DATA_PATH)
+        analysis = DataAnalysis(DATA_PATH)
         if config.FRONTAL_HV_SCAN:
             analysis.analyze_FHVS()
         if config.PHOTOCATHODE_SCAN:
             analysis.analyze_PCS()
+        if config.CHARGE_LINEARITY_SCAN:
+            analysis.analyze_CLS()
+        if config.DARK_COUNT_SCAN:
+            analysis.analyze_DCS()
 
     end_time = time.time()
 
@@ -209,7 +223,7 @@ if __name__ == "__main__":
            
    -----------------------------------------
     by: Niklas Retza (niklas.retza@tum.de)
-                 November 2022
+                 January 2023
    -----------------------------------------
     """)
 
@@ -231,7 +245,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.script:
-        #if called, run script instead of main routine
+        #if --script is called, run script instead of main routine
         if os.path.isfile(args.script) and os.path.splitext(args.script)[1] == ".py":
             with open(args.script) as f:
                 check = input(f"WARNING: You are about to run {args.script} instead of the usual OMCU routine.\nProceed? [Y/N]")
@@ -263,7 +277,7 @@ if __name__ == "__main__":
         exit(0)
 
     if args.config:
-        #override default config imoport if --config is called
+        #override default config import if --config is called
         try:
             loader = importlib.machinery.SourceFileLoader("config.py", args.config)
             spec = importlib.util.spec_from_loader("config.py", loader)

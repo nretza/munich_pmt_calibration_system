@@ -2,10 +2,9 @@
 from devices.device import serial_device
 
 class Laser(serial_device):
+
     """
     This is a class for the Picosecond Laser System Controller EIG2000DX
-    
-    This is a Singleton - google it!
     """
 
     _instance = None
@@ -51,7 +50,7 @@ class Laser(serial_device):
         trigger level:	     +0.00 V
         """
         s = self.serial_io('state?', multi_line=True)
-        self.logger.info(f"requested laser state:\n{s}")
+        print(f"requested laser state:\n{s}")
 
     def on_pulsed(self):
         """
@@ -95,7 +94,7 @@ class Laser(serial_device):
         :return: int: 0 = falling, 1 = rising, (2 = something went wrong)
         """
         self.serial_io(f'te={te}', line_ending='\n')  # sets trigger edge to te (falling 0, rising 1)
-        self.logger.debug(f"setting laser trigger edge to {te}")
+        self.logger.info(f"setting laser trigger edge to {te}")
         return self.get_trig_edge()
 
     def get_trig_edge(self):
@@ -122,7 +121,7 @@ class Laser(serial_device):
         :return: int: 0 = internal, 1 = ext. adjustable, 2 = ext. TTL, (3 = something went wrong)
         """
         self.serial_io(f'ts={ts}', line_ending='\n')  # sets trigger source to ts
-        self.logger.debug(f"setting laser trigger source to {ts}")
+        self.logger.info(f"setting laser trigger source to {ts}")
         # (internal 0, ext. adj. 1, ext. TTL 2)
         return self.get_trig_source()
 
@@ -152,7 +151,7 @@ class Laser(serial_device):
         :return: float: trigger level (-4.80...+4.80 V)
         """
         self.serial_io(f'tl={tl}', line_ending='\n')  # sets trigger level to tl (-4800...+4800 mV)
-        self.logger.debug(f"setting laser trigger level to {tl}")
+        self.logger.info(f"setting laser trigger level to {tl}")
         return self.get_trig_level()
 
     def get_trig_level(self):
@@ -204,7 +203,7 @@ class Laser(serial_device):
         self.serial_io('tm=0')  # sets tune mode to manual
         tune_mode_0 = self.get_tune_mode()
         self.serial_io(f'tune={tune}', line_ending='\n') # sets tune value to tune (0...1000, where 1000=100 %)
-        self.logger.debug(f"setting tune value to {tune}")
+        self.logger.info(f"setting tune value to {tune}")
         return self.get_tune_value()
 
     def get_tune_value(self):
@@ -226,7 +225,7 @@ class Laser(serial_device):
         :return: str: 'int. frequency: 100 Hz'
         """
         self.serial_io(f'f={f}', line_ending='\n')  # sets frequency to f (25...125000000)
-        self.logger.debug(f"set internal oscillator frequency to {f}")
+        self.logger.info(f"set internal oscillator frequency to {f}")
         return self.get_freq()
 
     def get_freq(self):
@@ -248,7 +247,7 @@ class Laser(serial_device):
         :return: float: CW laser output power (0...100 %)
         """
         self.serial_io(f'cwl={cwl}', line_ending='\n')  # sets CW laser output power (0...100)
-        self.logger.debug(f"set CW laser output power value to {cwl}")
+        self.logger.info(f"set CW laser output power value to {cwl}")
         return self.get_cwl()
 
     def get_cwl(self):

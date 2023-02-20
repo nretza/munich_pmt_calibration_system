@@ -4,8 +4,6 @@ from devices.device import serial_device
 class Powermeter(serial_device):
     """
     This is a class for the Newport Optical Powermeter Model 2936-R
-    
-    This is a Singleton - google it!
     """
 
     _instance = None
@@ -48,6 +46,7 @@ class Powermeter(serial_device):
         """
 
         self.serial_io(f'ECHO {state}')
+        self.logger.info(f"set echo to {state}")
         return self.get_echo()
 
     def get_echo(self):
@@ -56,7 +55,6 @@ class Powermeter(serial_device):
         :return: int: 0 = echo off, 1 = echo on
         """
         echo_string = self.serial_io('echo?')  # returns the set echo (0,1)
-        self.logger.debug(f"The echo status is: {echo_string} (0 = echo off, 1 = echo on, which should not be used here!")
         echo = int(echo_string)
         return echo
 
@@ -69,6 +67,7 @@ class Powermeter(serial_device):
         :return: int: selected wavelength in nm
         """
         self.serial_io(f'PM:L {lamb}')
+        self.logger.info(f"set lambda to {lamb}")
         return self.get_lambda()
 
     def get_lambda(self):
@@ -88,6 +87,7 @@ class Powermeter(serial_device):
         :return: int: 1/2 (selected power meter channel)
         """
         self.serial_io(f'PM:CHAN {ch}')  # power meter channel
+        self.logger.info(f"set channel to {ch}")
         return self.get_channel()
 
     def get_channel(self):
@@ -109,6 +109,7 @@ class Powermeter(serial_device):
         :return: int: 0 = fixed size, 1 = ring buffer
         """
         self.serial_io(f'PM:DS:BUF {buf}')  # buffer behavior
+        self.logger.info(f"set buffer to {buf}")
         return self.get_buffer()
 
     def get_buffer(self):
@@ -127,7 +128,7 @@ class Powermeter(serial_device):
         :return: -
         """
         self.serial_io('PM:DS:CL')  # resets the data store to be empty with no values
-        self.logger.debug("The Data Store has been cleared of all data")
+        self.logger.info("cleared data store of all data")
 
     def get_count(self):
         """
@@ -150,6 +151,7 @@ class Powermeter(serial_device):
         :return: status of the Data Store (0 = disabled, 1 = enabled)
         """
         self.serial_io(f'PM:DS:EN {en}')
+        self.logger.info(f"set data collection to {en}")
         return self.get_collection_status()
 
     def get_collection_status(self):
@@ -226,6 +228,7 @@ class Powermeter(serial_device):
         :return: int (selected Data Store Interval)
         """
         self.serial_io(f'PM:DS:INT {intv}')  # selects the Data Store Interval
+        self.logger.info(f"set inerval to {intv}")
         return self.get_interval()
 
     def get_interval(self):
@@ -252,6 +255,7 @@ class Powermeter(serial_device):
         :return: int (present acquisition mode)
         """
         self.serial_io(f'PM:MODE {mode}')  # selects the acquisition mode
+        self.logger.info(f"set mode to {mode}")
         return self.get_mode()
 
     def get_mode(self):
@@ -291,6 +295,7 @@ class Powermeter(serial_device):
         :return: int (0 = stopped, 1 = running)
         """
         self.serial_io(f'PM:RUN {runner}')  # disables or enables the acquisition of data
+        self.logger.info(f"set run to {runner}")
         return self.get_run()
 
     def get_run(self):
@@ -299,7 +304,6 @@ class Powermeter(serial_device):
         :return: int (0 = stopped, 1 = running)
         """
         run_string = self.serial_io('PM:RUN?')  # returns an int indicating the present run mode
-        self.logger.debug(f"The run mode is: {run_string} (0 = stopped, 1 = running)")
         run = int(run_string)
         return run
 
@@ -309,6 +313,7 @@ class Powermeter(serial_device):
         :return: float (set offset value)
         """
         self.serial_io('PM:ZEROSTO')  # sets the zeroing value with the present reading
+        self.logger.info(f"set offset")
         return self.get_offset()
 
     def set_offset_val(self, offset):
@@ -318,6 +323,7 @@ class Powermeter(serial_device):
         :return: float (set offset value)
         """
         self.serial_io(f'PM:ZEROVAL {offset}')  # sets the zeroing value with the given value
+        self.logger.info(f"set offset to {offset}")
         return self.get_offset()
 
     def get_offset(self):

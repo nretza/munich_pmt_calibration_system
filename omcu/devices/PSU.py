@@ -5,7 +5,9 @@ from devices.device import device
 
 
 class PSU(device, gpd3303s.GPD3303S):
-    """This class makes an instance for the USB power supply.
+
+    """
+    This class makes an instance for the USB power supply.
     It is important that the udev rules allow access to the current user.
     """
 
@@ -33,7 +35,7 @@ class PSU(device, gpd3303s.GPD3303S):
         """
         self.setVoltage(channel, voltage)
         self.setCurrent(channel, current)
-        self.logger.debug(f"set settings. ch: {channel}, voltage: {voltage}, current: {current}")
+        self.logger.info(f"set settings. ch: {channel}, voltage: {voltage}, current: {current}")
         return self.state
 
     def on(self):
