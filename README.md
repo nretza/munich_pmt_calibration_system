@@ -19,7 +19,7 @@ Please make sure that the following conditions are met before the OMCU is turned
 		 
 ### comand line arguments
 
-usage: main.py [-h] [-o OUTPATH] [-n PMTNAME] [-c COOLDOWN] [-p PHI] [-t THETA] [-v HV]
+usage: omcu [-h] [-o OUTPATH] [-n PMTNAME] [-c COOLDOWN] [-p PHI] [-t THETA] [-v HV]
 
 optional arguments:
 
