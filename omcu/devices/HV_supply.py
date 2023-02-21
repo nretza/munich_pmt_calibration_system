@@ -1,7 +1,8 @@
 #!/usr/bin/python3
+import time
+
 import pycaenhv.wrappers as hv_connection
 from devices.device import device
-import time
 
 
 class HV_supply(device):

@@ -1,12 +1,12 @@
 #!/usr/bin/python3
-import time
 import logging
-import numpy as np
+import time
 
+import numpy as np
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
-from devices.uBase import uBase
 from devices.Rotation import Rotation
+from devices.uBase import uBase
 
 #-----------------------------------------------------
 

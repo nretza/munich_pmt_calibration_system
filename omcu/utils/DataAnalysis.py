@@ -4,11 +4,12 @@ if __name__ == "__main__":
     import sys
     sys.path.append("..")
 
-import config
-import time
 import logging
+import time
 
+import config
 from utils.DataHandler import DataHandler
+
 
 class DataAnalysis:
 

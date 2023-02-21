@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 import ctypes
+
 import numpy as np
-
-from picosdk.ps6000a import ps6000a as ps
-from picosdk.PicoDeviceEnums import picoEnum as enums
-from picosdk.functions import assert_pico_ok
-
 from devices.device import device
+from picosdk.functions import assert_pico_ok
+from picosdk.PicoDeviceEnums import picoEnum as enums
+from picosdk.ps6000a import ps6000a as ps
 from utils.Measurement import Measurement
 
 

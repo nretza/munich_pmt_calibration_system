@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from devices.device import serial_device
 
+
 class Laser(serial_device):
 
     """

@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import time
+
 from devices.device import serial_device
 from devices.PSU import PSU1
+
 
 class Rotation(serial_device):
     

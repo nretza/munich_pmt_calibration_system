@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-import gpd3303s
 import time
+
+import gpd3303s
 from devices.device import device
 
 

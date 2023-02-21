@@ -1,14 +1,12 @@
 #!/usr/bin/python3
 
-import os
 import logging
-import h5py
-import numpy as np
-
-from matplotlib import pyplot as plt
+import os
 
 import config
-
+import h5py
+import numpy as np
+from matplotlib import pyplot as plt
 from utils.Measurement import Measurement
 
 

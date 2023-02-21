@@ -1,19 +1,18 @@
 #!/usr/bin/python3
 
-import logging
-import time
-import h5py
-import os
 import itertools
-from scipy.signal import find_peaks
+import logging
+import os
+import time
 
 import config
-from devices.Picoscope import Picoscope
+import h5py
 from devices.Laser import Laser
+from devices.Picoscope import Picoscope
 from devices.Rotation import Rotation
 from devices.uBase import uBase
+from scipy.signal import find_peaks
 from utils.util import tune_parameters
-
 
 #------------------------------------------------------------------------------
 

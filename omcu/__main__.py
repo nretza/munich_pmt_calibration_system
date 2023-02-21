@@ -1,24 +1,23 @@
 #!/usr/bin/python3
 
-import os
 import argparse
-import logging
-import time
-import shutil
 import importlib.machinery
 import importlib.util
+import logging
+import os
+import shutil
+import time
 
+from devices.Laser import Laser
 from devices.Picoscope import Picoscope
+from devices.Powermeter import Powermeter
 from devices.PSU import PSU1
 from devices.Rotation import Rotation
-from devices.Laser import Laser
-from devices.Powermeter import Powermeter
 from devices.uBase import uBase
-
-from utils.util import setup_file_logging
-from utils.TestingProcedures import photocathode_scan, frontal_HV_scan, charge_linearity_scan, dark_count_scan
 from utils.DataAnalysis import DataAnalysis
-
+from utils.TestingProcedures import (charge_linearity_scan, dark_count_scan,
+                                     frontal_HV_scan, photocathode_scan)
+from utils.util import setup_file_logging
 
 ##########################################################################################
 ##########################################################################################

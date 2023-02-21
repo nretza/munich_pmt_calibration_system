@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 
-import numpy as np
-
-from scipy import constants
-from matplotlib import pyplot as plt
-
 import config
+import numpy as np
+from matplotlib import pyplot as plt
+from scipy import constants
 
 
 class Waveform:

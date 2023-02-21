@@ -1,25 +1,21 @@
 #!/usr/bin/python3
 
-import os
 import logging
-import h5py
-import numpy as np
-
 import math
-from scipy import optimize
-from scipy.signal import find_peaks
-from matplotlib import pyplot as plt
+import os
 from datetime import datetime
 
 import config
-
-from utils.Waveform import Waveform
-
+import h5py
+import numpy as np
 from devices.Laser import Laser
-from devices.uBase import uBase
-from devices.Rotation import Rotation
 from devices.Powermeter import Powermeter
-
+from devices.Rotation import Rotation
+from devices.uBase import uBase
+from matplotlib import pyplot as plt
+from scipy import optimize
+from scipy.signal import find_peaks
+from utils.Waveform import Waveform
 
 
 #placed here to avoid circular imports

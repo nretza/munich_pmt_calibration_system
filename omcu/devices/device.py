@@ -2,8 +2,9 @@
 import logging
 import time
 
-from serial import Serial, PARITY_NONE, STOPBITS_ONE, EIGHTBITS # the python serial package
 from devices.sim_serial import sim_serial #self written stuff to simulate a serial port
+from serial import Serial, PARITY_NONE, STOPBITS_ONE, EIGHTBITS # the python serial package
+
 
 class device:
 
