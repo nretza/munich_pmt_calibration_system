@@ -47,6 +47,8 @@ class Picoscope(device):
         # resolution and timebase (set later)
         self.resolution = enums.PICO_DEVICE_RESOLUTION["PICO_DR_12BIT"]
         self.enabledChannelFlags = enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_A_FLAGS"] + enums.PICO_CHANNEL_FLAGS["PICO_CHANNEL_C_FLAGS"]
+        self.min_timebase_block  = 2 # 800 ps
+        self.min_timebase_stream = 4 # 3.6 ns
         self.timebase = ctypes.c_uint32(0)
         self.timeInterval = ctypes.c_double(0)
 
@@ -93,19 +95,8 @@ class Picoscope(device):
 
     def adc2mV(self, bufferADC, range, maxADC):
         channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
-        return (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
-
-
-    def timebase_setup(self):
-
-        # Get fastest available timebase
-        self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
-                                                                                           self.enabledChannelFlags,
-                                                                                           ctypes.byref(self.timebase),
-                                                                                           ctypes.byref(self.timeInterval),
-                                                                                           self.resolution)
-        assert_pico_ok(self.status["getMinimumTimebaseStateless"])
-        self.logger.info("Setup to get the fastest available timebase.")
+        array = (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
+        return array.astype(np.float16)
 
 
     def stop_scope(self):
@@ -148,6 +139,32 @@ class Picoscope(device):
         # get ADC limits
         self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
         assert_pico_ok(self.status["getADCimits"])
+
+
+    def timebase_setup_for_block(self, samples):
+
+        # Get fastest available timebase
+        self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
+                                                                                           self.enabledChannelFlags,
+                                                                                           ctypes.byref(self.timebase),
+                                                                                           ctypes.byref(self.timeInterval),
+                                                                                           self.resolution)
+        assert_pico_ok(self.status["getMinimumTimebaseStateless"])
+
+        if self.timebase.value < self.min_timebase_block:
+            max_samples = ctypes.c_uint32(0)
+            self.status["getTimebase"] = ps.ps6000aGetTimebase(self.chandle,
+                                                               self.min_timebase_block,
+                                                               samples,
+                                                               ctypes.byref(self.timeInterval),
+                                                               ctypes.byref(max_samples),
+                                                               0)
+            assert_pico_ok(self.status["getTimebase"])
+            assert max_samples >= samples
+            self.timebase = ctypes.c_uint32(self.min_timebase_block)
+            
+        self.logger.info(f"Setup to get the fastest available timebase: {self.timebase.value}.")
+
 
     def trigger_setup_for_block(self):
 
@@ -205,9 +222,9 @@ class Picoscope(device):
             assert_pico_ok(self.status["set_sgnl_buffer"])
 
 
-    def block_measurement(self, number = 10):
+    def block_measurement(self, nr_waveforms = 10):
 
-        assert number < self.max_nwf
+        assert nr_waveforms < self.max_nwf
 
         if self.set_up_for != "block_measurement":
             
@@ -215,28 +232,28 @@ class Picoscope(device):
             self.open_connection()
             self.logger.info(f"configuring for block measurements")
             self.channel_setup_for_block()
-            self.timebase_setup()
+            self.timebase_setup_for_block(self.nSamples)
             self.trigger_setup_for_block()
             self.set_up_for = "block_measurement"
 
             self.current_nwf_stream        = None
             self.current_nr_samples_stream = None
 
-        if number != self.current_nwf_block:
+        if nr_waveforms != self.current_nwf_block:
 
             # set memory segments in buffer (segment per waveform)
-            maxSegments = ctypes.c_uint64(number)
-            self.status["SetNrofSegments"] = ps.ps6000aMemorySegments(self.chandle, number, ctypes.byref(maxSegments))
+            maxSegments = ctypes.c_uint64(nr_waveforms)
+            self.status["SetNrofSegments"] = ps.ps6000aMemorySegments(self.chandle, nr_waveforms, ctypes.byref(maxSegments))
             assert_pico_ok(self.status["SetNrofSegments"])
 
             # Set number of captures
-            self.status["SetNrofCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, number)
+            self.status["SetNrofCaptures"] = ps.ps6000aSetNoOfCaptures(self.chandle, nr_waveforms)
             assert_pico_ok(self.status["SetNrofCaptures"])
 
             # setup buffer
-            self.buffer_setup_for_block(number)
+            self.buffer_setup_for_block(nr_waveforms)
 
-            self.current_nwf_block = number
+            self.current_nwf_block = nr_waveforms
 
         # run block
         timeIndisposedMs = ctypes.c_double(0)
@@ -258,11 +275,11 @@ class Picoscope(device):
 
         # Get data from scope
         noOfSamples = ctypes.c_uint64(self.nSamples)
-        end = number - 1
+        end = nr_waveforms - 1
         downSampleMode = enums.PICO_RATIO_MODE["PICO_RATIO_MODE_RAW"]
 
         # Creates an overflow location for each segment
-        overflow = (ctypes.c_int16 * number)()
+        overflow = (ctypes.c_int16 * nr_waveforms)()
 
         self.status["getValues"] = ps.ps6000aGetValuesBulk(self.chandle,
                                                             0,
@@ -281,9 +298,9 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_sgnl, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples), (number, 1))
+        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples), (nr_waveforms, 1), dtype=np.float16)
 
-        self.logger.info(f"block measurement of {number} Waveforms performed. trigger_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
+        self.logger.info(f"block measurement of {nr_waveforms} Waveforms performed. trigger_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
 
         # create dataset and return
         dataset = Measurement(time_data=timevals, signal_data=adc2mVMax_sgnlch_list, trigger_data=adc2mVMax_trgch_list)
@@ -309,6 +326,31 @@ class Picoscope(device):
         # get ADC limits
         self.status["getADCimits"] = ps.ps6000aGetAdcLimits(self.chandle, self.resolution, ctypes.byref(self.minADC), ctypes.byref(self.maxADC))
         assert_pico_ok(self.status["getADCimits"])
+
+
+    def timebase_setup_for_stream(self, samples):
+
+        # Get fastest available timebase
+        self.status["getMinimumTimebaseStateless"] = ps.ps6000aGetMinimumTimebaseStateless(self.chandle,
+                                                                                           self.enabledChannelFlags,
+                                                                                           ctypes.byref(self.timebase),
+                                                                                           ctypes.byref(self.timeInterval),
+                                                                                           self.resolution)
+        assert_pico_ok(self.status["getMinimumTimebaseStateless"])
+
+        if self.timebase.value < self.min_timebase_stream:
+            max_samples = ctypes.c_uint32(0)
+            self.status["getTimebase"] = ps.ps6000aGetTimebase(self.chandle,
+                                                               self.min_timebase_stream,
+                                                               samples,
+                                                               ctypes.byref(self.timeInterval),
+                                                               ctypes.byref(max_samples),
+                                                               0)
+            assert_pico_ok(self.status["getTimebase"])
+            assert max_samples >= samples
+            self.timebase = ctypes.c_uint32(self.min_timebase_stream)
+
+        self.logger.info(f"Setup to get the fastest available timebase: {self.timebase.value}.")
 
 
     def buffer_setup_for_stream(self, nr_samples, nr_waveforms):
@@ -345,7 +387,7 @@ class Picoscope(device):
             self.open_connection()
             self.logger.info(f"Configuring for streaming data")
             self.chanel_setup_for_stream()
-            self.timebase_setup()
+            self.timebase_setup_for_stream(nr_samples)
             self.set_up_for = "streaming"
 
             self.current_nwf_block = None
@@ -412,7 +454,7 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_stream, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples)
+        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float16)
 
         data_sgnl = np.zeros((nr_waveforms, nr_samples, 2))
         data_sgnl[:, :, 0] = timevals
