@@ -88,6 +88,8 @@ def main():
     try:
         print("connecting Rotation Stage")
         Rotation.Instance().go_home()
+        Rotation.Instance().set_position(20,20) # to check if go home_works() fine
+        Rotation.Instance().go_home()
         logging.getLogger("OMCU").info(f"rotation stage functional")
     except:
         print(f"\nERROR:\t Rotation Stage could not be connected to successfully.\n \
