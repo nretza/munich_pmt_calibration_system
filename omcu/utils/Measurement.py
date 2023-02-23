@@ -315,7 +315,9 @@ class Measurement:
 
     def plot_wfs(self, how_many):
 
-        if not self.waveforms: self.logger.exception("plotting waveforms without having Waveforms stored!")
+        if not self.waveforms:
+            print("plotting waveforms without having Waveforms stored!")
+            return
 
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, how_many)))
@@ -327,12 +329,12 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
-        plt.title(f"Waveforms for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveforms-Dy10={self.metadict['Dy10']}_V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveforms for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveforms_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "waveforms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveforms")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -341,7 +343,9 @@ class Measurement:
 
     def plot_peaks(self, ratio=0.33, width=2, how_many=10):
 
-        if not self.waveforms: self.logger.exception("plotting waveform peaks without having Waveforms stored!")
+        if not self.waveforms:
+            print("plotting waveform peaks without having Waveforms stored!")
+            return
 
         average_wf = self.get_average_wf()
         threshold = np.min(average_wf[1]) * ratio
@@ -359,12 +363,12 @@ class Measurement:
         plt.ylabel('Voltage (mV)')
         plt.axhline(y=threshold, color='red', linestyle='--')
 
-        plt.title(f"Waveform peaks for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform peaks for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "waveforms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-peaks")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -373,7 +377,9 @@ class Measurement:
 
     def plot_wf_masks(self, how_many=10):
 
-        if not self.waveforms: self.logger.exception("plotting waveform masks without having Waveforms stored!")
+        if not self.waveforms:
+            print("plotting waveform masks without having Waveforms stored!")
+            return
 
         cmap = plt.cm.viridis
         colors = iter(cmap(np.linspace(0, 0.7, how_many)))
@@ -385,12 +391,12 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
-        plt.title(f"Waveform masks for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform masks for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "waveforms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-masks")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -399,7 +405,9 @@ class Measurement:
 
     def plot_average_wfs(self):
 
-        if not self.waveforms: self.logger.exception("plotting average waveforms without having Waveforms stored!")
+        if not self.waveforms:
+            print("plotting average waveforms without having Waveforms stored!")
+            return
 
         average_wf = self.get_average_wf()
 
@@ -409,12 +417,12 @@ class Measurement:
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
 
-        plt.title(f"Average waveform for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Average waveform for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "average_waveforms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "average-waveforms")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -425,13 +433,17 @@ class Measurement:
 
         # TODO: twin axis for two histograms
 
-        if not self.waveforms: self.logger.exception(f"plotting {mode}-histogram without having Waveforms stored!")
+        if not self.waveforms:
+            print(f"plotting {mode}-histogram without having Waveforms stored!")
+            return
 
         if mode not in ["amplitude", "gain", "charge"]:
             return
 
         nr_entries = len(self.waveforms)
         nbins = int(nr_entries / 100)
+
+        if nbins < 10: nbins = 10
 
         fig, ax1 = plt.subplots()
 
@@ -448,12 +460,12 @@ class Measurement:
         ax1.set_ylabel('Counts')
 
         fig.tight_layout()
-        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-hist-{mode}s-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-hist-{mode}s_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "histograms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  f"{mode}-histograms")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -462,70 +474,25 @@ class Measurement:
 
     def plot_transit_times(self, binsize=0.4):
 
-        if not self.waveforms: self.logger.exception("plotting transit times without having Waveforms stored!")
+        if not self.waveforms:
+            print(f"plotting transit times without having Waveforms stored!")
+            return
 
         transit_times = [wf.transit_time for wf in self.waveforms]
 
-        bins = np.arange(np.min(transit_times), np.max(transit_times), binsize)
-        entries, edges = np.histogram(transit_times, bins=bins)
-        bin_m = (edges[:-1] + edges[1:])/2
-
-        x = bin_m
-        y = entries
-
-        yMax = np.max(y)
-        indMax = np.argmax(y)
-        a0 = yMax
-        mu0 = x[indMax]
-
-        x_halb = x[int(indMax/2)]
-        x_ymax = x[indMax]
-        sigma0 = 2 * abs(x_halb + x_ymax)
-
-        popt, pcov = optimize.curve_fit(gaussian, x, y, p0=(a0, mu0, sigma0), maxfev=int(1e4))
-        perr = np.sqrt(np.diag(pcov))
-        a = popt[0]
-        da = perr[0]
-        mu = popt[1]
-        dmu = perr[1]
-        sigma = popt[2]
-        dsigma = perr[2]
-        y_val = a / 2
-        dy_val = da / 2
-
-        fehler1 = (da ** 2) * ((sigma ** 2) / (4 * a ** 2)) * ((-math.log(1/2)) ** (-1))
-        fehler2 = dmu ** 2
-        fehler3 = (dsigma ** 2) * (-math.log(1/2))
-        fehler4 = (dy_val ** 2) * ((sigma ** 2) / (4 * y_val ** 2)) * ((-math.log(1/2)) ** (-1))
-
-        dx = (fehler1 + fehler2 + fehler3 + fehler4) ** (1 / 2)
-
-        xfit = np.linspace(np.min(x), np.max(x), 10000)
-        yfit = gaussian(xfit, *popt)
-        mask2 = yfit >= a / 2
-        x1 = xfit[mask2][0]
-        x2 = xfit[mask2][-1]
-
-        tts_val = x2 - x1
-        dtts = (2*(dx**2))**(1/2)
-
         plt.figure()
 
-        plt.hist(x=edges[:-1], bins=edges, weights=entries, histtype='step', linewidth=2.0)
-        plt.plot(xfit, gaussian(xfit, *popt), color='black', linewidth=2.0, label=r'$\mu$=' + str(np.round(popt[1], 3)) + '\n$\sigma$=' + str(np.round(popt[2], 3)))
-        plt.hlines(y_val, x1, x2, 'orange', linewidth=3.0, label='FWHM=' + str(np.round(tts_val, 2))+r'$\pm$'+str(np.round(dtts,2)))
+        plt.hist(transit_times, histtype='step', linewidth=2.0)
 
         plt.xlabel('Transit time [ns]')
         plt.ylabel('Counts')
-        plt.xlim(x[indMax-12], x[indMax+12])
-        plt.legend()
 
-        plt.title(f"TTS for Dy10={self.metadict['Dy10']}V, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-TTS-Dy10={self.metadict['Dy10']}V_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"TTS for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
+        figname = f"{self.filename[:-5]}-TTS_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
 
-        save_dir = os.path.join(self.filepath, "transit_times")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "transit-times")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
