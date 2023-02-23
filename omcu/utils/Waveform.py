@@ -100,7 +100,7 @@ class Waveform:
 
         # calculate area and gain
         area = np.trapz(self.signal[self.mask]*1e-3, self.time[self.mask]*1e-9)
-        self.charge = area/50
+        self.charge = area/50 # 50 Ohm termination at scope
         self.gain = abs(self.charge)/constants.e
         return self.gain
     
@@ -116,6 +116,7 @@ class Waveform:
 
     def has_ringing(self):
         pass
+    
 ###-----------------------------------------------------------------
 
     def plot(self, out_file):
