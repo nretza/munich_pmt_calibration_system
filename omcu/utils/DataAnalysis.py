@@ -42,37 +42,37 @@ class DataAnalysis:
             self.logger.info("Plotting average waveforms")
             handler.plot_average_wfs()
         if config.ANALYSIS_PLOT_HIST_AMP:
-            print("plotting amlitude histograms")
-            self.logger.info("plotting amlitude histograms")
+            print("Plotting amlitude histograms")
+            self.logger.info("Plotting amlitude histograms")
             handler.plot_hist("amplitude")
         if config.ANALYSIS_PLOT_HIST_CHRG:
-            print("plotting charge histograms")
-            self.logger.info("plotting charge histograms")
+            print("Plotting charge histograms")
+            self.logger.info("Plotting charge histograms")
             handler.plot_hist("charge")
         if config.ANALYSIS_PLOT_HIST_GAIN:
-            print("plotting gain histograms")
-            self.logger.info("plotting gain histograms")
+            print("Plotting gain histograms")
+            self.logger.info("Plotting gain histograms")
             handler.plot_hist("gain")
         if config.ANALYSIS_PLOT_TTS:
-            print("plotting transit time data")
-            self.logger.info("plotting transit time data")
+            print("Plotting transit time data")
+            self.logger.info("Plotting transit time data")
             handler.plot_transit_times()
 
         if config.ANALYSIS_PLOT_ANGULAR_ACCEPTANCE:
-            print("plotting angular acceptance")
-            self.logger.info("plotting angular acceptance")
+            print("Plotting angular acceptance")
+            self.logger.info("Plotting angular acceptance")
             handler.plot_angular_acceptance()
         if config.ANALYSIS_PLOT_ANGLE_TO_GAIN:
-            print("plotting angle to gain relation")
-            self.logger.info("plotting angle to gain relation")
+            print("Plotting angle to gain relation")
+            self.logger.info("Plotting angle to gain relation")
             handler.plot_angle_to_gain()
         if config.ANALYSIS_PLOT_ANGLE_TO_TTS:
-            print("plotting angle to TTS relation")
-            self.logger.info("plotting angle to TTS relation")
+            print("Plotting angle to TTS relation")
+            self.logger.info("Plotting angle to TTS relation")
             handler.plot_angle_to_TTS()
         if config.ANALYSIS_PLOT_ANGLE_TO_RISE_TIME:
-            print("plotting angle to rise time relation")
-            self.logger.info("plotting angle to rise time relation")
+            print("Plotting angle to rise time relation")
+            self.logger.info("Plotting angle to rise time relation")
             handler.plot_angle_to_rise_time()
 
         print(f"\nFinished Photo Cathode Scan Analysis\nData located in {self.data_path}")
@@ -105,33 +105,33 @@ class DataAnalysis:
             self.logger.info("Plotting average waveforms")
             handler.plot_average_wfs()
         if config.ANALYSIS_PLOT_HIST_AMP:
-            print("plotting amlitude histograms")
-            self.logger.info("plotting amlitude histograms")
+            print("Plotting amlitude histograms")
+            self.logger.info("Plotting amlitude histograms")
             handler.plot_hist("amplitude")
         if config.ANALYSIS_PLOT_HIST_CHRG:
-            print("plotting charge histograms")
-            self.logger.info("plotting charge histograms")
+            print("Plotting charge histograms")
+            self.logger.info("Plotting charge histograms")
             handler.plot_hist("charge")
         if config.ANALYSIS_PLOT_HIST_GAIN:
-            print("plotting gain histograms")
-            self.logger.info("plotting gain histograms")
+            print("Plotting gain histograms")
+            self.logger.info("Plotting gain histograms")
             handler.plot_hist("gain")
         if config.ANALYSIS_PLOT_TTS:
-            print("plotting transit time data")
-            self.logger.info("plotting transit time data")
+            print("Plotting transit time data")
+            self.logger.info("Plotting transit time data")
             handler.plot_transit_times()
 
         if config.ANALYSIS_PLOT_HV_TO_GAIN:
-            print("plotting HV to gain relation")
-            self.logger.info("plotting HV to gain relation")
+            print("Plotting HV to gain relation")
+            self.logger.info("Plotting HV to gain relation")
             handler.plot_HV_to_gain()
         if config.ANALYSIS_PLOT_HV_TO_TTS:
-            print("plotting HV to TTS relation")
-            self.logger.info("plotting HV to TTS relation")
+            print("Plotting HV to TTS relation")
+            self.logger.info("Plotting HV to TTS relation")
             handler.plot_HV_to_TTS()
         if config.ANALYSIS_PLOT_HV_TO_RISE_TIME:
-            print("plotting HV to rise time relation")
-            self.logger.info("plotting HV to rise time relation")
+            print("Plotting HV to rise time relation")
+            self.logger.info("Plotting HV to rise time relation")
             handler.plot_HV_to_rise_time()            
             
         print(f"\nFinished frontal HV Scan Analysis\nData located in {self.data_path}")
@@ -163,20 +163,20 @@ class DataAnalysis:
             self.logger.info("Plotting average waveforms")
             handler.plot_average_wfs()
         if config.ANALYSIS_PLOT_HIST_AMP:
-            print("plotting amlitude histograms")
-            self.logger.info("plotting amlitude histograms")
+            print("Plotting amlitude histograms")
+            self.logger.info("Plotting amlitude histograms")
             handler.plot_hist("amplitude")
         if config.ANALYSIS_PLOT_HIST_CHRG:
-            print("plotting charge histograms")
-            self.logger.info("plotting charge histograms")
+            print("Plotting charge histograms")
+            self.logger.info("Plotting charge histograms")
             handler.plot_hist("charge")
         if config.ANALYSIS_PLOT_HIST_GAIN:
-            print("plotting gain histograms")
-            self.logger.info("plotting gain histograms")
+            print("Plotting gain histograms")
+            self.logger.info("Plotting gain histograms")
             handler.plot_hist("gain")
         if config.ANALYSIS_PLOT_TTS:
-            print("plotting transit time data")
-            self.logger.info("plotting transit time data")
+            print("Plotting transit time data")
+            self.logger.info("Plotting transit time data")
             handler.plot_transit_times()
 
         # TODO
@@ -202,7 +202,7 @@ class DataAnalysis:
 
 if __name__ == "__main__":
 
-    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/test/8/"
+    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/R14374/KM57347_374"
 
     print("analyzing data now")
     analysis = DataAnalysis(DATA_PATH)
@@ -214,3 +214,10 @@ if __name__ == "__main__":
         analysis.analyze_CLS()
     if config.DARK_COUNT_SCAN:
         analysis.analyze_DCS()
+
+    # todo
+    # PCS peaks crashes
+    # PCS not fully run through
+    # waaaay to much plots
+    # make TTS prettier
+    # DCS eval is missing

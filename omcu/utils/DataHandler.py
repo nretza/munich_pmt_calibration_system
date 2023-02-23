@@ -102,9 +102,9 @@ class DataHandler:
         plt.title(f"relative angular acceptance from theta={min(theta_list)} to theta={max(theta_list)}")
         figname = f"{self.filename[:-5]}-angular acceptance.png"
 
-        save_dir = os.path.join(self.filepath, "angular acceptance")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -132,9 +132,9 @@ class DataHandler:
         plt.title(f"average gain from theta={min(teta_list)} to theta={max(teta_list)}")
         figname = f"{self.filename[:-5]}-angle_to_gain.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -162,9 +162,9 @@ class DataHandler:
         plt.title(f"transit time spread from theta={min(theta_list)} to theta={max(theta_list)}")
         figname = f"{self.filename[:-5]}-angle_to_TTS.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -192,9 +192,9 @@ class DataHandler:
         plt.title(f"rise time from theta={min(theta_list)} to theta={max(theta_list)}")
         figname = f"{self.filename[:-5]}-angle_to_rise_time.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -222,9 +222,9 @@ class DataHandler:
         plt.title(f"average gain from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
         figname = f"{self.filename[:-5]}-HV_to_gain.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -252,9 +252,9 @@ class DataHandler:
         plt.title(f"transit time spread from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
         figname = f"{self.filename[:-5]}-HV_to_TTS.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -282,9 +282,9 @@ class DataHandler:
         plt.title(f"rise time from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
         figname = f"{self.filename[:-5]}-HV_to_rise_time.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
@@ -312,9 +312,9 @@ class DataHandler:
         plt.title(f"charge from laser_tune={min(charge_list)} to laser_tune={max(charge_list)}")
         figname = f"{self.filename[:-5]}-laser_tune_to_charge.png"
 
-        save_dir = os.path.join(self.filepath, "global plots")
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
+            os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()

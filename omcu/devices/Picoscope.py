@@ -297,7 +297,7 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_sgnl, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples), (nr_waveforms, 1), dtype=np.float16)
+        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples, dtype=np.float16), (nr_waveforms, 1))
 
         self.logger.info(f"block measurement of {nr_waveforms} Waveforms performed. trigger_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
 
