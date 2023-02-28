@@ -160,6 +160,7 @@ class Picoscope(device):
             assert_pico_ok(self.status["getTimebase"])
             assert max_samples >= samples
             self.timebase = ctypes.c_uint32(self.min_timebase_block)
+            self.timeInterval = ctypes.c_double(self.timeInterval.value / 1000000000)  # getTimebase returns ns
             
         self.logger.info(f"Setup to get the fastest available timebase: {self.timebase.value}.")
 
@@ -345,8 +346,9 @@ class Picoscope(device):
                                                                ctypes.byref(max_samples),
                                                                0)
             assert_pico_ok(self.status["getTimebase"])
-            assert max_samples >= samples
+            assert max_samples.value >= samples
             self.timebase = ctypes.c_uint32(self.min_timebase_stream)
+            self.timeInterval = ctypes.c_double(self.timeInterval.value / 1000000000)  # getTimebase returns ns
 
         self.logger.info(f"Setup to get the fastest available timebase: {self.timebase.value}.")
 

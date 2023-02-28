@@ -253,11 +253,9 @@ class Measurement:
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10']}/theta{self.metadict['theta']}/phi{self.metadict['phi']}"
         dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), 'f')
 
-        datatype = np.float16
-
-        dataset[:,:,0] = [wf.time.astype(datatype) for wf in self.waveforms]
-        dataset[:,:,1] = [wf.signal.astype(datatype) for wf in self.waveforms]
-        dataset[:,:,2] = [wf.trigger.astype(datatype) for wf in self.waveforms]
+        dataset[:,:,0] = [wf.time for wf in self.waveforms]
+        dataset[:,:,1] = [wf.signal for wf in self.waveforms]
+        dataset[:,:,2] = [wf.trigger for wf in self.waveforms]
 
         for key in self.metadict:
             dataset.attrs[key] = self.metadict[key]

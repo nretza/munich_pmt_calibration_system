@@ -12,9 +12,9 @@ class Waveform:
 
     def __init__(self, time, signal, trigger, signal_threshold = -4):
         
-        self.time    = np.array(time)
-        self.signal  = np.array(signal)
-        self.trigger = np.array(trigger)
+        self.time    = np.array(time, dtype=np.float32)
+        self.signal  = np.array(signal, dtype=np.float32)
+        self.trigger = np.array(trigger, dtype=np.float32)
 
         assert len(self.time) == len(self.signal)
         assert len(self.time) == len(self.trigger)
@@ -98,12 +98,8 @@ class Waveform:
     
         # TODO: Review this
 
-        # convert to float32 for precise calculation:
-        signal_precise = np.array(self.signal, dtype=np.float32)
-        time_precise   = np.array(self.time,   dtype=np.float32)
-
         # calculate area and gain
-        area = np.trapz(signal_precise[self.mask]*1e-3, time_precise[self.mask]*1e-9)
+        area = np.trapz(self.signal[self.mask]*1e-3, self.time[self.mask]*1e-9)
         self.charge = area/50 # 50 Ohm termination at scope
         self.gain = abs(self.charge)/constants.e
         return self.gain
