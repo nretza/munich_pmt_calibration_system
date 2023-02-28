@@ -94,8 +94,7 @@ class Picoscope(device):
 
     def adc2mV(self, bufferADC, range, maxADC):
         channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
-        array = (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
-        return array.astype(np.float16)
+        return (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
 
 
     def stop_scope(self):
@@ -297,7 +296,7 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_sgnl, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples, dtype=np.float16), (nr_waveforms, 1))
+        timevals = np.tile(np.linspace(0, self.nSamples * self.timeInterval.value * 1000000000, self.nSamples, dtype=np.float32), (nr_waveforms, 1))
 
         self.logger.info(f"block measurement of {nr_waveforms} Waveforms performed. trigger_ch: {self.channel_trg}, signal_ch: {self.channel_sgnl}")
 
@@ -453,7 +452,7 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_stream, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float16)
+        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float32)
 
         data_sgnl = np.zeros((nr_waveforms, nr_samples, 2))
         data_sgnl[:, :, 0] = timevals

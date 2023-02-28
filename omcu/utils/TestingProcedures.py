@@ -7,6 +7,7 @@ import time
 
 import config
 import h5py
+import numpy as np
 from devices.Laser import Laser
 from devices.Picoscope import Picoscope
 from devices.Rotation import Rotation
@@ -242,7 +243,7 @@ def dark_count_scan(DATA_PATH):
                 logging.getLogger("OMCU").info(f"measuring dataset of {config.DCS_NR_OF_WAVEFORMS} Waveforms with {config.DCS_NR_OF_SAMPLES} samples from Picoscope")
                 dataset = Picoscope.Instance().get_datastream(config.DCS_NR_OF_SAMPLES, config.DCS_NR_OF_WAVEFORMS)
                 arr_sgnl             = h5_connection.create_dataset(f"HV {HV}/data-{i}", (config.DCS_NR_OF_WAVEFORMS, config.DCS_NR_OF_SAMPLES, 2),'f')
-                arr_sgnl[:]          = dataset
+                arr_sgnl[:]          = dataset.astype(np.float16) # downsampling to avoid high data load
 
                 arr_sgnl.attrs["HV"]             = uBase.Instance().getDy10()
                 arr_sgnl.attrs["sgnl_threshold"] = config.DCS_SIGNAL_THRESHOLD

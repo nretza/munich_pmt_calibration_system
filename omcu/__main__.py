@@ -147,7 +147,7 @@ def main():
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
         if not remain%10:
-            	print(f"{remain} minutes of cooldown remaining")
+            print(f"{remain} minutes of cooldown remaining")
         time.sleep(60)
     print("cooldown completed!")
     logging.getLogger("OMCU").info(f"cooldown completed")
