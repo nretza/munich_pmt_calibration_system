@@ -14,8 +14,11 @@ PMT_NAME  = None             #asks for name at runtime if None
 LOG_FILE  = "omcu.log"	     # name of the log file
 LOG_LVL   = 20               # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
-COOLDOWN_TIME = 90           # Time in minutes before any measurements take place
-COOLDOWN_HV   = 90
+COOLDOWN_TIME     = 90  # Time in minutes before any measurements take place
+COOLDOWN_HV       = 90
+
+LASER_SETUP_TIME  = 10  # Time to wait after the laser is turned on (usually after DCS)
+
 
 #------------------------------------------------------
 

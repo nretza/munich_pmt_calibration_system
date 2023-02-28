@@ -144,31 +144,38 @@ def main():
     logging.getLogger("OMCU").info(f"entering cooldown time of {COOLDOWN_TIME} minutes")
     Laser.Instance().off_pulsed()
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
-    halftime_reached = False
     for i in range(COOLDOWN_TIME):
         remain = COOLDOWN_TIME - i
-        print(f"{remain} minutes of cooldown remaining")
-        if remain <= COOLDOWN_TIME/2 and not halftime_reached:
-            print("reached cooldown halftime, turning laser on")
-            halftime_reached = True
-            Laser.Instance().on_pulsed()
+        if not remain%10:
+            	print(f"{remain} minutes of cooldown remaining")
         time.sleep(60)
-    Laser.Instance().off_pulsed()
     print("cooldown completed!")
     logging.getLogger("OMCU").info(f"cooldown completed")
 
 
-    # testing protocols
+    # testing protocols without laser
+    if config.DARK_COUNT_SCAN:
+        dark_count_scan(DATA_PATH)
+
+    # laser boot up
+    Laser.Instance().on_pulsed()
+    print(f"\nLaser turned on. Waiting {config.LASER_SETUP_TIME} for laser to warm up.")
+    logging.getLogger("OMCU").info(f"entering laser setup time of {config.LASER_SETUP_TIME} minutes")
+    uBase.Instance().SetVoltage(config.COOLDOWN_HV)
+    for i in range(config.LASER_SETUP_TIME):
+        remain = config.LASER_SETUP_TIME - i
+        print(f"{remain} minutes of laser startup remaining")
+        time.sleep(60)
+    print("laser startup completed!")
+    logging.getLogger("OMCU").info(f"laser startup completed")
+
+    # testing protocols with laser
     if config.PHOTOCATHODE_SCAN:
         photocathode_scan(DATA_PATH)
     if config.FRONTAL_HV_SCAN:
         frontal_HV_scan(DATA_PATH)
-    if config.DARK_COUNT_SCAN:
-        dark_count_scan(DATA_PATH)
     if config.CHARGE_LINEARITY_SCAN:
         charge_linearity_scan(DATA_PATH)
-
-
 
     
     # turn devices off
