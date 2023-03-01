@@ -43,31 +43,32 @@ class Measurement:
         self.filtered_by_threshold = False
 
         self.default_metadict = {
-                "time":                    -1,
-                "theta":                   -1,
-                "phi":                     -1,
-                "HV":                      -1,
-                "Dy10":                    -1,
-                "Powermeter":              -1,
-                "Picoamp":                 -1,
-                "Laser temp":              -1,
-                "Laser tune":              -1,
-                "Laser pulse freq":        -1,
-                "Laser wavelength":        -1,
-                "darkbox temp":            -1,
-                "sgnl threshold":          -1,
-                "occ":                     -1,
-                "gain":                    -1,
-                "gain spread":             -1,
-                "charge":                  -1,
-                "charge spread":           -1, 
-                "rise time":               -1,
-                "rise time spread":        -1,
-                "transit time":            -1,
-                "transit time spread":     -1,
-                "dark count":              -1,
-                "ringing":                 -1,
-                "pre pulse":               -1
+                "time":                     -1,
+                "theta [°]":                -1,
+                "phi [°]":                  -1,
+                "HV [V]":                   -1,
+                "Dy10 [V]":                 -1,
+                "Powermeter [pW]":          -1,
+                "Picoamp [nA]":             -1,
+                "Laser temp [°C]":          -1,
+                "Laser tune [%]":           -1,
+                "Laser pulse freq [Hz]":    -1,
+                "Laser wavelength [nm]":    -1,
+                "darkbox temp [°C]":        -1,
+                "sgnl threshold [mV]":      -1,
+                "occ [%]":                  -1,
+                "gain":                     -1,
+                "gain spread":              -1,
+                "charge [pC]":              -1,
+                "charge spread [pC]":       -1,
+                "rise time [ns]":           -1,
+                "rise time spread [ns]":    -1,
+                "transit time [ns]":        -1,
+                "transit time spread [ns]": -1,
+                "dark count [Hz]":          -1,
+                "ringing":                  -1,
+                "pre pulse":                -1,
+                "post pulse":               -1
                 }
 
         self.waveforms = [] # needed for logger warnings to work correctly
@@ -213,29 +214,35 @@ class Measurement:
         self.filtered_by_threshold = True
 
 
+    def filter_by_gain(self, gain_threshold):
+        if not self.waveforms: self.logger.warning("filter Waveforms without having Waveforms stored!")
+        self.waveforms = [wf for wf in self.waveforms if wf.calculate_gain() >= gain_threshold]
+        self.filtered_by_threshold = True
+
+
     def meassure_metadict(self, signal_threshold):
 
         meta_dict = {
-            "time":             datetime.now().strftime("%H:%M:%S"),
-            "theta":            round( Rotation.Instance().get_position()[1], 2),
-            "phi":              round( Rotation.Instance().get_position()[0], 2),
-            "Dy10":   	        round( uBase.Instance().getDy10(), 2),
-            "Powermeter":       round( Powermeter.Instance().get_power(), 2),
-            "Laser temp":       round( Laser.Instance().get_temp(), 2),
-            "Laser tune":       round( Laser.Instance().get_tune_value()/10, 2),
-            "Laser pulse freq": round( Laser.Instance().get_freq(), 2),
-            "sgnl threshold" :  round( signal_threshold, 2)
+            "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
+            "theta [°]":              round( Rotation.Instance().get_position()[1],     3),
+            "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
+            "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
+            "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 10e11, 3),
+            "Laser temp [°C]":        round( Laser.Instance().get_temp(),               3),
+            "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      3),
+            "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               3),
+            "sgnl threshold [mV]":    round( signal_threshold,                          3)
             }
                 
-        meta_dict["occ"]                 = round(self.calculate_occ(signal_threshold)   ,          3)
-        meta_dict["gain"]                = round(self.calculate_gain(signal_threshold)[0],         2)
-        meta_dict["gain spread"]         = round(self.calculate_gain(signal_threshold)[1],         2)
-        meta_dict["charge"]              = round(self.calculate_charge(signal_threshold)[0],       2)
-        meta_dict["charge spread"]       = round(self.calculate_charge(signal_threshold)[1],       2)
-        meta_dict["rise time"]           = round(self.calculate_rise_time(signal_threshold)[0],    3)
-        meta_dict["rise time spread"]    = round(self.calculate_rise_time(signal_threshold)[1],    3)
-        meta_dict["transit time"]        = round(self.calculate_transit_time(signal_threshold)[0], 3)
-        meta_dict["transit time spread"] = round(self.calculate_transit_time(signal_threshold)[1], 3)
+        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold)   ,             3)
+        meta_dict["gain"]                     = round(self.calculate_gain(signal_threshold)[0],            3)
+        meta_dict["gain spread"]              = round(self.calculate_gain(signal_threshold)[1],            3)
+        meta_dict["charge [pC]"]              = round(self.calculate_charge(signal_threshold)[0] * 10e11,  3)
+        meta_dict["charge spread [pC]"]       = round(self.calculate_charge(signal_threshold)[1] * 10e11,  3)
+        meta_dict["rise time [ns]"]           = round(self.calculate_rise_time(signal_threshold)[0],       3)
+        meta_dict["rise time spread [ns]"]    = round(self.calculate_rise_time(signal_threshold)[1],       3)
+        meta_dict["transit time [ns]"]        = round(self.calculate_transit_time(signal_threshold)[0],    3)
+        meta_dict["transit time spread [ns]"] = round(self.calculate_transit_time(signal_threshold)[1],    3)
 
         self.setMetadict(meta_dict)
 
@@ -329,8 +336,8 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
-        plt.title(f"Waveforms for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveforms_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveforms")
         if not os.path.exists(save_dir):
@@ -363,8 +370,8 @@ class Measurement:
         plt.ylabel('Voltage (mV)')
         plt.axhline(y=threshold, color='red', linestyle='--')
 
-        plt.title(f"Waveform peaks for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform Peaks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-peaks")
         if not os.path.exists(save_dir):
@@ -391,8 +398,8 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
-        plt.title(f"Waveform masks for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform Masks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-masks")
         if not os.path.exists(save_dir):
@@ -417,8 +424,8 @@ class Measurement:
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
 
-        plt.title(f"Average waveform for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Average Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "average-waveforms")
         if not os.path.exists(save_dir):
@@ -460,8 +467,8 @@ class Measurement:
         ax1.set_ylabel('Counts')
 
         fig.tight_layout()
-        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-hist-{mode}s_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-hist_{mode}s_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  f"{mode}-histograms")
         if not os.path.exists(save_dir):
@@ -472,7 +479,7 @@ class Measurement:
         plt.close('all')
 
 
-    def plot_transit_times(self, binsize=0.4):
+    def plot_transit_times(self, nr_bins=100):
 
         if not self.waveforms:
             print(f"plotting transit times without having Waveforms stored!")
@@ -482,13 +489,13 @@ class Measurement:
 
         plt.figure()
 
-        plt.hist(transit_times, histtype='step', linewidth=2.0)
+        plt.hist(transit_times, histtype='step', bins=nr_bins, linewidth=2.0)
 
         plt.xlabel('Transit time [ns]')
         plt.ylabel('Counts')
 
-        plt.title(f"TTS for Dy10={self.metadict['Dy10']}V, laser_tune={self.metadict['Laser tune']}, phi={self.metadict['phi']}, theta={self.metadict['theta']}")
-        figname = f"{self.filename[:-5]}-TTS_Dy10={self.metadict['Dy10']}_lasertune={self.metadict['Laser tune']}_phi={self.metadict['phi']}_theta={self.metadict['theta']}.png"
+        plt.title(f"TTS for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-TTS_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "transit-times")
         if not os.path.exists(save_dir):

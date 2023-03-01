@@ -13,7 +13,7 @@ from utils.Measurement import Measurement
 class DataHandler:
 
     # class to handle all measurements of a given testing procedure
-    # only used for data analysis (-> data extracted from hdf5)
+    # only used for data analysis (-or data analysis (-> data extracted from hdf5)
 
     def __init__(self, filename, filepath):
 
@@ -87,8 +87,8 @@ class DataHandler:
         occ_list = []
         theta_list = []
         for data in self.meassurements:
-            occ_list.append(data.metadict["occ"])
-            theta_list.append(data.metadict["theta"])
+            occ_list.append(data.metadict["occ [%]"])
+            theta_list.append(data.metadict["theta [°]"])
         occ_max = max(occ_list)
         occ_list = [i / occ_max for i in occ_list]
 
@@ -96,10 +96,10 @@ class DataHandler:
 
         plt.scatter(np.array(theta_list), np.array(occ_list))
 
-        plt.xlabel('theta')
+        plt.xlabel('theta [°]')
         plt.ylabel('relative angular acceptance')
 
-        plt.title(f"relative angular acceptance from theta={min(theta_list)} to theta={max(theta_list)}")
+        plt.title(f"relative angular acceptance from theta={min(theta_list)}° to theta={max(theta_list)}°")
         figname = f"{self.filename[:-5]}-angular acceptance.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -120,16 +120,16 @@ class DataHandler:
         teta_list = []
         for data in self.meassurements:
             gain_list.append(data.metadict["gain"])
-            teta_list.append(data.metadict["theta"])
+            teta_list.append(data.metadict["theta [°]"])
 
         plt.figure()
 
         plt.scatter(np.array(teta_list), np.array(gain_list))
 
-        plt.xlabel('theta')
+        plt.xlabel('theta [°]')
         plt.ylabel('gain')
 
-        plt.title(f"average gain from theta={min(teta_list)} to theta={max(teta_list)}")
+        plt.title(f"average gain from theta={min(teta_list)}° to theta={max(teta_list)}°")
         figname = f"{self.filename[:-5]}-angle_to_gain.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -149,17 +149,17 @@ class DataHandler:
         tts_list = []
         theta_list = []
         for data in self.meassurements:
-            tts_list.append(data.metadict["transit time spread"])
-            theta_list.append(data.metadict["theta"])
+            tts_list.append(data.metadict["transit time spread [ns]"])
+            theta_list.append(data.metadict["theta [°]"])
 
         plt.figure()
 
         plt.scatter(np.array(theta_list), np.array(tts_list))
 
-        plt.xlabel('theta')
-        plt.ylabel('transit time spread')
+        plt.xlabel('theta [°]')
+        plt.ylabel('transit time spread [ns]')
 
-        plt.title(f"transit time spread from theta={min(theta_list)} to theta={max(theta_list)}")
+        plt.title(f"transit time spread from theta={min(theta_list)}° to theta={max(theta_list)}°")
         figname = f"{self.filename[:-5]}-angle_to_TTS.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -179,17 +179,17 @@ class DataHandler:
         rise_time_list = []
         theta_list = []
         for data in self.meassurements:
-            rise_time_list.append(data.metadict["rise time"])
-            theta_list.append(data.metadict["theta"])
+            rise_time_list.append(data.metadict["rise time [ns]"])
+            theta_list.append(data.metadict["theta [°]"])
 
         plt.figure()
 
         plt.scatter(np.array(theta_list), np.array(rise_time_list))
 
-        plt.xlabel('theta')
-        plt.ylabel('rise time')
+        plt.xlabel('theta [°]')
+        plt.ylabel('rise time [ns]')
 
-        plt.title(f"rise time from theta={min(theta_list)} to theta={max(theta_list)}")
+        plt.title(f"rise time from theta={min(theta_list)}° to theta={max(theta_list)}°")
         figname = f"{self.filename[:-5]}-angle_to_rise_time.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -210,16 +210,16 @@ class DataHandler:
         HV_list = []
         for data in self.meassurements:
             gain_list.append(data.metadict["gain"])
-            HV_list.append(data.metadict["Dy10"])
+            HV_list.append(data.metadict["Dy10 [V]"])
 
         plt.figure()
 
         plt.scatter(np.array(HV_list), np.array(gain_list))
 
-        plt.xlabel('Dy10')
+        plt.xlabel('Dy10 [V]')
         plt.ylabel('gain')
 
-        plt.title(f"average gain from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
+        plt.title(f"average gain from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
         figname = f"{self.filename[:-5]}-HV_to_gain.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -239,17 +239,17 @@ class DataHandler:
         tts_list = []
         HV_list = []
         for data in self.meassurements:
-            tts_list.append(data.metadict["transit time spread"])
-            HV_list.append(data.metadict["Dy10"])
+            tts_list.append(data.metadict["transit time spread [ns]"])
+            HV_list.append(data.metadict["Dy10 [V]"])
 
         plt.figure()
 
         plt.scatter(np.array(HV_list), np.array(tts_list))
 
-        plt.xlabel('Dy10')
-        plt.ylabel('transit time spread')
+        plt.xlabel('Dy10 [V]')
+        plt.ylabel('transit time spread [V]')
 
-        plt.title(f"transit time spread from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
+        plt.title(f"transit time spread from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
         figname = f"{self.filename[:-5]}-HV_to_TTS.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -269,17 +269,17 @@ class DataHandler:
         rise_time_list = []
         HV_list = []
         for data in self.meassurements:
-            rise_time_list.append(data.metadict["rise time"])
-            HV_list.append(data.metadict["Dy10"])
+            rise_time_list.append(data.metadict["rise time [ns]"])
+            HV_list.append(data.metadict["Dy10 [V]"])
 
         plt.figure()
 
         plt.scatter(np.array(HV_list), np.array(rise_time_list))
 
-        plt.xlabel('Dy10')
-        plt.ylabel('rise time')
+        plt.xlabel('Dy10 [V]')
+        plt.ylabel('rise time [ns]')
 
-        plt.title(f"rise time from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
+        plt.title(f"rise time from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
         figname = f"{self.filename[:-5]}-HV_to_rise_time.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -299,17 +299,17 @@ class DataHandler:
         laser_tune_list = []
         charge_list = []
         for data in self.meassurements:
-            laser_tune_list.append(data.metadict["laser tune"])
-            charge_list.append(data.metadict["charge"])
+            laser_tune_list.append(data.metadict["laser tune [%]"])
+            charge_list.append(data.metadict["charge [pC]"])
 
         plt.figure()
 
         plt.scatter(np.array(laser_tune_list), np.array(charge_list))
 
-        plt.xlabel('laser tune')
-        plt.ylabel('charge')
+        plt.xlabel('laser tune [%]')
+        plt.ylabel('charge [pC]')
 
-        plt.title(f"charge from laser_tune={min(charge_list)} to laser_tune={max(charge_list)}")
+        plt.title(f"charge from laser_tune={min(charge_list)}% to laser_tune={max(charge_list)}%")
         figname = f"{self.filename[:-5]}-laser_tune_to_charge.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")

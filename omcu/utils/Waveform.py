@@ -42,7 +42,7 @@ class Waveform:
 
     @property
     def threshold_crossing_time(self):
-        return self.time[np.argmax(self.signal > self.signal_threshold)]
+        return self.time[np.argmax(self.signal < self.signal_threshold)]
 
     @property
     def trigger_time(self):

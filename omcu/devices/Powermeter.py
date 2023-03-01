@@ -26,7 +26,7 @@ class Powermeter(serial_device):
 
         self.set_echo(0)  # Echo off !!!
         self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
-        self.set_channel(1)  # Power meter channel 1
+        self.set_channel(2)  # Power meter channel 1
         self.set_buffer(0)  # buffer with fixed size
         self.clear()  # Data Store cleared of all data
         self.set_mode(0)  # DC Contonuous

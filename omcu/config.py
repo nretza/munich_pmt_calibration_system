@@ -9,15 +9,15 @@ import numpy as np
 #setup
 
 OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
-PMT_NAME  = None             #asks for name at runtime if None
+PMT_NAME  = None             # asks for name at runtime if None
 
 LOG_FILE  = "omcu.log"	     # name of the log file
 LOG_LVL   = 20               # logging level (10: Debug, 20: Info, 30: Warning etc...)
 
-COOLDOWN_TIME     = 90  # Time in minutes before any measurements take place
-COOLDOWN_HV       = 90
+COOLDOWN_TIME     = 12*60    # Time in minutes before any measurements take place
+COOLDOWN_HV       = 85
 
-LASER_SETUP_TIME  = 10  # Time to wait after the laser is turned on (usually after DCS)
+LASER_SETUP_TIME  = 10       # Time to wait after the laser is turned on (usually after DCS)
 
 
 #------------------------------------------------------
@@ -33,7 +33,7 @@ DARK_COUNT_SCAN       = True
 
 #Data-Analysis
 
-ANALYSIS_PERFORM    = False     # perform data analysis after datataking
+ANALYSIS_PERFORM    = True      # perform data analysis after datataking
 ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
 #what to plot
@@ -77,13 +77,13 @@ PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 #gain tune
 PCS_TUNE_GAIN_MIN    = 4.95e6
 PCS_TUNE_GAIN_MAX    = 5.05e6
-PCS_TUNE_V_START     = 90          # will start at current voltage if None
+PCS_TUNE_V_START     = None          # will start at current voltage if None
 PCS_TUNE_V_STEP      = 1
 
 #occ tune
 PCS_TUNE_OCC_MIN        = 0.09
 PCS_TUNE_OCC_MAX        = 0.10
-PCS_TUNE_LASER_START    = None       # will start at current laser tune if None
+PCS_TUNE_LASER_START    = None      # will start at current laser tune if None
 PCS_TUNE_LASER_STEP     = 1
 
 PCS_TUNE_NR_OF_WAVEFORMS  =  100000
@@ -133,7 +133,7 @@ FHVS_TUNE_SIGNAL_THRESHOLD = -4
 
 #------------------------------------------------------
 
-FHVS_HV_LIST       = np.arange(75,105,1)          # HVs to set while datataking (start,stop,step)
+FHVS_HV_LIST       = np.arange(75,120,1)          # HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per HV,phi,theta - configuration
 FHVS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
@@ -160,7 +160,7 @@ CLS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 #gain tune
 CLS_TUNE_GAIN_MIN    = 4.95e6
 CLS_TUNE_GAIN_MAX    = 5.05e6
-CLS_TUNE_V_START     = 90          # will start at current voltage if None
+CLS_TUNE_V_START     = None          # will start at current voltage if None
 CLS_TUNE_V_STEP      = 1
 
 #occ tune
@@ -174,11 +174,11 @@ CLS_TUNE_SIGNAL_THRESHOLD = -4
 
 #------------------------------------------------------
 
-CLS_LASER_TUNE_LIST     = np.arange(720,600,-2)  # Laser tunes to set while data taking (start,stop,step)
+CLS_LASER_TUNE_LIST     = np.arange(730,600,-2)  # Laser tunes to set while data taking (start,stop,step)
 
 CLS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per configuration
 CLS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
-CLS_MEASUREMENT_SLEEP   =  30                    # Time in seconds that are waited before each recording of data
+CLS_MEASUREMENT_SLEEP   =  60                    # Time in seconds that are waited before each recording of data
 
 
 
@@ -193,7 +193,7 @@ DCS_DATAFILE      = "data_dark_count.hdf5"
 
 #------------------------------------------------------
 
-DCS_HV_LIST             = np.arange(75,105,1)    # HVs to set while data taking (start,stop,step)
+DCS_HV_LIST             = np.arange(75,120,1)    # HVs to set while data taking (start,stop,step)
 
 DCS_NR_OF_SAMPLES       = 10000                  # Number of samples the picoscope should record per waveform
 DCS_NR_OF_WAVEFORMS     = 10000                  # Number of waveforms per iteration
