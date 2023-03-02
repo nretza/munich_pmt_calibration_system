@@ -227,7 +227,7 @@ class Measurement:
             "theta [°]":              round( Rotation.Instance().get_position()[1],     3),
             "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
             "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
-            "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 10e11, 3),
+            "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
             "Laser temp [°C]":        round( Laser.Instance().get_temp(),               3),
             "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      3),
             "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               3),
@@ -237,8 +237,8 @@ class Measurement:
         meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold)   ,             3)
         meta_dict["gain"]                     = round(self.calculate_gain(signal_threshold)[0],            3)
         meta_dict["gain spread"]              = round(self.calculate_gain(signal_threshold)[1],            3)
-        meta_dict["charge [pC]"]              = round(self.calculate_charge(signal_threshold)[0] * 10e11,  3)
-        meta_dict["charge spread [pC]"]       = round(self.calculate_charge(signal_threshold)[1] * 10e11,  3)
+        meta_dict["charge [pC]"]              = round(self.calculate_charge(signal_threshold)[0] * 1e12,   3)
+        meta_dict["charge spread [pC]"]       = round(self.calculate_charge(signal_threshold)[1] * 1e12,   3)
         meta_dict["rise time [ns]"]           = round(self.calculate_rise_time(signal_threshold)[0],       3)
         meta_dict["rise time spread [ns]"]    = round(self.calculate_rise_time(signal_threshold)[1],       3)
         meta_dict["transit time [ns]"]        = round(self.calculate_transit_time(signal_threshold)[0],    3)
@@ -444,13 +444,8 @@ class Measurement:
             print(f"plotting {mode}-histogram without having Waveforms stored!")
             return
 
-        if mode not in ["amplitude", "gain", "charge"]:
+        if mode not in ["amplitude", "gain", "charge", "amplitude_all"]:
             return
-
-        nr_entries = len(self.waveforms)
-        nbins = int(nr_entries / 100)
-
-        if nbins < 10: nbins = 10
 
         fig, ax1 = plt.subplots()
 
@@ -458,11 +453,20 @@ class Measurement:
         if mode == "gain":      data = [wf.calculate_gain() for wf in self.waveforms]
         if mode == "charge":    data = [wf.calculate_charge() for wf in self.waveforms]
 
+        if mode == "amplitude_all": data = [value for wf in self.waveforms for value in wf.signal]
+
+        nr_entries = len(data)
+        nbins = int(nr_entries / 100)
+
+        if nbins < 10: nbins = 10
+
         ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
 
         if mode == "amplitude": ax1.set_xlabel('Amplitude [mV]')
         if mode == "gain":      ax1.set_xlabel('Gain')
         if mode == "charge":    ax1.set_xlabel('Charge')
+
+        if mode == "amplitude_all": ax1.set_xlabel('Amplitude [mV]')
 
         ax1.set_ylabel('Counts')
 
@@ -630,21 +634,6 @@ class DCS_Measurement:
 
 
     def meassure_metadict(self, signal_threshold):
-
-        self.default_metadict = {
-                "time":                     -1,
-                "theta [°]":                -1,
-                "phi [°]":                  -1,
-                "HV [V]":                   -1,
-                "Dy10 [V]":                 -1,
-                "Powermeter [pW]":          -1,
-                "Picoamp [nA]":             -1,
-                "darkbox temp [°C]":        -1,
-                "sgnl threshold [mV]":      -1,
-                "measurement time [s]":     -1,
-                "dark counts":              -1,
-                "dark rate [Hz]":           -1
-                }
 
         meta_dict = {
             "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
