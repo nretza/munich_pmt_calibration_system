@@ -238,16 +238,18 @@ def dark_count_scan(DATA_PATH):
 
             uBase.Instance().SetVoltage(HV)
 
-            time.sleep(config.DCS_MEASUREMENT_SLEEP)
             for i in range(config.DCS_NR_OF_ITERATIONS):
+
+                time.sleep(config.DCS_MEASUREMENT_SLEEP)
                 logging.getLogger("OMCU").info(f"measuring dataset of {config.DCS_NR_OF_WAVEFORMS} Waveforms with {config.DCS_NR_OF_SAMPLES} samples from Picoscope")
                 dataset = Picoscope.Instance().get_datastream(config.DCS_NR_OF_SAMPLES, config.DCS_NR_OF_WAVEFORMS)
-                arr_sgnl             = h5_connection.create_dataset(f"HV {HV}/data-{i}", (config.DCS_NR_OF_WAVEFORMS, config.DCS_NR_OF_SAMPLES, 2),'f')
-                arr_sgnl[:]          = dataset
 
-                arr_sgnl.attrs["HV"]             = uBase.Instance().getDy10()
-                arr_sgnl.attrs["sgnl_threshold"] = config.DCS_SIGNAL_THRESHOLD
-                arr_sgnl.attrs["peaks"]          = len(find_peaks(-dataset[:,:,1].flatten(), height=-config.DCS_SIGNAL_THRESHOLD, width=2)[0])
+                logging.getLogger("OMCU").info(f"determining dataset metadata")
+                dataset.meassure_metadict(signal_threshold=config.DCS_SIGNAL_THRESHOLD)
+                logging.getLogger("OMCU").info(f"writing dataset to harddrive")
+                dataset.setHDF5_key(f"HV {HV}/iteration {i}")
+                dataset.write_to_file(hdf5_connection=h5_connection)
+                
 
     print(f"\nFinished charge linearity scan\nData located at {os.path.join(DATA_PATH, config.DCS_DATAFILE)}")
 

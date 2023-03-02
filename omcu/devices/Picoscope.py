@@ -6,7 +6,7 @@ from devices.device import device
 from picosdk.functions import assert_pico_ok
 from picosdk.PicoDeviceEnums import picoEnum as enums
 from picosdk.ps6000a import ps6000a as ps
-from utils.Measurement import Measurement
+from utils.Measurement import Measurement, DCS_Measurement
 
 
 class Picoscope(device):
@@ -456,13 +456,11 @@ class Picoscope(device):
         # Create time data
         timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float32)
 
-        data_sgnl = np.zeros((nr_waveforms, nr_samples, 2))
-        data_sgnl[:, :, 0] = timevals
-        data_sgnl[:, :, 1] = adc2mVMax_sgnlch_list
+        data = DCS_Measurement(signal_data=adc2mVMax_sgnlch_list, time_data=timevals)
 
         self.logger.info(f"block measurement of {nr_waveforms} Waveforms of {nr_samples} samples performed. signal_ch: {self.channel_sgnl}")
 
-        return data_sgnl
+        return data
 
 
 

@@ -7,7 +7,7 @@ import config
 import h5py
 import numpy as np
 from matplotlib import pyplot as plt
-from utils.Measurement import Measurement
+from utils.Measurement import Measurement, DCS_Measurement
 
 
 class DataHandler:
@@ -28,6 +28,8 @@ class DataHandler:
 
         self.meassurements = []
 
+        MeasurementType = Measurement if not "DCS" in self.filename else DCS_Measurement
+
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
             for key in self.get_all_keys(h5):
@@ -35,7 +37,7 @@ class DataHandler:
                     _ = h5[key]["dataset"]
                 except:
                     continue
-                self.meassurements.append(Measurement(filename=filename, filepath=filepath, hdf5_key=key))
+                self.meassurements.append(MeasurementType(filename=filename, filepath=filepath, hdf5_key=key))
 
 ###-----------------------------------------------------------------
 
@@ -201,6 +203,36 @@ class DataHandler:
         plt.close('all')
 
 
+    def plot_HV_to_occ(self):
+        
+        # load data
+        self.load_metadicts()
+
+        HV_list = []
+        occ_list = []
+        for data in self.meassurements:
+            HV_list.append(data.metadict["Dy10 [V]"])
+            occ_list.append(data.metadict["occ [%]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(HV_list), np.array(occ_list))
+
+        plt.xlabel('HV [V]')
+        plt.ylabel('occ [%]')
+
+        plt.title(f"occupancy from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
+        figname = f"{self.filename[:-5]}-lHV_to_occ.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
+
     def plot_HV_to_gain(self):
 
         # load data
@@ -290,6 +322,36 @@ class DataHandler:
             plt.show()
         plt.close('all')
 
+    
+    def plot_laser_tune_to_occ(self):
+        
+        # load data
+        self.load_metadicts()
+
+        laser_tune_list = []
+        occ_list = []
+        for data in self.meassurements:
+            laser_tune_list.append(data.metadict["laser tune [%]"])
+            occ_list.append(data.metadict["occ [%]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(laser_tune_list), np.array(occ_list))
+
+        plt.xlabel('laser tune [%]')
+        plt.ylabel('occ [%]')
+
+        plt.title(f"occupancy from laser_tune={min(laser_tune_list)}% to laser_tune={max(laser_tune_list)}%")
+        figname = f"{self.filename[:-5]}-laser_tune_to_occ.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
+
 
     def plot_laser_tune_to_charge(self):
         
@@ -309,7 +371,7 @@ class DataHandler:
         plt.xlabel('laser tune [%]')
         plt.ylabel('charge [pC]')
 
-        plt.title(f"charge from laser_tune={min(charge_list)}% to laser_tune={max(charge_list)}%")
+        plt.title(f"charge from laser_tune={min(laser_tune_list)}% to laser_tune={max(laser_tune_list)}%")
         figname = f"{self.filename[:-5]}-laser_tune_to_charge.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -322,7 +384,33 @@ class DataHandler:
 
 
     def plot_HV_to_dark_count(self):
-        pass
+        
+        #load data
+        self.load_metadicts()
+
+        HV_list = []
+        DC_list = []
+        for data in self.meassurements:
+            HV_list.append(data.metadict["Dy10 [V]"])
+            DC_list.append(data.metadict["dark rate [Hz]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(HV_list), np.array(DC_list))
+
+        plt.xlabel('Dy10 [V]')
+        plt.ylabel('dark rate [Hz]')
+
+        plt.title(f"dark rate from Dy10={min(HV_list)}% to Dy10={max(HV_list)}%")
+        figname = f"{self.filename[:-5]}-HV_to_dark_count.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
 
 ###-----------------------------------------------------------------
 

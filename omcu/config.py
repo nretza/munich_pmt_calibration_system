@@ -6,7 +6,7 @@ import numpy as np
 #--------------   GENERAL          --------------------
 #------------------------------------------------------
 
-#setup
+# setup
 
 OUT_PATH  = "/home/canada/munich_pmt_calibration_system/data"
 PMT_NAME  = None             # asks for name at runtime if None
@@ -31,31 +31,36 @@ DARK_COUNT_SCAN       = True
 
 #------------------------------------------------------
 
-#Data-Analysis
+# Data-Analysis
 
 ANALYSIS_PERFORM    = True      # perform data analysis after datataking
 ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
-#what to plot
+# what to plot
 
-ANALYSIS_PLOT_WFS                = True
-ANALYSIS_PLOT_WF_AVG             = True
-ANALYSIS_PLOT_WF_MSK             = True
-ANALYSIS_PLOT_PEAKS              = True
-ANALYSIS_PLOT_HIST_AMP           = True
-ANALYSIS_PLOT_HIST_CHRG          = True
-ANALYSIS_PLOT_HIST_GAIN          = True
-ANALYSIS_PLOT_TTS                = True
-ANALYSIS_PLOT_ANGULAR_ACCEPTANCE = True
+ANALYSIS_PLOT_WFS                        = True
+ANALYSIS_PLOT_WF_AVG                     = True
+ANALYSIS_PLOT_WF_MSK                     = True
+ANALYSIS_PLOT_PEAKS                      = True
+ANALYSIS_PLOT_HIST_AMP                   = True
+ANALYSIS_PLOT_HIST_CHRG                  = True
+ANALYSIS_PLOT_HIST_GAIN                  = True
+ANALYSIS_PLOT_TTS                        = True
 
-ANALYSIS_PLOT_ANGLE_TO_GAIN      = True
-ANALYSIS_PLOT_ANGLE_TO_TTS       = True
-ANALYSIS_PLOT_ANGLE_TO_RISE_TIME = True
+ANALYSIS_PLOT_ANGULAR_ACCEPTANCE         = True
+ANALYSIS_PLOT_ANGLE_TO_GAIN              = True
+ANALYSIS_PLOT_ANGLE_TO_TTS               = True
+ANALYSIS_PLOT_ANGLE_TO_RISE_TIME         = True
 
-ANALYSIS_PLOT_HV_TO_GAIN         = True
-ANALYSIS_PLOT_HV_TO_TTS          = True
-ANALYSIS_PLOT_HV_TO_RISE_TIME    = True
+ANALYSIS_PLOT_HV_TO_OCC                  = True
+ANALYSIS_PLOT_HV_TO_GAIN                 = True
+ANALYSIS_PLOT_HV_TO_TTS                  = True
+ANALYSIS_PLOT_HV_TO_RISE_TIME            = True
 
+ANALYSIS_PLOT_LASER_TUNE_TO_OCC          = True
+ANALYSIS_PLOT_LASER_TUNE_TO_CHARGE       = True
+
+ANALYSIS_PLOT_HV_TO_DARK_COUNT           = True
 
 
 
@@ -69,18 +74,18 @@ PCS_DATAFILE      = "data_photocathode_scan.hdf5"
 
 #-----------------------------------------------------
 
-#tune
+# tune
 
 PCS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
 PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 
-#gain tune
+# gain tune
 PCS_TUNE_GAIN_MIN    = 4.95e6
 PCS_TUNE_GAIN_MAX    = 5.05e6
 PCS_TUNE_V_START     = None          # will start at current voltage if None
 PCS_TUNE_V_STEP      = 1
 
-#occ tune
+# occ tune
 PCS_TUNE_OCC_MIN        = 0.09
 PCS_TUNE_OCC_MAX        = 0.10
 PCS_TUNE_LASER_START    = None      # will start at current laser tune if None
@@ -111,18 +116,18 @@ FHVS_DATAFILE      = "data_frontal_HV.hdf5"
 
 #------------------------------------------------------
 
-#tune
+# tune
 
 FHVS_TUNE_MODE     = "only_occ"      # (none, iter, single, only_gain, only_occ)
 FHVS_TUNE_MAX_ITER = 15              # max iters for iter tune mode
 
-#gain tune
+# gain tune
 FHVS_TUNE_GAIN_MIN    = None
 FHVS_TUNE_GAIN_MAX    = None
 FHVS_TUNE_V_START     = None          # will start at current voltage if None
 FHVS_TUNE_V_STEP      = None
 
-#occ tune
+# occ tune
 FHVS_TUNE_OCC_MIN        = 0.09
 FHVS_TUNE_OCC_MAX        = 0.10
 FHVS_TUNE_LASER_START    = None       # will start at current laser tune if None
@@ -152,18 +157,18 @@ CLS_DATAFILE      = "data_linearity.hdf5"
 
 #------------------------------------------------------
 
-#tune
+# tune
 
 CLS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
 CLS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 
-#gain tune
+# gain tune
 CLS_TUNE_GAIN_MIN    = 4.95e6
 CLS_TUNE_GAIN_MAX    = 5.05e6
 CLS_TUNE_V_START     = None          # will start at current voltage if None
 CLS_TUNE_V_STEP      = 1
 
-#occ tune
+# occ tune
 CLS_TUNE_OCC_MIN        = 0.09
 CLS_TUNE_OCC_MAX        = 0.10
 CLS_TUNE_LASER_START    = None       # will start at current laser tune if None

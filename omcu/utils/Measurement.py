@@ -504,3 +504,228 @@ class Measurement:
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.close('all')
+
+
+
+############----------------------------------------################
+############----------------------------------------################
+############----------------------------------------################
+############----------------------------------------################
+############----------------------------------------################
+
+
+
+class DCS_Measurement:
+
+    # class designed to handle a DCS measurement ( n x m samples taken)
+
+    def __init__(self,
+                 signal_data=np.array([]),
+                 time_data=np.array([]),
+                 metadict=None,
+                 filename=None,
+                 filepath=None,
+                 hdf5_key=None):
+
+        self.logger = logging.getLogger(type(self).__name__)
+        self.logger.debug(f"{type(self).__name__} initialized")
+
+        self.filtered_by_threshold = False
+
+        self.default_metadict = {
+                "time":                     -1,
+                "theta [°]":                -1,
+                "phi [°]":                  -1,
+                "HV [V]":                   -1,
+                "Dy10 [V]":                 -1,
+                "Powermeter [pW]":          -1,
+                "Picoamp [nA]":             -1,
+                "darkbox temp [°C]":        -1,
+                "sgnl threshold [mV]":      -1,
+                "measurement time [s]":     -1,
+                "dark counts":              -1,
+                "dark rate [Hz]":           -1,
+                }
+
+        self.metadict  = self.default_metadict
+
+        if signal_data.size or time_data.size:
+            self.setData(signal=signal_data, time=time_data)
+
+        if metadict:
+            self.setMetadict(metadict)
+
+        self.setFilename(filename)
+        self.setFilepath(filepath)
+        self.setHDF5_key(hdf5_key)
+
+###-----------------------------------------------------------------
+
+    def setData(self, signal = np.array([]), time = np.array([])):
+        if signal.size and time.size:
+            assert signal.size == time.size
+            self.signal = signal
+            self.time   = time
+        else: raise Exception("ERROR: either waveforms or signal, trigger and time arrays need to be handed over")
+
+    def getSignal(self):
+        return self.signal
+    
+    def getTime(self):
+        return self.time
+
+    def setMetadict(self, metadict):
+        if not metadict: return # check for None
+        self.metadict = metadict
+        for key in self.default_metadict:
+            if key not in self.metadict.keys():
+                self.metadict[key] = self.default_metadict[key]
+
+    def getMetadict(self):
+        return self.metadict
+
+    def setFilename(self, filename):
+        self.filename = filename
+
+    def getFilename(self):
+        return self.filename
+
+    def setFilepath(self, filepath):
+        self.filepath = filepath
+
+    def getFilepath(self):
+        return self.filepath
+
+    def setHDF5_key(self, key):
+        self.hdf5_key = key
+
+    def getHDF5_Key(self):
+        return self.hdf5_key
+
+###-----------------------------------------------------------------
+
+    def __len__(self):
+        return len(self.waveforms)
+
+###-----------------------------------------------------------------
+
+    def get_baseline_mean(self):
+        return np.mean(self.signal), np.std(self.signal)
+
+
+    def subtract_baseline(self, baseline=None):
+        if not self.signal: self.logger.warning("subtracting baseline without having signal stored!")
+        if baseline == None:
+            baseline = self.get_baseline_mean()
+        self.signal = self.signal - baseline
+
+
+    def get_darkcounts(self, signal_threshold):
+        peaks, _ = find_peaks(self.signal.flatten(), height=signal_threshold)
+        return len(peaks)
+    
+
+    def get_measurement_time(self):
+        return self.time[:,-1].sum() / 1_000_000_000 # convert ns -> s
+
+
+    def meassure_metadict(self, signal_threshold):
+
+        self.default_metadict = {
+                "time":                     -1,
+                "theta [°]":                -1,
+                "phi [°]":                  -1,
+                "HV [V]":                   -1,
+                "Dy10 [V]":                 -1,
+                "Powermeter [pW]":          -1,
+                "Picoamp [nA]":             -1,
+                "darkbox temp [°C]":        -1,
+                "sgnl threshold [mV]":      -1,
+                "measurement time [s]":     -1,
+                "dark counts":              -1,
+                "dark rate [Hz]":           -1
+                }
+
+        meta_dict = {
+            "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
+            "theta [°]":              round( Rotation.Instance().get_position()[1],     3),
+            "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
+            "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
+            "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
+            "sgnl threshold [mV]":    round( signal_threshold,                          3)
+            }
+                
+        meta_dict["measurement time [s]"]  = round(self.get_measurement_time(), 6)
+        meta_dict["dark counts"]           = self.get_darkcounts(signal_threshold)
+        meta_dict["dark rate [Hz]"]        = meta_dict["dark counts"] / meta_dict["measurement time [s]"]
+
+        self.setMetadict(meta_dict)
+
+        return meta_dict
+
+###-----------------------------------------------------------------
+
+    def write_to_file(self, hdf5_connection=None):
+
+        close_on_end = False
+        if not hdf5_connection:
+            hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'a')
+            close_on_end = True
+
+        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10']}/theta{self.metadict['theta']}/phi{self.metadict['phi']}"
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.size[0], self.signal.size[1], 2), 'f')
+
+        dataset[:,:,0] = self.time
+        dataset[:,:,1] = self.signal
+
+        for key in self.metadict:
+            dataset.attrs[key] = self.metadict[key]
+
+        if close_on_end:
+            hdf5_connection.close()
+
+
+    def read_from_file(self, hdf5_connection=None):
+
+        close_on_end = False
+        if not hdf5_connection:
+            hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'r')
+            close_on_end = True
+
+        dataset = hdf5_connection[self.hdf5_key]["dataset"]
+
+        metadict = {}
+        for key in dataset.attrs.keys():
+            metadict[key] = dataset.attrs[key]
+        self.setMetadict(metadict)
+
+        self.setData(time=dataset[:,:,0], signal=dataset[:,:,1])
+
+        if close_on_end:
+            hdf5_connection.close()
+    
+
+    def read_metadict_from_file(self, hdf5_connection = None):
+
+        close_on_end = False
+        if not hdf5_connection:
+            hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'r')
+            close_on_end = True
+
+        dataset = hdf5_connection[self.hdf5_key]["dataset"]
+
+        metadict = {}
+        for key in dataset.attrs.keys():
+            metadict[key] = dataset.attrs[key]
+        self.setMetadict(metadict)
+
+        if close_on_end:
+            hdf5_connection.close()
+
+
+    def clear(self):
+
+        # clears the data (in an attempt to use less memory when not needed)
+
+        del self.time
+        del self.signal

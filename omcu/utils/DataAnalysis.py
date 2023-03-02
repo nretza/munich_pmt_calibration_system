@@ -121,6 +121,10 @@ class DataAnalysis:
             self.logger.info("Plotting transit time data")
             handler.plot_transit_times()
 
+        if config.ANALYSIS_PLOT_HV_TO_OCC:
+            print("Plotting HV to occ relation")
+            self.logger.info("Plotting HV to occ relation")
+            handler.plot_HV_to_occ()           
         if config.ANALYSIS_PLOT_HV_TO_GAIN:
             print("Plotting HV to gain relation")
             self.logger.info("Plotting HV to gain relation")
@@ -179,12 +183,18 @@ class DataAnalysis:
             self.logger.info("Plotting transit time data")
             handler.plot_transit_times()
 
-        # TODO
+        if config.ANALYSIS_PLOT_LASER_TUNE_TO_OCC:
+            print("Plotting laser tune to occ relation")
+            self.logger.info("Plotting laser tune to occ relation")
+            handler.plot_laser_tune_to_occ()
+        if config.ANALYSIS_PLOT_LASER_TUNE_TO_CHARGE:
+            print("Plotting laser tune to charge relation")
+            self.logger.info("Plotting laser tune to gain relation")
+            handler.plot_laser_tune_to_charge()
 
         print(f"\nFinished Charge Linearity Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()
         print(f"Total time for CLS Analysis: {round((end_time - start_time) / 60, 0)} minutes")
-
 
 
     def analyze_DCS(self):
@@ -192,8 +202,12 @@ class DataAnalysis:
         print("\nPerforming Dark Count Scan Analysis")
         self.logger.info("Performing Dark Count Scan Analysis")
         start_time = time.time()
+        handler = DataHandler(config.DCS_DATAFILE, self.data_path)
        
-       # TODO
+        if config.ANALYSIS_PLOT_HV_TO_DARK_COUNT:
+            print("Plotting HV to dark count relation")
+            self.logger.info("Plotting HV to dark count relation")
+            handler.plot_HV_to_dark_count()
 
         print(f"\nFinished Dark Count Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()
@@ -218,6 +232,5 @@ if __name__ == "__main__":
     # todo
     # PCS peaks crashes
     # PCS not fully run through
-    # waaaay to much plots
     # make TTS prettier
-    # DCS eval is missing
+    # takes too long
