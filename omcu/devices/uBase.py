@@ -34,7 +34,7 @@ class uBase(serial_device):
 
 #-----------------------------------------------------------
 
-    def SetVoltage(self, Voltage:float, tolerance:float=0.1, max_iter:int=60, wait_time:float=1) -> float:
+    def SetVoltage(self, Voltage:float, tolerance:float=0.1, max_iter:int=60, wait_time:float=1, initial_wait:float=5) -> float:
 
         self.logger.info(f"setting Dy10 voltage to {Voltage} V")
         if Voltage > self.vmax:
@@ -44,6 +44,8 @@ class uBase(serial_device):
         # output voltage is 12*Dy10
         Dy10 = round(Voltage)    
         self.setDy10(Dy10)
+
+        time.sleep(initial_wait)
 
         iter = 0
         while abs(Voltage - self.getDy10()) > tolerance:

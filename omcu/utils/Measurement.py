@@ -224,14 +224,14 @@ class Measurement:
 
         meta_dict = {
             "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
-            "theta [°]":              round( Rotation.Instance().get_position()[1],     3),
-            "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
-            "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
+            "theta [°]":              round( Rotation.Instance().get_position()[1],     2),
+            "phi [°]":                round( Rotation.Instance().get_position()[0],     2),
+            "Dy10 [V]":               round( uBase.Instance().getDy10(),                2),
             "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
-            "Laser temp [°C]":        round( Laser.Instance().get_temp(),               3),
-            "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      3),
-            "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               3),
-            "sgnl threshold [mV]":    round( signal_threshold,                          3)
+            "Laser temp [°C]":        round( Laser.Instance().get_temp(),               2),
+            "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      2),
+            "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               2),
+            "sgnl threshold [mV]":    round( signal_threshold,                          2)
             }
                 
         meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold)   ,             3)
@@ -257,7 +257,7 @@ class Measurement:
             hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'a')
             close_on_end = True
 
-        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10']}/theta{self.metadict['theta']}/phi{self.metadict['phi']}"
+        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
         dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), 'f')
 
         dataset[:,:,0] = [wf.time for wf in self.waveforms]
@@ -436,7 +436,7 @@ class Measurement:
         plt.close('all')
 
 
-    def plot_hist(self, mode="amplitude"):
+    def plot_hist(self, mode="amplitude", nr_bins =None):
 
         # TODO: twin axis for two histograms
 
@@ -455,10 +455,12 @@ class Measurement:
 
         if mode == "amplitude_all": data = [value for wf in self.waveforms for value in wf.signal]
 
-        nr_entries = len(data)
-        nbins = int(nr_entries / 100)
-
-        if nbins < 10: nbins = 10
+        if not nr_bins:
+            nr_entries = len(data)
+            nbins = int(nr_entries / 100)
+            if nbins < 10: nbins = 10
+        else:
+            nbins = nr_bins
 
         ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
 
