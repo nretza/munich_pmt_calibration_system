@@ -454,7 +454,7 @@ class Picoscope(device):
         adc2mVMax_sgnlch_list = self.adc2mV(self.buffer_stream, self.voltrange_sgnl, self.maxADC)
 
         # Create time data
-        timevals = np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float32)
+        timevals = np.tile(np.linspace(0, nr_samples * self.timeInterval.value * 1000000000, nr_samples, dtype=np.float32), (nr_waveforms, 1))
 
         data = DCS_Measurement(signal_data=adc2mVMax_sgnlch_list, time_data=timevals)
 

@@ -336,6 +336,9 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
+        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
+        plt.legend()
+
         plt.title(f"Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
         figname = f"{self.filename[:-5]}-waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
@@ -368,7 +371,11 @@ class Measurement:
 
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
+
+        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
         plt.axhline(y=threshold, color='red', linestyle='--')
+
+        plt.legend()
 
         plt.title(f"Waveform Peaks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
         figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
@@ -398,6 +405,10 @@ class Measurement:
         plt.xlabel('Time (ns)')
         plt.ylabel('Voltage (mV)')
 
+        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
+
+        plt.legend()
+
         plt.title(f"Waveform Masks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
         figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
@@ -424,6 +435,10 @@ class Measurement:
         plt.xlabel('Time [ns]')
         plt.ylabel('Voltage [mV]')
 
+        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
+
+        plt.legend()
+
         plt.title(f"Average Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
         figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
@@ -435,6 +450,31 @@ class Measurement:
             plt.show()
         plt.close('all')
 
+    def plot_ampl_to_gain(self):
+
+        ampl_list = []
+        gain_list = []
+        for wf in self.waveforms:
+            ampl_list.append(wf.min_value)
+            gain_list.append(wf.calculate_gain())
+
+        plt.figure()
+
+        plt.scatter(np.array(ampl_list), np.array(gain_list))
+
+        plt.xlabel("amplitude [mV]")
+        plt.ylabel("gain")
+
+        plt.title(f"amplitude to gain correlation")
+        figname = f"{self.filename[:-5]}-ampl_to_gain.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "correlations")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
 
     def plot_hist(self, mode="amplitude", nr_bins =None):
 
@@ -452,7 +492,6 @@ class Measurement:
         if mode == "amplitude": data = [wf.min_value for wf in self.waveforms]
         if mode == "gain":      data = [wf.calculate_gain() for wf in self.waveforms]
         if mode == "charge":    data = [wf.calculate_charge() for wf in self.waveforms]
-
         if mode == "amplitude_all": data = [value for wf in self.waveforms for value in wf.signal]
 
         if not nr_bins:
@@ -467,10 +506,14 @@ class Measurement:
         if mode == "amplitude": ax1.set_xlabel('Amplitude [mV]')
         if mode == "gain":      ax1.set_xlabel('Gain')
         if mode == "charge":    ax1.set_xlabel('Charge')
-
         if mode == "amplitude_all": ax1.set_xlabel('Amplitude [mV]')
 
         ax1.set_ylabel('Counts')
+
+        if mode == "amplitude": plt.axvline(x=self.metadict["sgnl threshold [mV]"], color='black', ls=":", label="trigger threshold")
+        if mode == "amplitude_all": plt.axvline(x=self.metadict["sgnl threshold [mV]"], color='black', ls=":", label="trigger threshold")
+
+        plt.legend()
 
         fig.tight_layout()
         plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
@@ -627,7 +670,7 @@ class DCS_Measurement:
 
 
     def get_darkcounts(self, signal_threshold):
-        peaks, _ = find_peaks(self.signal.flatten(), height=signal_threshold)
+        peaks, _ = find_peaks(-self.signal.flatten(), height=-signal_threshold)
         return len(peaks)
     
 
@@ -720,3 +763,34 @@ class DCS_Measurement:
 
         del self.time
         del self.signal
+
+    ###-----------------------------------------------------------------
+
+
+    def plot_amplitude_hist(self, nr_bins =None):
+
+        data = self.signal.flatten()
+
+        if not nr_bins:
+            nr_entries = len(data)
+            nbins = int(nr_entries / 100)
+            if nbins < 10: nbins = 10
+        else:
+            nbins = nr_bins
+
+        fig, ax1 = plt.subplots()
+        ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
+        ax1.set_xlabel('Amplitude [mV]')
+        ax1.set_ylabel('Counts')
+
+        fig.tight_layout()
+        plt.title(f"Dark noise amplitudes for Dy10={self.metadict['Dy10 [V]']}V")
+        figname = f"{self.filename[:-5]}-noise_amplitude_Dy10={self.metadict['Dy10 [V]']}.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  f"histograms")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close('all')
