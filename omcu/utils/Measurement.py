@@ -613,8 +613,8 @@ class DCS_Measurement:
     def setData(self, signal = np.array([]), time = np.array([])):
         if signal.size and time.size:
             assert signal.size == time.size
-            self.signal = signal
-            self.time   = time
+            self.signal = np.array(signal)
+            self.time   = np.array(time)
         else: raise Exception("ERROR: either waveforms or signal, trigger and time arrays need to be handed over")
 
     def getSignal(self):
@@ -706,8 +706,8 @@ class DCS_Measurement:
             hdf5_connection = h5py.File(os.path.join(self.filepath,self.filename), 'a')
             close_on_end = True
 
-        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10']}/theta{self.metadict['theta']}/phi{self.metadict['phi']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.size[0], self.signal.size[1], 2), 'f')
+        h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), 'f')
 
         dataset[:,:,0] = self.time
         dataset[:,:,1] = self.signal
