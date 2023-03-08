@@ -40,7 +40,7 @@ class DataAnalysis:
         if config.ANALYSIS_PLOT_WF_AVG:
             print("Plotting average waveforms")
             self.logger.info("Plotting average waveforms")
-            handler.plot_average_wfs()
+            handler.plot_average_wf()
         if config.ANALYSIS_PLOT_HIST_AMP:
             print("Plotting amlitude histograms")
             self.logger.info("Plotting amlitude histograms")
@@ -103,7 +103,7 @@ class DataAnalysis:
         if config.ANALYSIS_PLOT_WF_AVG:
             print("Plotting average waveforms")
             self.logger.info("Plotting average waveforms")
-            handler.plot_average_wfs()
+            handler.plot_average_wf()
         if config.ANALYSIS_PLOT_HIST_AMP:
             print("Plotting amlitude histograms")
             self.logger.info("Plotting amlitude histograms")
@@ -165,7 +165,7 @@ class DataAnalysis:
         if config.ANALYSIS_PLOT_WF_AVG:
             print("Plotting average waveforms")
             self.logger.info("Plotting average waveforms")
-            handler.plot_average_wfs()
+            handler.plot_average_wf()
         if config.ANALYSIS_PLOT_HIST_AMP:
             print("Plotting amlitude histograms")
             self.logger.info("Plotting amlitude histograms")

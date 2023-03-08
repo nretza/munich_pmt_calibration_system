@@ -421,7 +421,7 @@ class Measurement:
         plt.close('all')
 
 
-    def plot_average_wfs(self):
+    def plot_average_wf(self):
 
         if not self.waveforms:
             print("plotting average waveforms without having Waveforms stored!")
@@ -439,10 +439,10 @@ class Measurement:
 
         plt.legend()
 
-        plt.title(f"Average Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
-        figname = f"{self.filename[:-5]}-average_waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
+        plt.title(f"Average Waveform for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        figname = f"{self.filename[:-5]}-average_waveform_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
 
-        save_dir = os.path.join(self.filepath, self.filename[:-5],  "average-waveforms")
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  "average-waveform")
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         plt.savefig(os.path.join(save_dir, figname))

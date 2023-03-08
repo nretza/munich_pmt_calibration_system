@@ -66,7 +66,7 @@ dataset.write_to_file()
 print(">> Data written to file")
 dataset.plot_hist("amplitude_all")
 dataset.filter_by_threshold(-4)
-dataset.plot_average_wfs()
+dataset.plot_average_wf()
 print(">> noise histogram and average wf plotted")
 print()
 

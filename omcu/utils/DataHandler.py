@@ -457,7 +457,7 @@ class DataHandler:
                 data.plot_wf_masks(how_many)
                 if clear: data.clear()
 
-    def plot_average_wfs(self):
+    def plot_average_wf(self):
         
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
@@ -467,7 +467,7 @@ class DataHandler:
                 if not data.waveforms:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
-                data.plot_average_wfs()
+                data.plot_average_wf()
                 if clear: data.clear()
                 
 
