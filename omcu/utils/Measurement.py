@@ -57,6 +57,8 @@ class Measurement:
                 "darkbox temp [°C]":        -1,
                 "sgnl threshold [mV]":      -1,
                 "occ [%]":                  -1,
+                "avg amplitude [mV]":       -1,
+                "std amplitude [mV]":       -1,
                 "gain":                     -1,
                 "gain spread":              -1,
                 "charge [pC]":              -1,
@@ -145,6 +147,16 @@ class Measurement:
             if wf.min_value < signal_threshold: i +=1
         if float(len(self.waveforms)) == 0: return 0,0
         return float(i)/float(len(self.waveforms))
+    
+
+    def calculate_avg_amplitude(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating occupancy without having Waveforms stored!")
+        amplitudes = np.array([])
+        for wf in self.waveforms:
+            if wf.min_value < signal_threshold:
+                amplitudes = np.append(amplitudes, wf.min_value)
+        if len(amplitudes) == 0: return 0,0
+        return np.mean(amplitudes), np.std(amplitudes)
 
 
     def calculate_gain(self, signal_threshold):
@@ -234,7 +246,9 @@ class Measurement:
             "sgnl threshold [mV]":    round( signal_threshold,                          2)
             }
                 
-        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold)   ,             3)
+        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold),                3)
+        meta_dict["avg amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[0],   3)
+        meta_dict["std amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[1],   3)
         meta_dict["gain"]                     = round(self.calculate_gain(signal_threshold)[0],            3)
         meta_dict["gain spread"]              = round(self.calculate_gain(signal_threshold)[1],            3)
         meta_dict["charge [pC]"]              = round(self.calculate_charge(signal_threshold)[0] * 1e12,   3)
