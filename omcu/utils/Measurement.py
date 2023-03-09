@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import logging
-import math
 import os
 from datetime import datetime
 
@@ -272,7 +271,7 @@ class Measurement:
             close_on_end = True
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), 'f')
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), dtype='f32')
 
         dataset[:,:,0] = [wf.time for wf in self.waveforms]
         dataset[:,:,1] = [wf.signal for wf in self.waveforms]
@@ -340,29 +339,30 @@ class Measurement:
             print("plotting waveforms without having Waveforms stored!")
             return
 
-        cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, how_many)))
+        fig, ax = plt.subplots()
 
-        plt.figure()
+        cmap    = plt.cm.viridis
+        colors  = cmap(np.linspace(0, 0.7, how_many))
 
-        for wf, c in zip(self.waveforms, colors): plt.plot(wf.time, wf.signal, color=c)
+        for wf, c in zip(self.waveforms[:how_many], colors):
+            ax.plot(wf.time, wf.signal, color=c)
 
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
+        ax.set_xlabel('Time (ns)')
+        ax.set_ylabel('Voltage (mV)')
 
-        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
-        plt.legend()
+        ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
+        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.legend()
 
-        plt.title(f"Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        ax.set_title(f"Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        
         figname = f"{self.filename[:-5]}-waveforms_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
-        save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveforms")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "waveforms")
+        os.makedirs(save_dir, exist_ok=True)
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
 
 
     def plot_peaks(self, ratio=0.33, width=2, how_many=10):
@@ -374,33 +374,32 @@ class Measurement:
         average_wf = self.get_average_wf()
         threshold = np.min(average_wf[1]) * ratio
 
-        plt.figure()
-        
+        fig, ax = plt.subplots()
         for i in range(how_many):
             wf = self.waveforms[i]
             peaks = find_peaks(-wf.signal, height=-threshold, width=width)
             l = len(peaks[0])
             color = "yellow" if l == 0 else "green"
-            plt.plot(wf.time, wf.signal, color)
+            ax.plot(wf.time, wf.signal, color=color)
 
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
+        ax.set_xlabel('Time (ns)')
+        ax.set_ylabel('Voltage (mV)')
 
-        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
-        plt.axhline(y=threshold, color='red', linestyle='--')
+        ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
+        ax.axhline(y=threshold, color='red', linestyle='--', label="threshold")
+        ax.legend()
 
-        plt.legend()
+        title = f"Waveform Peaks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}"
+        ax.set_title(title)
 
-        plt.title(f"Waveform Peaks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
         figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-peaks")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname))
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
+
 
 
     def plot_wf_masks(self, how_many=10):
@@ -410,59 +409,61 @@ class Measurement:
             return
 
         cmap = plt.cm.viridis
-        colors = iter(cmap(np.linspace(0, 0.7, how_many)))
-        plt.figure()
+        colors = cmap(np.linspace(0, 0.7, how_many))
 
-        for wf, c in zip(self.waveforms, colors):
-                plt.plot(wf.time[wf.mask], wf.signal[wf.mask], color=c)
+        fig, ax = plt.subplots()
 
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Voltage (mV)')
+        for wf, c in zip(self.waveforms[:how_many], colors):
+            ax.plot(wf.time[wf.mask], wf.signal[wf.mask], color=c)
 
-        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
+        ax.set_xlabel('Time (ns)')
+        ax.set_ylabel('Voltage (mV)')
 
-        plt.legend()
-
-        plt.title(f"Waveform Masks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
+        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.legend()
+        
+        ax.set_title(f"Waveform Masks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        
         figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
-        save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-masks")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname))
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "waveform-masks")
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
+
 
 
     def plot_average_wf(self):
 
         if not self.waveforms:
-            print("plotting average waveforms without having Waveforms stored!")
+            print("plotting average waveform without having Waveforms stored!")
             return
-
+        
         average_wf = self.get_average_wf()
 
-        plt.figure()
-        plt.plot(average_wf[0], average_wf[1])
+        fig, ax = plt.subplots()
 
-        plt.xlabel('Time [ns]')
-        plt.ylabel('Voltage [mV]')
+        ax.plot(average_wf[0], average_wf[1])
 
-        plt.axvline(x=self.waveforms[0].trigger_time, color='black', ls=":", label="trigger time")
+        ax.set_xlabel('Time (ns)')
+        ax.set_ylabel('Voltage (mV)')
 
-        plt.legend()
-
-        plt.title(f"Average Waveform for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
+        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.legend()
+        
+        ax.set_title(f"Average Waveform for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        
         figname = f"{self.filename[:-5]}-average_waveform_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
-        save_dir = os.path.join(self.filepath, self.filename[:-5],  "average-waveform")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname))
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "average-waveform")
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
+
 
     def plot_ampl_to_gain(self):
 
@@ -472,25 +473,25 @@ class Measurement:
             ampl_list.append(wf.min_value)
             gain_list.append(wf.calculate_gain())
 
-        plt.figure()
+        fig, ax = plt.subplots()
 
-        plt.scatter(np.array(ampl_list), np.array(gain_list))
+        ax.scatter(np.array(ampl_list), np.array(gain_list))
 
-        plt.xlabel("amplitude [mV]")
-        plt.ylabel("gain")
+        ax.set_xlabel("amplitude [mV]")
+        ax.set_ylabel("gain")
 
-        plt.title(f"amplitude to gain correlation")
+        ax.set_title(f"amplitude to gain correlation")
+
         figname = f"{self.filename[:-5]}-ampl_to_gain.png"
-
         save_dir = os.path.join(self.filepath, self.filename[:-5], "correlations")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname))
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
 
-    def plot_hist(self, mode="amplitude", nr_bins =None):
+
+    def plot_hist(self, mode="amplitude", nr_bins=None, fitting_threshold=None):
 
         # TODO: twin axis for two histograms
 
@@ -501,48 +502,50 @@ class Measurement:
         if mode not in ["amplitude", "gain", "charge", "amplitude_all"]:
             return
 
-        fig, ax1 = plt.subplots()
-
         if mode == "amplitude": data = [wf.min_value for wf in self.waveforms]
         if mode == "gain":      data = [wf.calculate_gain() for wf in self.waveforms]
         if mode == "charge":    data = [wf.calculate_charge() for wf in self.waveforms]
         if mode == "amplitude_all": data = [value for wf in self.waveforms for value in wf.signal]
 
         if not nr_bins:
-            nr_entries = len(data)
-            nbins = int(nr_entries / 100)
-            if nbins < 10: nbins = 10
-        else:
-            nbins = nr_bins
+            nr_bins = max(int(len(data) / 100), 10)
 
-        ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
+        fig, ax = plt.subplots()
 
-        if mode == "amplitude": ax1.set_xlabel('Amplitude [mV]')
-        if mode == "gain":      ax1.set_xlabel('Gain')
-        if mode == "charge":    ax1.set_xlabel('Charge')
-        if mode == "amplitude_all": ax1.set_xlabel('Amplitude [mV]')
+        counts, bins, _ = ax.hist(data, bins=nr_bins, histtype='step', log=True, linewidth=2.0)
 
-        ax1.set_ylabel('Counts')
+        if mode == "amplitude": ax.set_xlabel('Amplitude [mV]')
+        if mode == "gain":      ax.set_xlabel('Gain')
+        if mode == "charge":    ax.set_xlabel('Charge')
+        if mode == "amplitude_all": ax.set_xlabel('Amplitude [mV]')
+        ax.set_ylabel('Counts')
 
         if mode == "amplitude": plt.axvline(x=self.metadict["sgnl threshold [mV]"], color='black', ls=":", label="trigger threshold")
         if mode == "amplitude_all": plt.axvline(x=self.metadict["sgnl threshold [mV]"], color='black', ls=":", label="trigger threshold")
 
-        plt.legend()
+        # fitting
+        mask = bins[:-1] >= fitting_threshold
+        x = bins[:-1][mask] + np.diff(bins)[0]/2
+        y = counts[mask]
+        popt, _ = optimize.curve_fit(gaussian, x, y, p0=[np.max(y), np.mean(x), np.std(x)])
+        ax.plot(x, gaussian(x, *popt), 'r-', label='Gaussian fit')
+        fwhm = 2 * np.sqrt(2 * np.log(2)) * popt[2]
+        ax.axvline(popt[1], color='tab:orange', ls="--", label=f"FWHM ({fwhm:.2f} mV)")
 
-        fig.tight_layout()
-        plt.title(f"Waveform {mode}s for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        ax.legend()
+
+        ax.set_title(f"Waveform {mode}s for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        
         figname = f"{self.filename[:-5]}-hist_{mode}s_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
         save_dir = os.path.join(self.filepath, self.filename[:-5],  f"{mode}-histograms")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
 
 
-    def plot_transit_times(self, nr_bins=100):
+    def plot_transit_times(self, nr_bins=None):
 
         if not self.waveforms:
             print(f"plotting transit times without having Waveforms stored!")
@@ -550,23 +553,25 @@ class Measurement:
 
         transit_times = [wf.transit_time for wf in self.waveforms]
 
-        plt.figure()
+        if not nr_bins:
+            nr_bins = max(int(len(transit_times) / 100), 10)
 
-        plt.hist(transit_times, histtype='step', bins=nr_bins, linewidth=2.0)
+        fig, ax = plt.subplots()
 
-        plt.xlabel('Transit time [ns]')
-        plt.ylabel('Counts')
+        ax.hist(transit_times, histtype='step', bins=nr_bins, linewidth=2.0)
 
-        plt.title(f"TTS for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        ax.set_xlabel('Transit time [ns]')
+        ax.set_ylabel('Counts')
+
+        ax.set_title(f"TTS for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
+        
         figname = f"{self.filename[:-5]}-TTS_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
-
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "transit-times")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname))
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
 
 
 
@@ -721,7 +726,7 @@ class DCS_Measurement:
             close_on_end = True
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), 'f')
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), dtype='f32')
 
         dataset[:,:,0] = self.time
         dataset[:,:,1] = self.signal
@@ -786,25 +791,21 @@ class DCS_Measurement:
         data = self.signal.flatten()
 
         if not nr_bins:
-            nr_entries = len(data)
-            nbins = int(nr_entries / 100)
-            if nbins < 10: nbins = 10
-        else:
-            nbins = nr_bins
+            nr_bins = max(int(len(data) / 100), 10)
+ 
+        fig, ax = plt.subplots()
 
-        fig, ax1 = plt.subplots()
-        ax1.hist(data, bins=nbins, histtype='step', log=True, linewidth=2.0)
-        ax1.set_xlabel('Amplitude [mV]')
-        ax1.set_ylabel('Counts')
+        ax.hist(data, bins=nr_bins, histtype='step', log=True, linewidth=2.0)
 
-        fig.tight_layout()
-        plt.title(f"Dark noise amplitudes for Dy10={self.metadict['Dy10 [V]']}V")
+        ax.set_xlabel('Amplitude [mV]')
+        ax.set_ylabel('Counts')
+
+        ax.set_title(f"Dark noise amplitudes for Dy10={self.metadict['Dy10 [V]']}V")
+
         figname = f"{self.filename[:-5]}-noise_amplitude_Dy10={self.metadict['Dy10 [V]']}.png"
-
         save_dir = os.path.join(self.filepath, self.filename[:-5],  f"histograms")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.close(fig)
