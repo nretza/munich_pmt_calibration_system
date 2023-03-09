@@ -786,6 +786,32 @@ class DCS_Measurement:
     ###-----------------------------------------------------------------
 
 
+    def plot_peaks(self, signal_threshold, how_many=10):
+
+        flat_signal = self.signal.flatten()
+        peak_indices, _ = find_peaks(flat_signal, height=signal_threshold)
+        
+        fig, ax = plt.subplots()
+
+        for _, idx in zip(range(how_many), peak_indices):
+            start_idx = max(0, idx - 150)
+            end_idx = min(len(flat_signal), idx + 150)
+            ax.plot(self.time[start_idx:end_idx], flat_signal[start_idx:end_idx])
+        
+        # set axis labels and title
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Amplitude [mV]')
+
+        ax.set_title(f"Dark noise peaks for Dy10={self.metadict['Dy10 [V]']}V")
+
+        figname = f"{self.filename[:-5]}-noise_peaks_Dy10={self.metadict['Dy10 [V]']}.png"
+        save_dir = os.path.join(self.filepath, self.filename[:-5],  f"peaks")
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close(fig)
+
     def plot_amplitude_hist(self, nr_bins =None):
 
         data = self.signal.flatten()
