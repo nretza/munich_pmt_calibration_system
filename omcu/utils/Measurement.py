@@ -19,7 +19,7 @@ from utils.Waveform import Waveform
 
 #placed here to avoid circular imports
 def gaussian(x, a, mu, sigma):
-    return a * np.exp(- (x - mu) ** 2 / (sigma ** 2))
+    return a * np.exp(- (x - mu) ** 2 / (2 * sigma ** 2))
 
 
 class Measurement:
@@ -271,7 +271,7 @@ class Measurement:
             close_on_end = True
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), dtype='f32')
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), dtype=np.float32)
 
         dataset[:,:,0] = [wf.time for wf in self.waveforms]
         dataset[:,:,1] = [wf.signal for wf in self.waveforms]
@@ -351,7 +351,7 @@ class Measurement:
         ax.set_ylabel('Voltage (mV)')
 
         ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
-        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.axhline(y=self.metadict["sgnl threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['sgnl threshold [mV]']} mV)")
         ax.legend()
 
         ax.set_title(f"Waveforms for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
@@ -420,7 +420,7 @@ class Measurement:
         ax.set_ylabel('Voltage (mV)')
 
         ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
-        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.axhline(y=self.metadict["sgnl threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['sgnl threshold [mV]']} mV)")
         ax.legend()
         
         ax.set_title(f"Waveform Masks for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
@@ -451,7 +451,7 @@ class Measurement:
         ax.set_ylabel('Voltage (mV)')
 
         ax.axvline(x=self.waveforms[0].trigger_time, color='grey', ls=":", label="trigger time")
-        ax.axhline(y=self.metadict["signal threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['signal threshold [mV]']} mV)")
+        ax.axhline(y=self.metadict["sgnl threshold [mV]"], color='tab:orange', ls="--", label=f"signal threshold ({self.metadict['sgnl threshold [mV]']} mV)")
         ax.legend()
         
         ax.set_title(f"Average Waveform for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
@@ -508,11 +508,11 @@ class Measurement:
         if mode == "amplitude_all": data = [value for wf in self.waveforms for value in wf.signal]
 
         if not nr_bins:
-            nr_bins = max(int(len(data) / 100), 10)
+            nr_bins = min(max(int(len(data) / 100), 10), 500)
 
         fig, ax = plt.subplots()
 
-        counts, bins, _ = ax.hist(data, bins=nr_bins, histtype='step', log=True, linewidth=2.0)
+        counts, bins, _ = ax.hist(data, bins=nr_bins, histtype='step', log=False, linewidth=2.0)
 
         if mode == "amplitude": ax.set_xlabel('Amplitude [mV]')
         if mode == "gain":      ax.set_xlabel('Gain')
@@ -524,13 +524,24 @@ class Measurement:
         if mode == "amplitude_all": plt.axvline(x=self.metadict["sgnl threshold [mV]"], color='black', ls=":", label="trigger threshold")
 
         # fitting
-        mask = bins[:-1] >= fitting_threshold
-        x = bins[:-1][mask] + np.diff(bins)[0]/2
-        y = counts[mask]
-        popt, _ = optimize.curve_fit(gaussian, x, y, p0=[np.max(y), np.mean(x), np.std(x)])
-        ax.plot(x, gaussian(x, *popt), 'r-', label='Gaussian fit')
+
+        if mode == "amplitude":     mask = (bins[:-1] <= fitting_threshold) if fitting_threshold else np.ones(nr_bins, dtype=bool)
+        if mode == "amplitude_all": mask = (bins[:-1] <= fitting_threshold) if fitting_threshold else np.ones(nr_bins, dtype=bool)
+        if mode == "charge":        mask = (bins[:-1] <= fitting_threshold) if fitting_threshold else np.ones(nr_bins, dtype=bool)
+        if mode == "gain":          mask = (bins[:-1] >= fitting_threshold) if fitting_threshold else np.ones(nr_bins, dtype=bool)
+
+        mask = mask & (counts[:] != 0)
+
+        x_fit = bins[:-1][mask] + np.diff(bins)[0]/2
+        x_all = bins[:-1] + np.diff(bins)[0]/2
+        y_fit = counts[mask]
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
         fwhm = 2 * np.sqrt(2 * np.log(2)) * popt[2]
-        ax.axvline(popt[1], color='tab:orange', ls="--", label=f"FWHM ({fwhm:.2f} mV)")
+
+        ax.plot(x_all, gaussian(x_all, *popt), 'r-', label='Gaussian fit')
+        ax.plot((popt[1] - (fwhm / 2), popt[1] + (fwhm / 2)), (popt[0]/2, popt[0]/2), color='black', label=f"FWHM ({fwhm:.2f} mV)")
+        ax.axvline(x=popt[1] - (fwhm / 2), color="tab:orange", ls="--")
+        ax.axvline(x=popt[1] + (fwhm / 2), color="tab:orange", ls="--")
 
         ax.legend()
 
@@ -726,7 +737,8 @@ class DCS_Measurement:
             close_on_end = True
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), dtype='f32')
+
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), dtype=np.float32)
 
         dataset[:,:,0] = self.time
         dataset[:,:,1] = self.signal
