@@ -801,14 +801,18 @@ class DCS_Measurement:
     def plot_peaks(self, signal_threshold, how_many=10):
 
         flat_signal = self.signal.flatten()
-        peak_indices, _ = find_peaks(flat_signal, height=signal_threshold)
-        
+        peak_indices, _ = find_peaks(-flat_signal, height=-signal_threshold)
+
         fig, ax = plt.subplots()
 
-        for _, idx in zip(range(how_many), peak_indices):
+        cmap    = plt.cm.viridis
+        colors  = cmap(np.linspace(0, 0.7, how_many))
+
+        for idx, c in zip(peak_indices, colors):
             start_idx = max(0, idx - 150)
             end_idx = min(len(flat_signal), idx + 150)
-            ax.plot(self.time[start_idx:end_idx], flat_signal[start_idx:end_idx])
+            range = end_idx - start_idx
+            ax.plot(self.time[0][0:range], flat_signal[start_idx:end_idx], color=c)
         
         # set axis labels and title
         ax.set_xlabel('Time')
@@ -823,6 +827,70 @@ class DCS_Measurement:
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.close(fig)
+
+    def plot_average_peak(self, signal_threshold):
+
+        flat_signal = self.signal.flatten()
+        peak_indices, _ = find_peaks(-flat_signal, height=-signal_threshold)
+
+        amplitudes = []
+        for idx in peak_indices:
+            start_idx = max(0, idx - 150)
+            end_idx = min(len(flat_signal), idx + 150)
+            amplitudes.append(flat_signal[start_idx:end_idx])
+
+        peak_amplitudes = np.vstack(amplitudes)
+        average_peak = np.mean(peak_amplitudes, axis=0)
+
+        fig, ax = plt.subplots()
+
+        ax.plot(self.time[0][0:len(average_peak)], average_peak)
+
+        # set axis labels and title
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Amplitude [mV]')
+
+        ax.set_title(f"average dark noise peak for Dy10={self.metadict['Dy10 [V]']}V")
+
+        figname = f"{self.filename[:-5]}-average-noise_peak_Dy10={self.metadict['Dy10 [V]']}.png"
+        save_dir = os.path.join(self.filepath, self.filename[:-5], f"peaks")
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close(fig)
+
+
+    def plot_peak_time_hist(self, signal_threshold, nr_bins=None):
+
+        flat_signal = self.signal.flatten()
+        peak_indices, _ = find_peaks(-flat_signal, height=-signal_threshold)
+
+        peak_diffs = np.diff(peak_indices)
+        timebase = np.diff(self.time[0])[0]
+        data = peak_diffs * timebase
+
+        if not nr_bins:
+            nr_bins = max(int(len(data) / 100), 10)
+
+        fig, ax = plt.subplots()
+
+        ax.hist(data, bins=nr_bins, histtype='step', log=True, linewidth=2.0)
+
+        # set axis labels and title
+        ax.set_xlabel('relative time from peak to peak [ns]')
+        ax.set_ylabel('Counts')
+
+        ax.set_title(f"relative time difference between dark noise peaks Dy10={self.metadict['Dy10 [V]']}V")
+
+        figname = f"{self.filename[:-5]}-noise-time-peaks_Dy10={self.metadict['Dy10 [V]']}.png"
+        save_dir = os.path.join(self.filepath, self.filename[:-5], f"histograms")
+        os.makedirs(save_dir, exist_ok=True)
+        fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.close(fig)
+
 
     def plot_amplitude_hist(self, nr_bins =None):
 
