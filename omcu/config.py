@@ -198,10 +198,10 @@ DCS_DATAFILE      = "data_dark_count.hdf5"
 
 #------------------------------------------------------
 
-DCS_HV_LIST             = np.arange(75,120,1)    # HVs to set while data taking (start,stop,step)
+DCS_HV_LIST             = np.arange(75,120,2)    # HVs to set while data taking (start,stop,step)
 
 DCS_NR_OF_SAMPLES       = 10000                  # Number of samples the picoscope should record per waveform
 DCS_NR_OF_WAVEFORMS     = 10000                  # Number of waveforms per iteration
-DCS_NR_OF_ITERATIONS    = 10                     # Number of iterations per HV-configuration
+DCS_NR_OF_ITERATIONS    = 5                      # Number of iterations per HV-configuration
 DCS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal
 DCS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
