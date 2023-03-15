@@ -49,6 +49,7 @@ class Measurement:
                 "Dy10 [V]":                 -1,
                 "Powermeter [pW]":          -1,
                 "Picoamp [nA]":             -1,
+                "Laser satus":              -1,
                 "Laser temp [°C]":          -1,
                 "Laser tune [%]":           -1,
                 "Laser pulse freq [Hz]":    -1,
@@ -239,6 +240,7 @@ class Measurement:
             "phi [°]":                round( Rotation.Instance().get_position()[0],     2),
             "Dy10 [V]":               round( uBase.Instance().getDy10(),                2),
             "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
+            "Laser satus":            Laser.Instance().get_ld()                           ,
             "Laser temp [°C]":        round( Laser.Instance().get_temp(),               2),
             "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      2),
             "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               2),
@@ -617,6 +619,7 @@ class DCS_Measurement:
                 "phi [°]":                  -1,
                 "HV [V]":                   -1,
                 "Dy10 [V]":                 -1,
+                "Laser satus":              -1,
                 "Powermeter [pW]":          -1,
                 "Picoamp [nA]":             -1,
                 "darkbox temp [°C]":        -1,
@@ -716,6 +719,7 @@ class DCS_Measurement:
             "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
             "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
             "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
+            "Laser satus":            Laser.Instance().get_ld()                           ,
             "sgnl threshold [mV]":    round( signal_threshold,                          3)
             }
                 

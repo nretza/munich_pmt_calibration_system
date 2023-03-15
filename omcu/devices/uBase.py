@@ -28,7 +28,7 @@ class uBase(serial_device):
 
         super().__init__(dev=dev, simulating=simulating, delay=delay)
 
-        self.vmax = 1400
+        self.vmax = 120
         self.setSleeping(0)
 
 
