@@ -96,6 +96,10 @@ class Picoscope(device):
         channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
         return (np.array(bufferADC, dtype=np.float32) * channelInputRanges[range]) / maxADC.value
 
+    def mV2ADC(self, voltage, range, maxADC):
+        channelInputRanges = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
+        return voltage * maxADC.value / channelInputRanges[range]
+
 
     def stop_scope(self):
 
@@ -169,10 +173,11 @@ class Picoscope(device):
 
         # Set simple trigger on the given channel, [thresh] mV rising with autotrigger
         self.logger.info(f"setting trigger threshold {self.trigger_threshold} mV on channel {self.channel_trg}")
+        trigger_adc = int (self.mV2ADC(self.trigger_threshold, self.voltrange_trg, self.maxADC))
         self.status["setSimpleTrigger"] = ps.ps6000aSetSimpleTrigger(self.chandle,
                                                                      1,
                                                                      self.channel_trg,
-                                                                     self.trigger_threshold,
+                                                                     trigger_adc,
                                                                      self.trigger_direction,
                                                                      self.trigger_delay,
                                                                      self.autotrigger)

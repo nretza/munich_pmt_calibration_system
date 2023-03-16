@@ -247,7 +247,7 @@ class Measurement:
             "sgnl threshold [mV]":    round( signal_threshold,                          2)
             }
                 
-        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold),                3)
+        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold) * 100,          3)
         meta_dict["avg amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[0],   3)
         meta_dict["std amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[1],   3)
         meta_dict["gain"]                     = round(self.calculate_gain(signal_threshold)[0],            3)

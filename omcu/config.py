@@ -82,13 +82,13 @@ PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 # gain tune
 PCS_TUNE_GAIN_MIN    = 4.95e6
 PCS_TUNE_GAIN_MAX    = 5.05e6
-PCS_TUNE_V_START     = None          # will start at current voltage if None
+PCS_TUNE_V_START     = 85          # will start at current voltage if None
 PCS_TUNE_V_STEP      = 1
 
 # occ tune
 PCS_TUNE_OCC_MIN        = 0.09
 PCS_TUNE_OCC_MAX        = 0.10
-PCS_TUNE_LASER_START    = None      # will start at current laser tune if None
+PCS_TUNE_LASER_START    = 710      # will start at current laser tune if None
 PCS_TUNE_LASER_STEP     = 1
 
 PCS_TUNE_NR_OF_WAVEFORMS  =  100000
@@ -124,13 +124,13 @@ FHVS_TUNE_MAX_ITER = 15              # max iters for iter tune mode
 # gain tune
 FHVS_TUNE_GAIN_MIN    = None
 FHVS_TUNE_GAIN_MAX    = None
-FHVS_TUNE_V_START     = None          # will start at current voltage if None
+FHVS_TUNE_V_START     = 85          # will start at current voltage if None
 FHVS_TUNE_V_STEP      = None
 
 # occ tune
 FHVS_TUNE_OCC_MIN        = 0.09
 FHVS_TUNE_OCC_MAX        = 0.10
-FHVS_TUNE_LASER_START    = None       # will start at current laser tune if None
+FHVS_TUNE_LASER_START    = 710       # will start at current laser tune if None
 FHVS_TUNE_LASER_STEP     = 1
 
 FHVS_TUNE_NR_OF_WAVEFORMS  =  100000
@@ -165,13 +165,13 @@ CLS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 # gain tune
 CLS_TUNE_GAIN_MIN    = 4.95e6
 CLS_TUNE_GAIN_MAX    = 5.05e6
-CLS_TUNE_V_START     = None          # will start at current voltage if None
+CLS_TUNE_V_START     = 85          # will start at current voltage if None
 CLS_TUNE_V_STEP      = 1
 
 # occ tune
 CLS_TUNE_OCC_MIN        = 0.09
 CLS_TUNE_OCC_MAX        = 0.10
-CLS_TUNE_LASER_START    = None       # will start at current laser tune if None
+CLS_TUNE_LASER_START    = 710       # will start at current laser tune if None
 CLS_TUNE_LASER_STEP     = 1
 
 CLS_TUNE_NR_OF_WAVEFORMS  =  100000
