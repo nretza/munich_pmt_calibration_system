@@ -40,8 +40,8 @@ ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
 ANALYSIS_PLOT_WFS                        = True
 ANALYSIS_PLOT_WF_AVG                     = True
-ANALYSIS_PLOT_WF_MSK                     = True
-ANALYSIS_PLOT_PEAKS                      = True
+ANALYSIS_PLOT_WF_MSK                     = False
+ANALYSIS_PLOT_PEAKS                      = False
 ANALYSIS_PLOT_HIST_AMP                   = True
 ANALYSIS_PLOT_HIST_CHRG                  = True
 ANALYSIS_PLOT_HIST_GAIN                  = True
@@ -92,7 +92,7 @@ PCS_TUNE_LASER_START    = 710      # will start at current laser tune if None
 PCS_TUNE_LASER_STEP     = 1
 
 PCS_TUNE_NR_OF_WAVEFORMS  =  100000
-PCS_TUNE_SIGNAL_THRESHOLD = -4
+PCS_TUNE_SIGNAL_THRESHOLD = -3.5
 
 #-----------------------------------------------------
 
@@ -100,7 +100,7 @@ PCS_PHI_LIST      = np.arange(0,  90, 5)          # phi angles to set while data
 PCS_THETA_LIST    = np.arange(0, 105, 5)          # theta angles to set while datataking (start,stop,step)
 
 PCS_NR_OF_WAVEFORMS     =  100000                 # Number of waveforms the picoscope should record per HV,phi,theta - configuration
-PCS_SIGNAL_THRESHOLD    = -4                      # Determines when a waveform is considered a signal and will be written in the datafile
+PCS_SIGNAL_THRESHOLD    = -3.5                     # Determines when a waveform is considered a signal and will be written in the datafile
 PCS_MEASUREMENT_SLEEP   =  1                      # Time in seconds that are waited before each recording of data
 
 
@@ -134,14 +134,14 @@ FHVS_TUNE_LASER_START    = 710       # will start at current laser tune if None
 FHVS_TUNE_LASER_STEP     = 1
 
 FHVS_TUNE_NR_OF_WAVEFORMS  =  100000
-FHVS_TUNE_SIGNAL_THRESHOLD = -4
+FHVS_TUNE_SIGNAL_THRESHOLD = -3.5
 
 #------------------------------------------------------
 
 FHVS_HV_LIST       = np.arange(75,120,1)          # HVs to set while datataking (start,stop,step)
 
 FHVS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per HV,phi,theta - configuration
-FHVS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
+FHVS_SIGNAL_THRESHOLD    = -3.5                   # Determines when a waveform is considered a signal and will be written in the datafile
 FHVS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
 
 
@@ -175,14 +175,14 @@ CLS_TUNE_LASER_START    = 710       # will start at current laser tune if None
 CLS_TUNE_LASER_STEP     = 1
 
 CLS_TUNE_NR_OF_WAVEFORMS  =  100000
-CLS_TUNE_SIGNAL_THRESHOLD = -4
+CLS_TUNE_SIGNAL_THRESHOLD = -3.5
 
 #------------------------------------------------------
 
 CLS_LASER_TUNE_LIST     = np.arange(730,600,-2)  # Laser tunes to set while data taking (start,stop,step)
 
 CLS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picoscope should record per configuration
-CLS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal and will be written in the datafile
+CLS_SIGNAL_THRESHOLD    = -3.5                   # Determines when a waveform is considered a signal and will be written in the datafile
 CLS_MEASUREMENT_SLEEP   =  60                    # Time in seconds that are waited before each recording of data
 
 
@@ -203,5 +203,5 @@ DCS_HV_LIST             = np.arange(75,120,2)    # HVs to set while data taking 
 DCS_NR_OF_SAMPLES       = 10000                  # Number of samples the picoscope should record per waveform
 DCS_NR_OF_WAVEFORMS     = 10000                  # Number of waveforms per iteration
 DCS_NR_OF_ITERATIONS    = 5                      # Number of iterations per HV-configuration
-DCS_SIGNAL_THRESHOLD    = -4                     # Determines when a waveform is considered a signal
+DCS_SIGNAL_THRESHOLD    = -3.5                   # Determines when a waveform is considered a signal
 DCS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data

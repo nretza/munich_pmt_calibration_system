@@ -471,7 +471,7 @@ class DataHandler:
                 if clear: data.clear()
                 
 
-    def plot_hist(self, mode="amplitude"):
+    def plot_hist(self, mode="amplitude", nr_bins=None, fitting_threshold=None):
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
@@ -482,11 +482,11 @@ class DataHandler:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
 
-                data.plot_hist(mode)
+                data.plot_hist(mode, nr_bins, fitting_threshold)
                 if clear: data.clear()
 
 
-    def plot_transit_times(self, binsize = 0.4):
+    def plot_transit_times(self, nr_bins = None):
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
@@ -497,5 +497,5 @@ class DataHandler:
                     clear = True
                     data.read_from_file(hdf5_connection=h5)
 
-                data.plot_transit_times(binsize)
+                data.plot_transit_times(nr_bins)
                 if clear: data.clear()

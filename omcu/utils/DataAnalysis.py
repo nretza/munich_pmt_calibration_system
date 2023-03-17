@@ -216,7 +216,7 @@ class DataAnalysis:
 
 if __name__ == "__main__":
 
-    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/R14374/KM57347_374"
+    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/R14374/KM54367_104"
 
     print("analyzing data now")
     analysis = DataAnalysis(DATA_PATH)

@@ -537,13 +537,19 @@ class Measurement:
         x_fit = bins[:-1][mask] + np.diff(bins)[0]/2
         x_all = bins[:-1] + np.diff(bins)[0]/2
         y_fit = counts[mask]
-        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
-        fwhm = 2 * np.sqrt(2 * np.log(2)) * popt[2]
 
-        ax.plot(x_all, gaussian(x_all, *popt), 'r-', label='Gaussian fit')
-        ax.plot((popt[1] - (fwhm / 2), popt[1] + (fwhm / 2)), (popt[0]/2, popt[0]/2), color='black', label=f"FWHM ({fwhm:.2f} mV)")
-        ax.axvline(x=popt[1] - (fwhm / 2), color="tab:orange", ls="--")
-        ax.axvline(x=popt[1] + (fwhm / 2), color="tab:orange", ls="--")
+        try:
+            popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+            fwhm = 2 * np.sqrt(2 * np.log(2)) * popt[2]
+
+            ax.plot(x_all, gaussian(x_all, *popt), 'r-', label='Gaussian fit')
+            ax.plot((popt[1] - (fwhm / 2), popt[1] + (fwhm / 2)), (popt[0]/2, popt[0]/2), color='black', label=f"FWHM ({fwhm:.2f} mV)")
+            ax.axvline(x=popt[1] - (fwhm / 2), color="tab:orange", ls="--")
+            ax.axvline(x=popt[1] + (fwhm / 2), color="tab:orange", ls="--")
+
+        except RuntimeError:
+            print(f"could not fit {mode} histogram on key {self.hdf5_key}")
+            self.logger.warning(f"could not fit {mode} histogram on key {self.hdf5_key}")
 
         ax.legend()
 
