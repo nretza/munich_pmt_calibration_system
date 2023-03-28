@@ -64,8 +64,9 @@ def photocathode_scan(DATA_PATH):
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
-            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
-            dataset.filter_by_threshold(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
+            if config.PCS_FILTER_DATASET:
+                logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
+                dataset.filter_by_threshold(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
             dataset.setHDF5_key(f"theta {theta}/phi {phi}")
             dataset.write_to_file(hdf5_connection=h5_connection)
@@ -130,8 +131,9 @@ def frontal_HV_scan(DATA_PATH):
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
-            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
-            dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
+            if config.FHVS_FILTER_DATASET:
+                logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
+                dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
             dataset.setHDF5_key(f"HV {HV}")
             dataset.write_to_file(hdf5_connection=h5_connection)
@@ -196,8 +198,9 @@ def charge_linearity_scan(DATA_PATH):
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
-            logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.CLS_SIGNAL_THRESHOLD} mV")
-            dataset.filter_by_threshold(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
+            if config.CLS_FILTER_DATASET:
+                logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.CLS_SIGNAL_THRESHOLD} mV")
+                dataset.filter_by_threshold(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
             dataset.setHDF5_key(f"laser tune {laser_tune}")
             dataset.write_to_file(hdf5_connection=h5_connection)

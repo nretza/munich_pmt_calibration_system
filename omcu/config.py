@@ -100,10 +100,10 @@ PCS_PHI_LIST      = np.arange(0,  90, 5)          # phi angles to set while data
 PCS_THETA_LIST    = np.arange(0, 105, 5)          # theta angles to set while datataking (start,stop,step)
 
 PCS_NR_OF_WAVEFORMS     =  100000                 # Number of waveforms the picoscope should record per HV,phi,theta - configuration
-PCS_SIGNAL_THRESHOLD    = -3.5                     # Determines when a waveform is considered a signal and will be written in the datafile
+PCS_SIGNAL_THRESHOLD    = -3.5                    # Determines when a waveform is considered a signal and will be written in the datafile
 PCS_MEASUREMENT_SLEEP   =  1                      # Time in seconds that are waited before each recording of data
 
-
+PCS_FILTER_DATASET      = True                    # determines if dataset should be filtered by signal threshold before writing to disk
 
 
 #------------------------------------------------------
@@ -124,7 +124,7 @@ FHVS_TUNE_MAX_ITER = 15              # max iters for iter tune mode
 # gain tune
 FHVS_TUNE_GAIN_MIN    = None
 FHVS_TUNE_GAIN_MAX    = None
-FHVS_TUNE_V_START     = 85          # will start at current voltage if None
+FHVS_TUNE_V_START     = 85           # will start at current voltage if None
 FHVS_TUNE_V_STEP      = None
 
 # occ tune
@@ -144,7 +144,7 @@ FHVS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the pico
 FHVS_SIGNAL_THRESHOLD    = -3.5                   # Determines when a waveform is considered a signal and will be written in the datafile
 FHVS_MEASUREMENT_SLEEP   =  1                     # Time in seconds that are waited before each recording of data
 
-
+FHVS_FILTER_DATASET      = True                   # determines if dataset should be filtered by signal threshold before writing to disk
 
 
 #------------------------------------------------------
@@ -185,7 +185,7 @@ CLS_NR_OF_WAVEFORMS     =  100000                # Number of waveforms the picos
 CLS_SIGNAL_THRESHOLD    = -3.5                   # Determines when a waveform is considered a signal and will be written in the datafile
 CLS_MEASUREMENT_SLEEP   =  60                    # Time in seconds that are waited before each recording of data
 
-
+CLS_FILTER_DATASET      = True                   # determines if dataset should be filtered by signal threshold before writing to disk
 
 
 #------------------------------------------------------
