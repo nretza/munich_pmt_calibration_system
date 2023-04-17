@@ -159,7 +159,7 @@ def main():
 
     # laser boot up
     Laser.Instance().on_pulsed()
-    print(f"\nLaser turned on. Waiting {config.LASER_SETUP_TIME} for laser to warm up.")
+    print(f"\nLaser turned on. Waiting {config.LASER_SETUP_TIME} minutes for laser to warm up.")
     logging.getLogger("OMCU").info(f"entering laser setup time of {config.LASER_SETUP_TIME} minutes")
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
     for i in range(config.LASER_SETUP_TIME):

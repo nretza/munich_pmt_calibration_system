@@ -273,7 +273,11 @@ class Measurement:
             close_on_end = True
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (len(self.waveforms), len(self.waveforms[0].time), 3), dtype=np.float32)
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset",
+                                                 (len(self.waveforms), len(self.waveforms[0].time), 3),
+                                                 dtype=np.float32,
+                                                 compression="gzip",
+                                                 compression_opts=6)
 
         dataset[:,:,0] = [wf.time for wf in self.waveforms]
         dataset[:,:,1] = [wf.signal for wf in self.waveforms]
@@ -748,7 +752,11 @@ class DCS_Measurement:
 
         h5_key = self.hdf5_key if self.hdf5_key else f"HV{self.metadict['Dy10 [V]']}/theta{self.metadict['theta [°]']}/phi{self.metadict['phi [°]']}"
 
-        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset", (self.signal.shape[0], self.signal.shape[1], 2), dtype=np.float32)
+        dataset = hdf5_connection.create_dataset(f"{h5_key}/dataset",
+                                                 (self.signal.shape[0], self.signal.shape[1], 2),
+                                                 dtype=np.float32,
+                                                 compression="gzip",
+                                                 compression_opts=6)
 
         dataset[:,:,0] = self.time
         dataset[:,:,1] = self.signal
