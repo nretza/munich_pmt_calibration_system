@@ -25,13 +25,14 @@ class Laser(serial_device):
 
         super().__init__(dev=dev, simulating=simulating, delay=delay)
 
-        self.off_pulsed()  # pulsed laser emission OFF
-        self.set_trig_edge(1)  # trigger edge: rising
-        self.set_trig_source(0)  # trigger source: internal
-        self.set_trig_level(0)  # trigger level: 0 mV
+        self.off_pulsed()         # pulsed laser emission OFF
+        self.off_cw()             # CW laser emission OFF
+        self.set_trig_edge(1)     # trigger edge: rising
+        self.set_trig_source(0)   # trigger source: internal
+        self.set_trig_level(0)    # trigger level: 0 mV
         self.set_tune_value(710)  # tune value at 71%
-        self.set_freq(10e3)  # frequency = 10 kHZ
-        self.off_cw()  # CW laser emission OFF
+        self.set_freq(10e3)       # frequency = 10 kHZ
+        
 
 
     def print_state(self):

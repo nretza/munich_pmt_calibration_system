@@ -24,14 +24,14 @@ class Powermeter(serial_device):
 
         super().__init__(dev=dev, simulating=simulating, delay=delay)
 
-        self.set_echo(0)  # Echo off !!!
-        self.set_lambda(405)  # The Picosecond Laser has a wavelength of 405 nm.
-        self.set_channel(2)  # Power meter channel 1
-        self.set_buffer(0)  # buffer with fixed size
-        self.clear()  # Data Store cleared of all data
-        self.set_mode(0)  # DC Contonuous
-        self.set_interval(1)  # all measurements taken are put in the data store buffer
-        self.set_run(1)  # enable data acquisition
+        self.set_echo(0)       # Echo off !!!
+        self.set_lambda(405)   # The Picosecond Laser has a wavelength of 405 nm.
+        self.set_channel(2)    # Power meter channel 1
+        self.set_buffer(0)     # buffer with fixed size
+        self.clear()           # Data Store cleared of all data
+        self.set_mode(0)       # DC Contonuous
+        self.set_interval(1)   # all measurements taken are put in the data store buffer
+        self.set_run(1)        # enable data acquisition
 
 
     def set_echo(self, state):

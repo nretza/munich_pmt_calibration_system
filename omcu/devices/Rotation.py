@@ -28,7 +28,7 @@ class Rotation(serial_device):
 
         super().__init__(dev, delay=delay)
 
-        #soemhow the first i/o on the RS is always buggy. Sennd dummy message to avoid bugs
+        # somehow the first i/o on the RS is always buggy. Send dummy message to avoid bugs
         self.serial_io(' ')
 
     def set_phi(self, phi):
@@ -122,7 +122,7 @@ class Rotation(serial_device):
         """
         ir_val = [0,0]
         irY = self.serial_io('getIRY', wait_for=": ").split(':')[1]
-        irX = self.self.serial_io('getIRX', wait_for=": ").split(':')[1]
+        irX = self.serial_io('getIRX', wait_for=": ").split(':')[1]
         ir_val[0] = float(irY)
         ir_val[1] = float(irX)
         return ir_val
