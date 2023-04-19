@@ -33,7 +33,7 @@ DARK_COUNT_SCAN       = True
 
 # Data-Analysis
 
-ANALYSIS_PERFORM    = True      # perform data analysis after datataking
+ANALYSIS_PERFORM    = False     # perform data analysis after datataking
 ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
 # what to plot
@@ -97,7 +97,7 @@ PCS_TUNE_SIGNAL_THRESHOLD = -3.5
 #-----------------------------------------------------
 
 PCS_PHI_LIST      = np.arange(0,  90, 5)          # phi angles to set while datataking (start,stop,step)
-PCS_THETA_LIST    = np.arange(0, 105, 5)          # theta angles to set while datataking (start,stop,step)
+PCS_THETA_LIST    = np.arange(0, 100, 2)          # theta angles to set while datataking (start,stop,step) | DO NOT GO ABOVE 100
 
 PCS_NR_OF_WAVEFORMS     =  100000                 # Number of waveforms the picoscope should record per HV,phi,theta - configuration
 PCS_SIGNAL_THRESHOLD    = -3.5                    # Determines when a waveform is considered a signal and will be written in the datafile
