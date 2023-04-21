@@ -280,6 +280,9 @@ def tune_parameters(tune_mode,
                                   threshold_signal=signal_threshold,
                                   waveforms=nr_waveforms)
 
+            # set current tune vals as new starting positions
+            laser_start = laser_val
+            V_start     = HV_val
 
             # measure after tuning to avoid cross-influence
             dataset = Picoscope.Instance().block_measurement(nr_waveforms)
