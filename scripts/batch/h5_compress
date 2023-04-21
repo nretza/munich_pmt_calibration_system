@@ -1,0 +1,17 @@
+echo "Starting compression script..."
+for a in *; do
+	echo "Compressing files in folder: $a"
+	cd $a
+	for f in *.hdf5; do
+		echo "Compressing file: $f"
+		h5repack -f FLET -f SHUF -f GZIP=6 "$f" "${f%.*}_compressed.hdf5"
+		if [[ $? -ne 0 ]]; then
+			echo "Error compressing file: $f"
+		else
+			echo "Compression complete on file: $f"
+		fi
+	done
+	cd ..
+	echo "Compression complete on folder: $a"
+done
+echo "Script complete!"
