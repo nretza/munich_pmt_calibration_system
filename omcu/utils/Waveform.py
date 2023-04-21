@@ -130,4 +130,4 @@ class Waveform:
         plt.savefig(out_file)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()

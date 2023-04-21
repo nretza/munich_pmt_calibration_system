@@ -368,7 +368,7 @@ class Measurement:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_peaks(self, ratio=0.33, width=2, how_many=10):
@@ -404,7 +404,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
 
@@ -437,7 +437,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
 
@@ -468,7 +468,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_ampl_to_gain(self):
@@ -494,7 +494,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_hist(self, mode="amplitude", nr_bins=None, fitting_threshold=None):
@@ -565,7 +565,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_transit_times(self, nr_bins=None):
@@ -594,7 +594,7 @@ class Measurement:
         fig.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
 
@@ -844,7 +844,7 @@ class DCS_Measurement:
         fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
     def plot_average_peak(self, signal_threshold):
 
@@ -876,7 +876,7 @@ class DCS_Measurement:
         fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_peak_time_hist(self, signal_threshold, nr_bins=None):
@@ -907,7 +907,7 @@ class DCS_Measurement:
         fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()
 
 
     def plot_amplitude_hist(self, nr_bins =None):
@@ -932,4 +932,4 @@ class DCS_Measurement:
         fig.savefig(os.path.join(save_dir, figname), bbox_inches='tight')
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close(fig)
+        plt.clf()

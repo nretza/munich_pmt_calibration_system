@@ -110,7 +110,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_angle_to_gain(self):
@@ -140,7 +140,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_angle_to_TTS(self):
@@ -170,7 +170,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_angle_to_rise_time(self):
@@ -200,7 +200,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_HV_to_occ(self):
@@ -230,7 +230,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_HV_to_gain(self):
@@ -260,7 +260,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_HV_to_TTS(self):
@@ -290,7 +290,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_HV_to_rise_time(self):
@@ -320,7 +320,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
     
     def plot_laser_tune_to_occ(self):
@@ -350,7 +350,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_laser_tune_to_charge(self):
@@ -380,7 +380,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 
     def plot_HV_to_dark_count(self):
@@ -410,7 +410,7 @@ class DataHandler:
         plt.savefig(os.path.join(save_dir, figname))
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
-        plt.close('all')
+        plt.clf()
 
 ###-----------------------------------------------------------------
 
