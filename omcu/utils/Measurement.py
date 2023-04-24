@@ -34,7 +34,8 @@ class Measurement:
                  metadict=None,
                  filename=None,
                  filepath=None,
-                 hdf5_key=None):
+                 hdf5_key=None,
+                 pmt_id  =None):
 
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f"{type(self).__name__} initialized")
@@ -42,6 +43,7 @@ class Measurement:
         self.filtered_by_threshold = False
 
         self.default_metadict = {
+                "pmt_id":                   -1,
                 "time":                     -1,
                 "theta [°]":                -1,
                 "phi [°]":                  -1,
@@ -85,6 +87,7 @@ class Measurement:
         self.setFilename(filename)
         self.setFilepath(filepath)
         self.setHDF5_key(hdf5_key)
+        self.setPMT_ID(pmt_id)
 
 ###-----------------------------------------------------------------
 
@@ -130,6 +133,14 @@ class Measurement:
     def getHDF5_Key(self):
         return self.hdf5_key
 
+    def setPMT_ID(self, pmt_id):
+        self.pmt_id = pmt_id
+
+    def getPMT_ID(self):
+        if self.pmt_id:     return self.pmt_id
+        elif self.filepath: return os.path.basename(self.filepath)
+        else:               return None
+
 ###-----------------------------------------------------------------
 
     def __len__(self):
@@ -170,7 +181,7 @@ class Measurement:
 
 
     def validate_gain(self, delta=10):
-        return (self.metadict["gain"] - self.calculate_gain(self.metadict["sgnl_threshold"])) < delta
+        return (self.metadict["gain"] - self.calculate_gain(self.metadict["sgnl_threshold"])[0]) < delta
 
 
     def calculate_charge(self, signal_threshold):
@@ -235,7 +246,8 @@ class Measurement:
     def meassure_metadict(self, signal_threshold):
 
         meta_dict = {
-            "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
+            "pmt_id":                 self.getPMT_ID() if self.getPMT_ID() else -1,
+            "time":                   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "theta [°]":              round( Rotation.Instance().get_position()[1],     2),
             "phi [°]":                round( Rotation.Instance().get_position()[0],     2),
             "Dy10 [V]":               round( uBase.Instance().getDy10(),                2),
@@ -616,7 +628,8 @@ class DCS_Measurement:
                  metadict=None,
                  filename=None,
                  filepath=None,
-                 hdf5_key=None):
+                 hdf5_key=None,
+                 pmt_id  =None):
 
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug(f"{type(self).__name__} initialized")
@@ -624,6 +637,7 @@ class DCS_Measurement:
         self.filtered_by_threshold = False
 
         self.default_metadict = {
+                "pmt_id":                   -1,
                 "time":                     -1,
                 "theta [°]":                -1,
                 "phi [°]":                  -1,
@@ -650,6 +664,7 @@ class DCS_Measurement:
         self.setFilename(filename)
         self.setFilepath(filepath)
         self.setHDF5_key(hdf5_key)
+        self.setPMT_ID(pmt_id)
 
 ###-----------------------------------------------------------------
 
@@ -694,10 +709,18 @@ class DCS_Measurement:
     def getHDF5_Key(self):
         return self.hdf5_key
 
+    def setPMT_ID(self, pmt_id):
+        self.pmt_id = pmt_id
+
+    def getPMT_ID(self):
+        if self.pmt_id:     return self.pmt_id
+        elif self.filepath: return os.path.basename(self.filepath)
+        else:               return None
+
 ###-----------------------------------------------------------------
 
     def __len__(self):
-        return len(self.waveforms)
+        return len(self.signal)
 
 ###-----------------------------------------------------------------
 
@@ -724,7 +747,8 @@ class DCS_Measurement:
     def meassure_metadict(self, signal_threshold):
 
         meta_dict = {
-            "time":                   datetime.now().strftime("%Y-%m-%d, %H:%M:%S"),
+            "pmt_id":                 self.getPMT_ID() if self.getPMT_ID() else -1,
+            "time":                   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "theta [°]":              round( Rotation.Instance().get_position()[1],     3),
             "phi [°]":                round( Rotation.Instance().get_position()[0],     3),
             "Dy10 [V]":               round( uBase.Instance().getDy10(),                3),
