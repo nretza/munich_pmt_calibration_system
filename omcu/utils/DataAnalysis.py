@@ -230,7 +230,6 @@ if __name__ == "__main__":
         analysis.analyze_DCS()
 
     # todo
-    # PCS peaks crashes
     # PCS not fully run through
     # make TTS prettier
     # takes too long

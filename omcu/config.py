@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import numpy as np
 
 #------------------------------------------------------
@@ -38,14 +37,14 @@ ANALYSIS_SHOW_PLOTS = False     # call plt.show()
 
 # what to plot
 
-ANALYSIS_PLOT_WFS                        = True
+ANALYSIS_PLOT_WFS                        = False
 ANALYSIS_PLOT_WF_AVG                     = False
 ANALYSIS_PLOT_WF_MSK                     = False
-ANALYSIS_PLOT_PEAKS                      = True
-ANALYSIS_PLOT_HIST_AMP                   = True
-ANALYSIS_PLOT_HIST_CHRG                  = True
-ANALYSIS_PLOT_HIST_GAIN                  = True
-ANALYSIS_PLOT_TTS                        = True
+ANALYSIS_PLOT_PEAKS                      = False
+ANALYSIS_PLOT_HIST_AMP                   = False
+ANALYSIS_PLOT_HIST_CHRG                  = False
+ANALYSIS_PLOT_HIST_GAIN                  = False
+ANALYSIS_PLOT_TTS                        = False
 
 ANALYSIS_PLOT_ANGULAR_ACCEPTANCE         = True
 ANALYSIS_PLOT_ANGLE_TO_GAIN              = True
@@ -80,8 +79,8 @@ PCS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
 PCS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 
 # gain tune
-PCS_TUNE_GAIN_MIN    = 4.95e6
-PCS_TUNE_GAIN_MAX    = 5.05e6
+PCS_TUNE_GAIN_MIN    = 4.9e6
+PCS_TUNE_GAIN_MAX    = 5.1e6
 PCS_TUNE_V_START     = 85          # will start at current voltage if None
 PCS_TUNE_V_STEP      = 1
 
@@ -163,8 +162,8 @@ CLS_TUNE_MODE     = "iter"      # (none, iter, single, only_gain, only_occ)
 CLS_TUNE_MAX_ITER = 15          # max iters for iter tune mode
 
 # gain tune
-CLS_TUNE_GAIN_MIN    = 4.95e6
-CLS_TUNE_GAIN_MAX    = 5.05e6
+CLS_TUNE_GAIN_MIN    = 4.9e6
+CLS_TUNE_GAIN_MAX    = 5.1e6
 CLS_TUNE_V_START     = 85          # will start at current voltage if None
 CLS_TUNE_V_STEP      = 1
 
