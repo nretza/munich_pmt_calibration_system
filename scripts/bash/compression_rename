@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for dir in */; do
+  echo "Processing directory: $dir"
+  cd "$dir"
+  for file in *_compressed.hdf5; do
+    echo "Renaming file: $file"
+    mv "$file" "${file%_compressed.hdf5}.hdf5"
+  done
+  cd ..
+done
+
