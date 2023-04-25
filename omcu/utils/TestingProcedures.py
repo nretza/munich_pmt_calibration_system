@@ -62,13 +62,17 @@ def photocathode_scan(DATA_PATH):
                 print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
                 continue
 
+            dataset.setFilename(config.PCS_DATAFILE)
+            dataset.setFilepath(DATA_PATH)
+            dataset.setHDF5_key(f"theta {theta}/phi {phi}")
+
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
             if config.PCS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
+
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
-            dataset.setHDF5_key(f"theta {theta}/phi {phi}")
             dataset.write_to_file(hdf5_connection=h5_connection)
 
     print(f"\nFinished photocadode scan\nData located at {os.path.join(DATA_PATH, config.PCS_DATAFILE)}")
@@ -129,13 +133,17 @@ def frontal_HV_scan(DATA_PATH):
                 print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
                 continue
 
+            dataset.setFilename(config.FHVS_DATAFILE)
+            dataset.setFilepath(DATA_PATH)
+            dataset.setHDF5_key(f"HV {HV}")
+
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
             if config.FHVS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
+            
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
-            dataset.setHDF5_key(f"HV {HV}")
             dataset.write_to_file(hdf5_connection=h5_connection)
 
     print(f"\nFinished frontal HV scan\nData located at {os.path.join(DATA_PATH, config.FHVS_DATAFILE)}")
@@ -196,13 +204,17 @@ def charge_linearity_scan(DATA_PATH):
                 print("Measured occupancy of 0. Will NOT store data and continue with next measurement.")
                 continue
 
+            dataset.setFilename(config.CLS_DATAFILE)
+            dataset.setFilepath(DATA_PATH)
+            dataset.setHDF5_key(f"laser tune {laser_tune}")
+
             logging.getLogger("OMCU").info(f"determining dataset metadata")
             dataset.meassure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
             if config.CLS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.CLS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
+
             logging.getLogger("OMCU").info(f"writing dataset to harddrive")
-            dataset.setHDF5_key(f"laser tune {laser_tune}")
             dataset.write_to_file(hdf5_connection=h5_connection)
 
     print(f"\nFinished charge linearity scan\nData located at {os.path.join(DATA_PATH, config.CLS_DATAFILE)}")
@@ -247,10 +259,14 @@ def dark_count_scan(DATA_PATH):
                 logging.getLogger("OMCU").info(f"measuring dataset of {config.DCS_NR_OF_WAVEFORMS} Waveforms with {config.DCS_NR_OF_SAMPLES} samples from Picoscope")
                 dataset = Picoscope.Instance().get_datastream(config.DCS_NR_OF_SAMPLES, config.DCS_NR_OF_WAVEFORMS)
 
+                dataset.setFilename(config.DCS_DATAFILE)
+                dataset.setFilepath(DATA_PATH)
+                dataset.setHDF5_key(f"HV {HV}/iteration {i}")
+
                 logging.getLogger("OMCU").info(f"determining dataset metadata")
                 dataset.meassure_metadict(signal_threshold=config.DCS_SIGNAL_THRESHOLD)
+
                 logging.getLogger("OMCU").info(f"writing dataset to harddrive")
-                dataset.setHDF5_key(f"HV {HV}/iteration {i}")
                 dataset.write_to_file(hdf5_connection=h5_connection)
                 
 
