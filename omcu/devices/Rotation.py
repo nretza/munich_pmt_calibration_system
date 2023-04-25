@@ -30,14 +30,53 @@ class Rotation(serial_device):
 
         # somehow the first i/o on the RS is always buggy. Send dummy message to avoid bugs
         self.serial_io(' ')
+        self.current_theta = None
+        self.current_phi   = None
+        self.go_home()
+
+    def go_home(self):
+        """
+        Sends the Rotation stage to its home position (0,0).
+        """
+        PSU1.Instance().on()
+        self.logger.info(f"returning to home position")
+        hpY = self.serial_io(f'goHomeY', wait_for=": ").split(':')[1]
+        hpX = self.serial_io(f'goHomeX', wait_for=": ").split(':')[1]
+        time.sleep(0.2)
+        PSU1.Instance().off()
+        self.current_phi   = 0
+        self.current_theta = 0
+        return [float(hpY), float(hpX)]
+
+    def set_position(self, phi, theta):
+        """
+        Gives the rotation stage 2D coordinates to move to. First phi, then theta direction
+        :param phi: Float (0-360 in 5000 steps)
+        :param theta: Float (0-360 in 5000 steps)
+        """
+        return [self.set_phi(phi), self.set_theta(theta)]
+
+    def get_position(self):
+        """
+        Returns the current position
+        """
+        posY = self.serial_io(f'getPositionY', wait_for=": ").split(':')[1]
+        posX = self.serial_io(f'getPositionX', wait_for=": ").split(':')[1]
+        return [float(posY), float(posX)]
 
     def set_phi(self, phi):
         """
-        Controls the upper stepper. Phi direction is relative to the PMT and not a global coordinate system
+        Controls the upper stepper.
         :param phi: Float (0-360 in 5000 steps)
         """
+
+        if self.current_phi == phi:
+            return float(self.serial_io(f'getPositionY', wait_for=": ").split(':')[1])
+
         PSU1.Instance().on()
+        self.current_phi = phi
         self.logger.info(f"rotating to phi: {phi}")
+        self.serial_io(f'goHomeY', wait_for=": ")
         phi_pos = self.serial_io(f'goY {phi}', wait_for=": ").split(':')[1]
         time.sleep(0.2)
         PSU1.Instance().off()
@@ -45,52 +84,21 @@ class Rotation(serial_device):
 
     def set_theta(self, theta):
         """
-        Controls the lower stepper. Phi direction is relative to the PMT and not a global coordinate system
+        Controls the lower stepper.
         :param theta: Float (0-360 in 5000 steps)
         """
+
+        if self.current_theta == theta:
+            return float(self.serial_io(f'getPositionX', wait_for=": ").split(':')[1])
+
         PSU1.Instance().on()
+        self.current_theta = theta
         self.logger.info(f"rotating to theta: {theta}")
+        self.serial_io(f'goHomeX', wait_for=": ")
         theta_pos = self.serial_io(f'goX {theta}', wait_for=": ").split(':')[1]
         time.sleep(0.2)
         PSU1.Instance().off()
         return float(theta_pos) / 5000. * 360 #conversion between steps and degree 360deg = 5000 steps
-        
-    def go_home(self):
-        """
-        Sends the Rotation stage to home position.
-        """
-        PSU1.Instance().on()
-        home_pos = [0,0]
-        hpY = self.serial_io(f'goHomeY', wait_for=": ").split(':')[1]
-        hpX = self.serial_io(f'goHomeX', wait_for=": ").split(':')[1]
-        home_pos[0] = float(hpY)
-        home_pos[1] = float(hpX)
-        self.logger.info(f"returning to home position: {home_pos}")
-        time.sleep(0.2)
-        PSU1.Instance().off()
-        return home_pos
-
-    def set_position(self, phi, theta):
-        """
-        Gives the rotation stage 2D coordinates to move to. First phi, than theta direction
-        :param phi: Float (0-360 in 5000 steps)
-        :param theta: Float (0-360 in 5000 steps)
-        """
-        pos = [0, 0]
-        pos[0] = self.set_phi(phi)
-        pos[1] = self.set_theta(theta)
-        return pos
-
-    def get_position(self):
-        """
-        Returns the current position
-        """
-        pos = [0, 0]
-        posY = self.serial_io(f'getPositionY', wait_for=": ").split(':')[1]
-        posX = self.serial_io(f'getPositionX', wait_for=": ").split(':')[1]
-        pos[0] = float(posY)
-        pos[1] = float(posX)
-        return pos
 
     def set_speed(self, speed):
         """
