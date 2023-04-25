@@ -2,7 +2,7 @@
 
 if __name__ == "__main__":
     import sys
-    sys.path.append("..")
+    sys.path.append("/home/canada/munich_pmt_calibration_system/omcu")
 
 import logging
 import time
@@ -216,7 +216,10 @@ class DataAnalysis:
 
 if __name__ == "__main__":
 
-    DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/marias_PMTs/279_no_gelpad"
+    if len(sys.argv) > 1:
+        DATA_PATH = sys.argv[1]
+    else:
+        DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/marias_PMTs/122_no_gelpad"
 
     print("analyzing data now")
     analysis = DataAnalysis(DATA_PATH)
@@ -228,8 +231,3 @@ if __name__ == "__main__":
         analysis.analyze_CLS()
     if config.DARK_COUNT_SCAN:
         analysis.analyze_DCS()
-
-    # todo
-    # PCS not fully run through
-    # make TTS prettier
-    # takes too long

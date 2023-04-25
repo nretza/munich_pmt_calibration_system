@@ -91,17 +91,15 @@ class DataHandler:
         for data in self.meassurements:
             occ_list.append(data.metadict["occ [%]"])
             theta_list.append(data.metadict["theta [°]"])
-        occ_max = max(occ_list)
-        occ_list = [i / occ_max for i in occ_list]
 
         plt.figure()
 
         plt.scatter(np.array(theta_list), np.array(occ_list))
 
         plt.xlabel('theta [°]')
-        plt.ylabel('relative angular acceptance')
+        plt.ylabel('occupancy [%]')
 
-        plt.title(f"relative angular acceptance from theta={min(theta_list)}° to theta={max(theta_list)}°")
+        plt.title(f"occupancy from theta={min(theta_list)}° to theta={max(theta_list)}°")
         figname = f"{self.filename[:-5]}-angular acceptance.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
@@ -331,7 +329,7 @@ class DataHandler:
         laser_tune_list = []
         occ_list = []
         for data in self.meassurements:
-            laser_tune_list.append(data.metadict["laser tune [%]"])
+            laser_tune_list.append(data.metadict["Laser tune [%]"])
             occ_list.append(data.metadict["occ [%]"])
 
         plt.figure()
@@ -361,7 +359,7 @@ class DataHandler:
         laser_tune_list = []
         charge_list = []
         for data in self.meassurements:
-            laser_tune_list.append(data.metadict["laser tune [%]"])
+            laser_tune_list.append(data.metadict["Laser tune [%]"])
             charge_list.append(data.metadict["charge [pC]"])
 
         plt.figure()
