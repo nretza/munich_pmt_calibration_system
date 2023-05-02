@@ -164,7 +164,8 @@ def main():
     uBase.Instance().SetVoltage(config.COOLDOWN_HV)
     for i in range(config.LASER_SETUP_TIME):
         remain = config.LASER_SETUP_TIME - i
-        print(f"{remain} minutes of laser startup remaining")
+        if not remain % 10:
+            print(f"{remain} minutes of laser startup remaining")
         time.sleep(60)
     print("laser startup completed!")
     logging.getLogger("OMCU").info(f"laser startup completed")

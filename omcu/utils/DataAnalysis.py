@@ -219,7 +219,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         DATA_PATH = sys.argv[1]
     else:
-        DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/marias_PMTs/122_no_gelpad"
+        DATA_PATH = "/home/canada/munich_pmt_calibration_system/data/R14374/KM56208_166"
 
     print("analyzing data now")
     analysis = DataAnalysis(DATA_PATH)

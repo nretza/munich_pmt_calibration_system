@@ -1,0 +1,5 @@
+for dir in */; do
+  echo "analysing directory: $dir"
+  python /home/canada/munich_pmt_calibration_system/omcu/utils/DataAnalysis.py $dir
+done
+

@@ -16,7 +16,7 @@ LOG_LVL   = 20               # logging level (10: Debug, 20: Info, 30: Warning e
 COOLDOWN_TIME     = 12*60    # Time in minutes before any measurements take place
 COOLDOWN_HV       = 85
 
-LASER_SETUP_TIME  = 10       # Time to wait after the laser is turned on (usually after DCS)
+LASER_SETUP_TIME  = 120      # Time to wait after the laser is turned on (usually after DCS)
 
 
 #------------------------------------------------------
@@ -95,8 +95,8 @@ PCS_TUNE_SIGNAL_THRESHOLD = -3.5
 
 #-----------------------------------------------------
 
-PCS_PHI_LIST      = np.arange(0,  90, 5)          # phi angles to set while datataking (start,stop,step)
-PCS_THETA_LIST    = np.arange(0, 105, 5)          # theta angles to set while datataking (start,stop,step) | DO NOT GO ABOVE 100
+PCS_PHI_LIST      = np.arange(0, 350, 10)         # phi angles to set while datataking (start,stop,step)
+PCS_THETA_LIST    = np.arange(0, 105,  5)          # theta angles to set while datataking (start,stop,step) | DO NOT GO ABOVE 100
 
 PCS_NR_OF_WAVEFORMS     =  100000                 # Number of waveforms the picoscope should record per HV,phi,theta - configuration
 PCS_SIGNAL_THRESHOLD    = -3.5                    # Determines when a waveform is considered a signal and will be written in the datafile
