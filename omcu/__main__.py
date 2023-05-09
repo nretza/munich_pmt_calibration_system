@@ -4,6 +4,7 @@ import argparse
 import importlib.machinery
 import importlib.util
 import logging
+import signal
 import os
 import shutil
 import time
@@ -17,7 +18,7 @@ from devices.uBase import uBase
 from utils.DataAnalysis import DataAnalysis
 from utils.TestingProcedures import (charge_linearity_scan, dark_count_scan,
                                      frontal_HV_scan, photocathode_scan)
-from utils.util import setup_file_logging
+from utils.util import setup_file_logging, signal_handle
 
 ##########################################################################################
 ##########################################################################################
@@ -236,6 +237,12 @@ if __name__ == "__main__":
    -----------------------------------------
     """)
 
+
+    # setup exit handler
+    for sgl in [signal.SIGILL, signal.SIGTERM, signal.SIGINT, signal.SIGILL, signal.SIGSTOP, signal.SIGFPE]:
+        signal.signal(sgl, signal_handle)
+
+    # setup argument parser
     parser = argparse.ArgumentParser(description='Control Software fpr the Optical Module Calibration Unit.',
                                      add_help=True,
                                      epilog="""

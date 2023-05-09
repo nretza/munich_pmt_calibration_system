@@ -10,6 +10,11 @@ from devices.uBase import uBase
 
 #-----------------------------------------------------
 
+def signal_handle(signum, frame):
+     logging.getLogger("OMCU").log(60, f'{signum}: received, frame: {frame}')
+     exit(1)
+
+
 def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_formatter=None):
     """
     Sets up logging to a file given logging level and format.
@@ -23,6 +28,8 @@ def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_
     logging_level: the level to which should be outputted. Default: logging.INFO
     logging_format: the desired output format of the handler Default: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     """
+
+    logging.addLevelName(60, "SIGNAL")
 
     if not logging_formatter:
         logging_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
