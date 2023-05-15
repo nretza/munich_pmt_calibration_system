@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import logging
 import time
+import config
 
 import numpy as np
 from devices.Laser import Laser
@@ -14,6 +15,107 @@ def signal_handle(signum, frame):
      logging.getLogger("OMCU").log(60, f'{signum}: received, frame: {frame}')
      exit(1)
 
+def check_config():
+
+    print()
+    time.sleep(1)
+    logging.getLogger("OMCU").info("Checking if config file is valid")
+    print("Checking if config file is valid...")
+    time.sleep(1)
+    warning = False
+
+    if config.OUT_PATH == "":
+        logging.getLogger("OMCU").warning("OUT_PATH is empty")
+        print("WARNING: OUT_PATH is empty, data might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if config.LOG_FILE == "":
+        logging.getLogger("OMCU").warning("LOG_FILE is empty")
+        print("WARNING: LOG_FILE is empty, log might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if config.COOLDOWN_TIME not in range(0,24*60,1):
+        logging.getLogger("OMCU").warning(f"Cooldown time {config.COOLDOWN_TIME} minutes might not be reasonable")
+        print(f"WARNING: Cooldown time {config.COOLDOWN_TIME} minutes might not be reasonable!")
+        time.sleep(1)
+        warning = True
+    if config.COOLDOWN_HV not in range(0,120):
+        logging.getLogger("OMCU").warning(f"Cooldown HV {config.COOLDOWN_HV} V exceeds max uBase HV!")
+        print(f"WARNING: Cooldown HV {config.COOLDOWN_HV} V exceeds max uBase HV!")
+        time.sleep(1)
+        warning = True
+    if config.LASER_SETUP_TIME not in range(0,6*60,1):
+        logging.getLogger("OMCU").warning(f"Laser startup time time {config.LASER_SETUP_TIME} minutes might not be reasonable")
+        print(f"WARNING: Laser startup time time {config.LASER_SETUP_TIME} minutes might not be reasonable!")
+        time.sleep(1)
+        warning = True
+
+    if not (config.PHOTOCATHODE_SCAN or config.FRONTAL_HV_SCAN or config.CHARGE_LINEARITY_SCAN or config.DARK_COUNT_SCAN):
+        logging.getLogger("OMCU").warning(f"No testing procedures set in config")
+        print("WARNING: NO testing procedures set in config. No tests will be performed!")
+        time.sleep(1)
+        warning = True
+
+    if config.PCS_DATAFILE == "" and config.PHOTOCATHODE_SCAN:
+        logging.getLogger("OMCU").warning("PCS_DATAFILE is empty")
+        print("WARNING: PCS_DATAFILE is empty, data might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if (np.max(config.PCS_PHI_LIST) > 355 or np.min(config.PCS_THETA_LIST) < 0) and config.PHOTOCATHODE_SCAN:
+        logging.getLogger("OMCU").warning("PCS_PHI_LIST exceeds limits of (0,355)")
+        print("WARNING: PCS_PHI_LIST exceeds limits of (0,355). Procedure might not finish correctly!")
+        time.sleep(1)
+        warning = True
+    if (np.max(config.PCS_THETA_LIST) > 100 or np.min(config.PCS_THETA_LIST) < 0) and config.PHOTOCATHODE_SCAN:
+        logging.getLogger("OMCU").warning("PCS_THETA_LIST exceeds limits of (0,100)")
+        print("WARNING: PCS_THETA_LIST exceeds limits of (0,100). Procedure might not finish correctly!")
+        time.sleep(1)
+        warning = True
+
+    if config.FHVS_DATAFILE == "" and config.FRONTAL_HV_SCAN:
+        logging.getLogger("OMCU").warning("FHVS_DATAFILE is empty")
+        print("WARNING: FHVS_DATAFILE is empty, data might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if (np.max(config.FHVS_HV_LIST) > 120 or np.min(config.FHVS_HV_LIST) < 0) and config.FRONTAL_HV_SCAN:
+        logging.getLogger("OMCU").warning("FHVS_HV_LIST exceeds limits of (0,120)")
+        print("WARNING: FHVS_HV_LIST exceeds limits of (0,120). Procedure might not finish correctly!")
+        time.sleep(1)
+        warning = True
+
+    if config.CLS_DATAFILE == "" and config.CHARGE_LINEARITY_SCAN:
+        logging.getLogger("OMCU").warning("CLS_DATAFILE is empty")
+        print("WARNING: CLS_DATAFILE is empty, data might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if (np.max(config.CLS_LASER_TUNE_LIST) > 800 or np.min(config.CLS_LASER_TUNE_LIST) < 600) and config.CHARGE_LINEARITY_SCAN:
+        logging.getLogger("OMCU").warning("CLS_LASER_TUNE_LIST exceeds limits of (600,800)")
+        print("WARNING: CLS_LASER_TUNE_LIST exceeds limits of (600,800). Procedure might not finish correctly!")
+        time.sleep(1)
+        warning = True
+
+    if config.DCS_DATAFILE == "" and config.DARK_COUNT_SCAN:
+        logging.getLogger("OMCU").warning("DCS_DATAFILE is empty")
+        print("WARNING: DCS_DATAFILE is empty, data might not be stored correctly!")
+        time.sleep(1)
+        warning = True
+    if (np.max(config.DCS_HV_LIST) > 120 or np.min(config.DCS_HV_LIST) < 0) and config.DARK_COUNT_SCAN:
+        logging.getLogger("OMCU").warning("DCS_HV_LIST exceeds limits of (0,120)")
+        print("WARNING: DCS_HV_LIST exceeds limits of (0,120). Procedure might not finish correctly!")
+        time.sleep(1)
+        warning = True
+
+    while warning:
+        answer = input("please acknowledge these warnings [y/n]:\n>>> ")
+        if answer.lower() in ["y", "yes"]: break
+        if answer.lower() in ["n", "no"]:
+            print("ERROR: OMCU determined as not set up by user input. Exiting program. Good bye!")
+            exit()
+
+    logging.getLogger("OMCU").info("Config check complete")
+    time.sleep(1)
+    print("Config check complete!")
+    time.sleep(1)
 
 def setup_file_logging(logging_file: str, logging_level = logging.INFO, logging_formatter=None):
     """

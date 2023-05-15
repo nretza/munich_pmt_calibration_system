@@ -18,7 +18,7 @@ from devices.uBase import uBase
 from utils.DataAnalysis import DataAnalysis
 from utils.TestingProcedures import (charge_linearity_scan, dark_count_scan,
                                      frontal_HV_scan, photocathode_scan)
-from utils.util import setup_file_logging, signal_handle
+from utils.util import setup_file_logging, signal_handle, check_config
 
 ##########################################################################################
 ##########################################################################################
@@ -54,6 +54,9 @@ def main():
     config_path = os.path.abspath(config.__file__)
     shutil.copyfile(config_path, os.path.join((DATA_PATH), "config.py"))
     logging.getLogger("OMCU").info(f"copying OMCU configuration to {DATA_PATH}")
+
+    # checking config
+    check_config()
 
     # user input to confirm device setup    
     print("\nPlease make sure that the following conditions are met before the OMCU is turned on:\n")
@@ -239,7 +242,7 @@ if __name__ == "__main__":
 
 
     # setup exit handler
-    for sgl in [signal.SIGILL, signal.SIGTERM, signal.SIGINT, signal.SIGILL, signal.SIGSTOP, signal.SIGFPE]:
+    for sgl in [signal.SIGSEGV, signal.SIGILL, signal.SIGTERM, signal.SIGINT, signal.SIGFPE]:
         signal.signal(sgl, signal_handle)
 
     # setup argument parser
