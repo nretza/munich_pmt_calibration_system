@@ -191,6 +191,10 @@ class DataAnalysis:
             print("Plotting laser tune to charge relation")
             self.logger.info("Plotting laser tune to gain relation")
             handler.plot_laser_tune_to_charge()
+        if config.ANALYSIS_PLOT_POWERMETER_TO_CHARGE:
+            print("Plotting charge linearity relation")
+            self.logger.info("Plotting charge linearity relation")
+            handler.plot_laser_tune_to_charge()
 
         print(f"\nFinished Charge Linearity Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()

@@ -8,6 +8,7 @@ import h5py
 import numpy as np
 from matplotlib import pyplot as plt
 from utils.Measurement import Measurement, DCS_Measurement
+from scipy import stats
 
 
 class DataHandler:
@@ -371,6 +372,41 @@ class DataHandler:
 
         plt.title(f"charge from laser_tune={min(laser_tune_list)}% to laser_tune={max(laser_tune_list)}%")
         figname = f"{self.filename[:-5]}-laser_tune_to_charge.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.clf()
+
+    
+    def plot_powermeter_to_charge(self):
+
+        # load data
+        self.load_metadicts()
+
+        powermeter_list = []
+        charge_list = []
+        for data in self.meassurements:
+            powermeter_list.append(data.metadict['Powermeter [pW]'])
+            charge_list.append(data.metadict["charge [pC]"])
+
+        x_data = np.array(powermeter_list)
+        y_data = np.array(charge_list)
+        
+        plt.scatter(x_data, y_data, label='data points')
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x_data, y_data)
+        plt.plot(x_data, intercept + slope*x_data, 'r', label='linear fit: y={:.2f}x+{:.2f}, $std$={:.2f}'.format(slope,intercept,std_err))
+        plt.vlines(x_data, intercept + slope*x_data, y_data, linestyles='dotted', color='gray', linewidth=2)
+        
+        plt.xlabel('Laser output [pW]')
+        plt.ylabel('charge at PMT anode [pC]')
+        plt.legend()
+
+        plt.title(f"PMT Charge Linearity")
+        figname = f"{self.filename[:-5]}-powermeter_to_charge.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
