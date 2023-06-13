@@ -509,7 +509,7 @@ class Measurement:
         plt.clf()
 
 
-    def plot_hist(self, mode="amplitude", nr_bins=None, fitting_threshold=None):
+    def plot_hist(self, mode="amplitude", nr_bins=None, fitting_threshold=None, log_scale=False):
 
         # TODO: twin axis for two histograms
 
@@ -534,7 +534,7 @@ class Measurement:
 
         if mode == "amplitude": ax.set_xlabel('Amplitude [mV]')
         if mode == "gain":      ax.set_xlabel('Gain')
-        if mode == "charge":    ax.set_xlabel('Charge')
+        if mode == "charge":    ax.set_xlabel('Charge [pC]')
         if mode == "amplitude_all": ax.set_xlabel('Amplitude [mV]')
         ax.set_ylabel('Counts')
 
@@ -566,6 +566,10 @@ class Measurement:
         except RuntimeError:
             print(f"could not fit {mode} histogram on key {self.hdf5_key}")
             self.logger.warning(f"could not fit {mode} histogram on key {self.hdf5_key}")
+
+        if log_scale:
+            ax.set_yscale('log')
+            ax.set_ylim(bottom = 1e-1)
 
         ax.legend()
 
