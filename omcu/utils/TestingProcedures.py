@@ -22,7 +22,7 @@ def photocathode_scan(DATA_PATH):
 
     logging.getLogger("OMCU").info(f"entering PCS measurement")
 
-    Laser.Instance().off_pulsed()#v
+    Laser.Instance().on_pulsed()
     Rotation.Instance().go_home()
 
     tune_parameters(tune_mode=config.PCS_TUNE_MODE,
