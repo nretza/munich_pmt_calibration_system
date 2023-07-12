@@ -140,7 +140,35 @@ class DataHandler:
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
+        
+    def plot_angle_to_temperature(self):
 
+        # load data
+        self.load_metadicts()
+
+        laser_t_list = []
+        teta_list = []
+        for data in self.meassurements:
+            laser_t_list.append(data.metadict["Laser temp [°C]"])
+            teta_list.append(data.metadict["theta [°]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(teta_list), np.array(laser_t_list))
+
+        plt.xlabel('theta [°]')
+        plt.ylabel('Laser temperature')
+
+        plt.title(f"Laser temperature from theta={min(teta_list)}° to theta={max(teta_list)}°")
+        figname = f"{self.filename[:-5]}-angle_to_temp.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.clf()
 
     def plot_angle_to_TTS(self):
         
