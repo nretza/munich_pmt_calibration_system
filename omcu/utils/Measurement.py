@@ -43,36 +43,40 @@ class Measurement:
         self.filtered_by_threshold = False
 
         self.default_metadict = {
-                "pmt_id":                   -1,
-                "time":                     -1,
-                "theta [°]":                -1,
-                "phi [°]":                  -1,
-                "HV [V]":                   -1,
-                "Dy10 [V]":                 -1,
-                "Powermeter [pW]":          -1,
-                "Picoamp [nA]":             -1,
-                "Laser satus":              -1,
-                "Laser temp [°C]":          -1,
-                "Laser tune [%]":           -1,
-                "Laser pulse freq [Hz]":    -1,
-                "Laser wavelength [nm]":    -1,
-                "darkbox temp [°C]":        -1,
-                "sgnl threshold [mV]":      -1,
-                "occ [%]":                  -1,
-                "avg amplitude [mV]":       -1,
-                "std amplitude [mV]":       -1,
-                "gain":                     -1,
-                "gain spread":              -1,
-                "charge [pC]":              -1,
-                "charge spread [pC]":       -1,
-                "rise time [ns]":           -1,
-                "rise time spread [ns]":    -1,
-                "transit time [ns]":        -1,
-                "transit time spread [ns]": -1,
-                "dark count [Hz]":          -1,
-                "ringing":                  -1,
-                "pre pulse":                -1,
-                "post pulse":               -1
+                "pmt_id":                      -1,
+                "time":                        -1,
+                "theta [°]":                   -1,
+                "phi [°]":                     -1,
+                "HV [V]":                      -1,
+                "Dy10 [V]":                    -1,
+                "Powermeter [pW]":             -1,
+                "Picoamp [nA]":                -1,
+                "Laser satus":                 -1,
+                "Laser temp [°C]":             -1,
+                "Laser tune [%]":              -1,
+                "Laser pulse freq [Hz]":       -1,
+                "Laser wavelength [nm]":       -1,
+                "darkbox temp [°C]":           -1,
+                "sgnl threshold [mV]":         -1,
+                "occ [%]":                     -1,
+                "avg amplitude [mV]":          -1,
+                "std amplitude [mV]":          -1,
+                "gain":                        -1,
+                "gain spread":                 -1,
+                "charge [pC]":                 -1,
+                "charge spread [pC]":          -1,
+                "baseline [mV]":               -1,
+                "baseline spread [mV]":        -1,
+                "peak to valley ratio":        -1,
+                "peak to valley ratio spread": -1,
+                "rise time [ns]":              -1,
+                "rise time spread [ns]":       -1,
+                "transit time [ns]":           -1,
+                "transit time spread [ns]":    -1,
+                "dark count [Hz]":             -1,
+                "ringing":                     -1,
+                "pre pulse":                   -1,
+                "post pulse":                  -1
                 }
 
         self.waveforms = [] # needed for logger warnings to work correctly
@@ -190,7 +194,24 @@ class Measurement:
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: charges = np.append(charges, wf.calculate_charge())
         return np.mean(charges), np.std(charges)
+    
+    def calculate_ptv(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating peak to valley ratio without having Waveforms stored!")
+        ptv = np.array([])
+        for wf in self.waveforms:
+            if wf.min_value < signal_threshold:
+                ptv = np.append(ptv, wf.peak_to_valley_ratio)
+        if len(ptv) == 0: return 0,0
+        return np.mean(ptv), np.std(ptv)
 
+    def calculate_baseline(self, signal_threshold):
+        if not self.waveforms: self.logger.warning("calculating baseline without having Waveforms stored!")
+        baseline = np.array([])
+        for wf in self.waveforms:
+            if wf.min_value < signal_threshold:
+                baseline = np.append(baseline, wf.baseline)
+        if len(baseline) == 0: return 0,0
+        return np.mean(baseline), np.std(baseline)
 
     def calculate_rise_time(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating rise time without having Waveforms stored!")
@@ -259,17 +280,21 @@ class Measurement:
             "sgnl threshold [mV]":    round( signal_threshold,                          2)
             }
                 
-        meta_dict["occ [%]"]                  = round(self.calculate_occ(signal_threshold) * 100,          3)
-        meta_dict["avg amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[0],   3)
-        meta_dict["std amplitude [mV]"]       = round(self.calculate_avg_amplitude(signal_threshold)[1],   3)
-        meta_dict["gain"]                     = round(self.calculate_gain(signal_threshold)[0],            3)
-        meta_dict["gain spread"]              = round(self.calculate_gain(signal_threshold)[1],            3)
-        meta_dict["charge [pC]"]              = round(self.calculate_charge(signal_threshold)[0] * 1e12,   3)
-        meta_dict["charge spread [pC]"]       = round(self.calculate_charge(signal_threshold)[1] * 1e12,   3)
-        meta_dict["rise time [ns]"]           = round(self.calculate_rise_time(signal_threshold)[0],       3)
-        meta_dict["rise time spread [ns]"]    = round(self.calculate_rise_time(signal_threshold)[1],       3)
-        meta_dict["transit time [ns]"]        = round(self.calculate_transit_time(signal_threshold)[0],    3)
-        meta_dict["transit time spread [ns]"] = round(self.calculate_transit_time(signal_threshold)[1],    3)
+        meta_dict["occ [%]"]                     = round(self.calculate_occ(signal_threshold) * 100,          3)
+        meta_dict["avg amplitude [mV]"]          = round(self.calculate_avg_amplitude(signal_threshold)[0],   3)
+        meta_dict["std amplitude [mV]"]          = round(self.calculate_avg_amplitude(signal_threshold)[1],   3)
+        meta_dict["gain"]                        = round(self.calculate_gain(signal_threshold)[0],            3)
+        meta_dict["gain spread"]                 = round(self.calculate_gain(signal_threshold)[1],            3)
+        meta_dict["charge [pC]"]                 = round(self.calculate_charge(signal_threshold)[0] * 1e12,   3)
+        meta_dict["charge spread [pC]"]          = round(self.calculate_charge(signal_threshold)[1] * 1e12,   3)
+        meta_dict["rise time [ns]"]              = round(self.calculate_rise_time(signal_threshold)[0],       3)
+        meta_dict["rise time spread [ns]"]       = round(self.calculate_rise_time(signal_threshold)[1],       3)
+        meta_dict["transit time [ns]"]           = round(self.calculate_transit_time(signal_threshold)[0],    3)
+        meta_dict["transit time spread [ns]"]    = round(self.calculate_transit_time(signal_threshold)[1],    3)
+        meta_dict["baseline [mV]"]               = round(self.calculate_baseline()(signal_threshold)[0],      3)
+        meta_dict["baseline spread [mV]"]        = round(self.calculate_baseline()(signal_threshold)[1],      3)
+        meta_dict["peak to valley ratio"]        = round(self.calculate_ptv()()(signal_threshold)[0],      3)
+        meta_dict["peak to valley ratio spread"] = round(self.calculate_ptv()()(signal_threshold)[1],      3)
 
         self.setMetadict(meta_dict)
 

@@ -59,6 +59,14 @@ class Waveform:
     @property
     def rise_time(self):
         return self.min_time - self.threshold_crossing_time
+    
+    @property
+    def baseline(self):
+        return np.mean(self.signal[self.mask == 0])
+    
+    @property
+    def peak_to_valley_ratio(self):
+        return self.min_value / self.baseline
 
     @property
     def mask(self):
@@ -88,6 +96,7 @@ class Waveform:
 
     def subtract_baseline(self, value):
 
+        if value is None: value = self.baseline
         self.signal -= value
         return self.signal
 
