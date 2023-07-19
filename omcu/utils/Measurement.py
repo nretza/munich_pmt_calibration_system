@@ -14,6 +14,7 @@ from devices.uBase import uBase
 from matplotlib import pyplot as plt
 from scipy import optimize
 from scipy.signal import find_peaks
+from scipy.stats import norm
 from utils.Waveform import Waveform
 
 
@@ -163,7 +164,7 @@ class Measurement:
         if float(len(self.waveforms)) == 0: return 0,0
         return float(i)/float(len(self.waveforms))
     
-
+    
     def calculate_avg_amplitude(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating occupancy without having Waveforms stored!")
         amplitudes = np.array([])
@@ -171,7 +172,9 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 amplitudes = np.append(amplitudes, wf.min_value)
         if len(amplitudes) == 0: return 0,0
-        return np.mean(amplitudes), np.std(amplitudes)
+        mean, FWHM = norm.fit(amplitudes)
+        return mean, FWHM
+        # return np.mean(amplitudes), np.std(amplitudes)
 
 
     def calculate_gain(self, signal_threshold):
@@ -181,7 +184,9 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 gains = np.append(gains, wf.calculate_gain())
         if len(gains) == 0: return 0,0
-        return np.mean(gains), np.std(gains)
+        mean, FWHM = norm.fit(gains)
+        return mean, FWHM
+        # return np.mean(gains), np.std(gains)
 
 
     def validate_gain(self, delta=10):
@@ -193,8 +198,11 @@ class Measurement:
         charges = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: charges = np.append(charges, wf.calculate_charge())
-        return np.mean(charges), np.std(charges)
+        mean, FWHM = norm.fit(charges)
+        return mean, FWHM
+        # return np.mean(charges), np.std(charges)
     
+
     def calculate_ptv(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating peak to valley ratio without having Waveforms stored!")
         ptv = np.array([])
@@ -202,7 +210,10 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 ptv = np.append(ptv, wf.peak_to_valley_ratio)
         if len(ptv) == 0: return 0,0
-        return np.mean(ptv), np.std(ptv)
+        mean, FWHM = norm.fit(ptv)
+        return mean, FWHM
+        # return np.mean(ptv), np.std(ptv)
+
 
     def calculate_baseline(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating baseline without having Waveforms stored!")
@@ -211,14 +222,19 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 baseline = np.append(baseline, wf.baseline)
         if len(baseline) == 0: return 0,0
-        return np.mean(baseline), np.std(baseline)
+        mean, FWHM = norm.fit(baseline)
+        return mean, FWHM
+        # return np.mean(baseline), np.std(baseline)
+
 
     def calculate_rise_time(self, signal_threshold):
         if not self.waveforms: self.logger.warning("calculating rise time without having Waveforms stored!")
         rise_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: rise_times = np.append(rise_times, wf.rise_time)
-        return np.mean(rise_times), np.std(rise_times)
+        mean, FWHM = norm.fit(rise_times)
+        return mean, FWHM
+        # return np.mean(rise_times), np.std(rise_times)
 
 
     def calculate_transit_time(self, signal_threshold):
@@ -226,7 +242,9 @@ class Measurement:
         transit_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: transit_times = np.append(transit_times, wf.transit_time)
-        return np.mean(transit_times), np.std(transit_times)
+        mean, FWHM = norm.fit(transit_times)
+        return mean, FWHM
+        # return np.mean(transit_times), np.std(transit_times)
 
 
     def get_average_wf(self):
@@ -241,7 +259,9 @@ class Measurement:
     def get_baseline_mean(self):
         if not self.waveforms: self.logger.warning("calculating baseline without having Waveforms stored!")
         means = [wf.mean for wf in self.waveforms]
-        return np.mean(means), np.std(means)
+        mean, FWHM = norm.fit(means)
+        return mean, FWHM
+        # return np.mean(means), np.std(means)
 
 
     def subtract_baseline(self, baseline=None):
@@ -264,7 +284,7 @@ class Measurement:
         self.filtered_by_threshold = True
 
 
-    def meassure_metadict(self, signal_threshold, only_waveform_characteristics=False):
+    def measure_metadict(self, signal_threshold, only_waveform_characteristics=False):
 
         meta_dict = self.metadict
         
@@ -774,7 +794,7 @@ class DCS_Measurement:
         return self.time[:,-1].sum() / 1_000_000_000 # convert ns -> s
 
 
-    def meassure_metadict(self, signal_threshold):
+    def measure_metadict(self, signal_threshold):
 
         meta_dict = {
             "pmt_id":                 self.getPMT_ID() if self.getPMT_ID() else -1,

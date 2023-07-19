@@ -10,7 +10,7 @@ class Waveform:
 
     # class to handle a single Waveform
 
-    def __init__(self, time, signal, trigger, signal_threshold = -4):
+    def __init__(self, time, signal, trigger, signal_threshold = -3.5):
         
         self.time    = np.array(time, dtype=np.float32)
         self.signal  = np.array(signal, dtype=np.float32)
