@@ -75,6 +75,22 @@ class DataHandler:
 
         self.data_loaded = True
 
+    
+    def recalculate_metadicts(self):
+
+        with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
+
+            for data in self.meassurements:
+
+                clear = False
+                if not data.waveforms:
+                    clear = True
+                    data.read_from_file(hdf5_connection=h5)
+
+                signal_threshold = data.metadict["sgnl threshold [mV]"]
+                data.measure_metadict(signal_threshold, only_waveform_characteristics=True)
+                if clear: data.clear()
+
 ###-----------------------------------------------------------------
 
     # TODO plotting

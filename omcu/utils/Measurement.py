@@ -264,21 +264,22 @@ class Measurement:
         self.filtered_by_threshold = True
 
 
-    def meassure_metadict(self, signal_threshold):
+    def meassure_metadict(self, signal_threshold, only_waveform_characteristics=False):
 
-        meta_dict = {
-            "pmt_id":                 self.getPMT_ID() if self.getPMT_ID() else -1,
-            "time":                   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "theta [°]":              round( Rotation.Instance().get_position()[1],     2),
-            "phi [°]":                round( Rotation.Instance().get_position()[0],     2),
-            "Dy10 [V]":               round( uBase.Instance().getDy10(),                2),
-            "Powermeter [pW]":        round( Powermeter.Instance().get_power() * 1e12,  3),
-            "Laser satus":            Laser.Instance().get_ld()                           ,
-            "Laser temp [°C]":        round( Laser.Instance().get_temp(),               2),
-            "Laser tune [%]":         round( Laser.Instance().get_tune_value()/10,      2),
-            "Laser pulse freq [Hz]":  round( Laser.Instance().get_freq(),               2),
-            "sgnl threshold [mV]":    round( signal_threshold,                          2)
-            }
+        meta_dict = self.metadict
+        
+        if not only_waveform_characteristics:	
+            meta_dict["pmt_id"]                = self.getPMT_ID() if self.getPMT_ID() else -1
+            meta_dict["time"]                  = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            meta_dict["theta [°]"]             = round( Rotation.Instance().get_position()[1],    2)
+            meta_dict["phi [°]"]               = round( Rotation.Instance().get_position()[0],    2)
+            meta_dict["Dy10 [V]"]              = round( uBase.Instance().getDy10(),               2)
+            meta_dict["Powermeter [pW]"]       = round( Powermeter.Instance().get_power() * 1e12, 3)
+            meta_dict["Laser satus"]           = Laser.Instance().get_ld()
+            meta_dict["Laser temp [°C]"]       = round( Laser.Instance().get_temp(),              2)
+            meta_dict["Laser tune [%]"]        = round( Laser.Instance().get_tune_value()/10,     2)
+            meta_dict["Laser pulse freq [Hz]"] = round( Laser.Instance().get_freq(),              2)
+            meta_dict["sgnl threshold [mV]"]   = round( signal_threshold,                         2)
                 
         meta_dict["occ [%]"]                     = round(self.calculate_occ(signal_threshold) * 100,          3)
         meta_dict["avg amplitude [mV]"]          = round(self.calculate_avg_amplitude(signal_threshold)[0],   3)
