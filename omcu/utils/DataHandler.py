@@ -140,7 +140,8 @@ class DataHandler:
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
-        
+
+
     def plot_angle_to_temperature(self):
 
         # load data
@@ -169,6 +170,7 @@ class DataHandler:
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
+
 
     def plot_angle_to_TTS(self):
         
@@ -249,7 +251,7 @@ class DataHandler:
         plt.ylabel('occ [%]')
 
         plt.title(f"occupancy from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
-        figname = f"{self.filename[:-5]}-lHV_to_occ.png"
+        figname = f"{self.filename[:-5]}-HV_to_occ.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
         if not os.path.exists(save_dir):
@@ -320,6 +322,36 @@ class DataHandler:
         plt.clf()
 
 
+    def plot_HV_to_PTV(self):
+
+        # load data
+        self.load_metadicts()
+
+        ptv_list = []
+        HV_list = []
+        for data in self.meassurements:
+            ptv_list.append(data.metadict["peak to valley ratio"])
+            HV_list.append(data.metadict["Dy10 [V]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(HV_list), np.array(ptv_list))
+
+        plt.xlabel('Dy10 [V]')
+        plt.ylabel('peak to valley ratio')
+
+        plt.title(f"peak to valley ratio from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
+        figname = f"{self.filename[:-5]}-HV_to_PTV.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.clf()
+
+
     def plot_HV_to_rise_time(self):
         
         # load data
@@ -379,6 +411,35 @@ class DataHandler:
             plt.show()
         plt.clf()
 
+
+    def plot_powermeter_to_PTV(self):
+
+        # load data
+        self.load_metadicts()
+
+        ptv_list = []
+        pw_list = []
+        for data in self.meassurements:
+            ptv_list.append(data.metadict["peak to valley ratio"])
+            pw_list.append(data.metadict["Powermeter [pW]"])
+
+        plt.figure()
+
+        plt.scatter(np.array(pw_list), np.array(ptv_list))
+
+        plt.xlabel('Powermeter value [pW]')
+        plt.ylabel('peak to valley ratio')
+
+        plt.title(f"powermeter to peak-to-valley ratio from {min(pw_list)} pW to {max(pw_list)} pW")
+        figname = f"{self.filename[:-5]}-Powermeter_to_PTV.png"
+
+        save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(os.path.join(save_dir, figname))
+        if config.ANALYSIS_SHOW_PLOTS:
+            plt.show()
+        plt.clf()
 
     def plot_laser_tune_to_charge(self):
         
@@ -463,7 +524,7 @@ class DataHandler:
         plt.xlabel('Dy10 [V]')
         plt.ylabel('dark rate [Hz]')
 
-        plt.title(f"dark rate from Dy10={min(HV_list)}% to Dy10={max(HV_list)}%")
+        plt.title(f"dark rate from Dy10={min(HV_list)} to Dy10={max(HV_list)}")
         figname = f"{self.filename[:-5]}-HV_to_dark_count.png"
 
         save_dir = os.path.join(self.filepath, self.filename[:-5], "global-plots")

@@ -136,7 +136,11 @@ class DataAnalysis:
         if config.ANALYSIS_PLOT_HV_TO_RISE_TIME:
             print("Plotting HV to rise time relation")
             self.logger.info("Plotting HV to rise time relation")
-            handler.plot_HV_to_rise_time()            
+            handler.plot_HV_to_rise_time()
+        if config.ANALYSIS_PLOT_HV_PTV:
+            print("Plotting HV to peak-to-valley relation")
+            self.logger.info("Plotting HV to peak-to-valley relation")
+            handler.plot_HV_to_PTV()
             
         print(f"\nFinished frontal HV Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()
@@ -194,7 +198,11 @@ class DataAnalysis:
         if config.ANALYSIS_PLOT_POWERMETER_TO_CHARGE:
             print("Plotting charge linearity relation")
             self.logger.info("Plotting charge linearity relation")
-            handler.plot_laser_tune_to_charge()
+            handler.plot_powermeter_to_charge()
+        if config.ANALYSIS_PLOT_POWERMETER_TO_PTV:
+            print("Plotting powermeter to PTV relation")
+            self.logger.info("Plotting powermeter to PTV relation")
+            handler.plot_powermeter_to_PTV()
 
         print(f"\nFinished Charge Linearity Scan Analysis\nData located in {self.data_path}")
         end_time = time.time()
