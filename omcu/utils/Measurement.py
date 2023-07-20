@@ -172,7 +172,8 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 amplitudes = np.append(amplitudes, wf.min_value)
         if len(amplitudes) == 0: return 0,0
-        mean, FWHM = norm.fit(amplitudes)
+        finite_amplitudes = np.extract(np.isfinite(amplitudes), amplitudes)
+        mean, FWHM = norm.fit(finite_amplitudes)
         return mean, FWHM
         # return np.mean(amplitudes), np.std(amplitudes)
 
@@ -188,7 +189,6 @@ class Measurement:
         return mean, FWHM
         # return np.mean(gains), np.std(gains)
 
-
     def validate_gain(self, delta=10):
         return (self.metadict["gain"] - self.calculate_gain(self.metadict["sgnl_threshold"])[0]) < delta
 
@@ -198,7 +198,9 @@ class Measurement:
         charges = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: charges = np.append(charges, wf.calculate_charge())
-        mean, FWHM = norm.fit(charges)
+        if len(charges) == 0: return 0,0
+        finite_charges = np.extract(np.isfinite(charges), charges)
+        mean, FWHM = norm.fit(finite_charges)
         return mean, FWHM
         # return np.mean(charges), np.std(charges)
     
@@ -210,7 +212,8 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 ptv = np.append(ptv, wf.peak_to_valley_ratio)
         if len(ptv) == 0: return 0,0
-        mean, FWHM = norm.fit(ptv)
+        finite_ptv = np.extract(np.isfinite(ptv), ptv)
+        mean, FWHM = norm.fit(finite_ptv)
         return mean, FWHM
         # return np.mean(ptv), np.std(ptv)
 
@@ -222,7 +225,8 @@ class Measurement:
             if wf.min_value < signal_threshold:
                 baseline = np.append(baseline, wf.baseline)
         if len(baseline) == 0: return 0,0
-        mean, FWHM = norm.fit(baseline)
+        finite_baseline = np.extract(np.isfinite(baseline), baseline)
+        mean, FWHM = norm.fit(finite_baseline)
         return mean, FWHM
         # return np.mean(baseline), np.std(baseline)
 
@@ -232,7 +236,9 @@ class Measurement:
         rise_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: rise_times = np.append(rise_times, wf.rise_time)
-        mean, FWHM = norm.fit(rise_times)
+        if len(rise_times) == 0: return 0,0
+        finite_rise_times = np.extract(np.isfinite(rise_times), rise_times)
+        mean, FWHM = norm.fit(finite_rise_times)
         return mean, FWHM
         # return np.mean(rise_times), np.std(rise_times)
 
@@ -242,7 +248,9 @@ class Measurement:
         transit_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: transit_times = np.append(transit_times, wf.transit_time)
-        mean, FWHM = norm.fit(transit_times)
+        if len(transit_times) == 0: return 0,0
+        finite_transit_times = np.extract(np.isfinite(transit_times), transit_times)
+        mean, FWHM = norm.fit(finite_transit_times)
         return mean, FWHM
         # return np.mean(transit_times), np.std(transit_times)
 
@@ -312,10 +320,10 @@ class Measurement:
         meta_dict["rise time spread [ns]"]       = round(self.calculate_rise_time(signal_threshold)[1],       3)
         meta_dict["transit time [ns]"]           = round(self.calculate_transit_time(signal_threshold)[0],    3)
         meta_dict["transit time spread [ns]"]    = round(self.calculate_transit_time(signal_threshold)[1],    3)
-        meta_dict["baseline [mV]"]               = round(self.calculate_baseline()(signal_threshold)[0],      3)
-        meta_dict["baseline spread [mV]"]        = round(self.calculate_baseline()(signal_threshold)[1],      3)
-        meta_dict["peak to valley ratio"]        = round(self.calculate_ptv()()(signal_threshold)[0],      3)
-        meta_dict["peak to valley ratio spread"] = round(self.calculate_ptv()()(signal_threshold)[1],      3)
+        meta_dict["baseline [mV]"]               = round(self.calculate_baseline(signal_threshold)[0],        3)
+        meta_dict["baseline spread [mV]"]        = round(self.calculate_baseline(signal_threshold)[1],        3)
+        meta_dict["peak to valley ratio"]        = round(self.calculate_ptv(signal_threshold)[0],             3)
+        meta_dict["peak to valley ratio spread"] = round(self.calculate_ptv(signal_threshold)[1],             3)
 
         self.setMetadict(meta_dict)
 
