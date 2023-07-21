@@ -27,7 +27,7 @@ class DataHandler:
         self.data_loaded = False
         self.metadicts_loaded = False
 
-        self.meassurements = []
+        self.measurements = []
 
         MeasurementType = Measurement if not "DCS" in self.filename else DCS_Measurement
 
@@ -38,7 +38,7 @@ class DataHandler:
                     _ = h5[key]["dataset"]
                 except:
                     continue
-                self.meassurements.append(MeasurementType(filename=filename, filepath=filepath, hdf5_key=key))
+                self.measurements.append(MeasurementType(filename=filename, filepath=filepath, hdf5_key=key))
 
 ###-----------------------------------------------------------------
 
@@ -58,7 +58,7 @@ class DataHandler:
             return
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
-            for data in self.meassurements: data.read_metadict_from_file(hdf5_connection=h5)
+            for data in self.measurements: data.read_metadict_from_file(hdf5_connection=h5)
 
         self.metadicts_loaded = True
 
@@ -71,7 +71,7 @@ class DataHandler:
             return
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
-            for data in self.meassurements: data.read_from_file(hdf5_connection=h5)
+            for data in self.measurements: data.read_from_file(hdf5_connection=h5)
 
         self.data_loaded = True
 
@@ -80,7 +80,7 @@ class DataHandler:
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -105,7 +105,7 @@ class DataHandler:
 
         occ_list = []
         theta_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             occ_list.append(data.metadict["occ [%]"])
             theta_list.append(data.metadict["theta [°]"])
 
@@ -135,7 +135,7 @@ class DataHandler:
 
         gain_list = []
         teta_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             gain_list.append(data.metadict["gain"])
             teta_list.append(data.metadict["theta [°]"])
 
@@ -165,7 +165,7 @@ class DataHandler:
 
         laser_t_list = []
         teta_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             laser_t_list.append(data.metadict["Laser temp [°C]"])
             teta_list.append(data.metadict["theta [°]"])
 
@@ -195,7 +195,7 @@ class DataHandler:
 
         tts_list = []
         theta_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             tts_list.append(data.metadict["transit time spread [ns]"])
             theta_list.append(data.metadict["theta [°]"])
 
@@ -225,7 +225,7 @@ class DataHandler:
 
         rise_time_list = []
         theta_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             rise_time_list.append(data.metadict["rise time [ns]"])
             theta_list.append(data.metadict["theta [°]"])
 
@@ -255,7 +255,7 @@ class DataHandler:
 
         HV_list = []
         occ_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             HV_list.append(data.metadict["Dy10 [V]"])
             occ_list.append(data.metadict["occ [%]"])
 
@@ -285,7 +285,7 @@ class DataHandler:
 
         gain_list = []
         HV_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             gain_list.append(data.metadict["gain"])
             HV_list.append(data.metadict["Dy10 [V]"])
 
@@ -315,7 +315,7 @@ class DataHandler:
 
         tts_list = []
         HV_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             tts_list.append(data.metadict["transit time spread [ns]"])
             HV_list.append(data.metadict["Dy10 [V]"])
 
@@ -345,7 +345,7 @@ class DataHandler:
 
         ptv_list = []
         HV_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             ptv_list.append(data.metadict["peak to valley ratio"])
             HV_list.append(data.metadict["Dy10 [V]"])
 
@@ -375,7 +375,7 @@ class DataHandler:
 
         rise_time_list = []
         HV_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             rise_time_list.append(data.metadict["rise time [ns]"])
             HV_list.append(data.metadict["Dy10 [V]"])
 
@@ -405,7 +405,7 @@ class DataHandler:
 
         laser_tune_list = []
         occ_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             laser_tune_list.append(data.metadict["Laser tune [%]"])
             occ_list.append(data.metadict["occ [%]"])
 
@@ -435,7 +435,7 @@ class DataHandler:
 
         ptv_list = []
         pw_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             ptv_list.append(data.metadict["peak to valley ratio"])
             pw_list.append(data.metadict["Powermeter [pW]"])
 
@@ -464,7 +464,7 @@ class DataHandler:
 
         laser_tune_list = []
         charge_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             laser_tune_list.append(data.metadict["Laser tune [%]"])
             charge_list.append(data.metadict["charge [pC]"])
 
@@ -494,7 +494,7 @@ class DataHandler:
 
         powermeter_list = []
         charge_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             powermeter_list.append(data.metadict['Powermeter [pW]'])
             charge_list.append(data.metadict["charge [pC]"])
 
@@ -529,7 +529,7 @@ class DataHandler:
 
         HV_list = []
         DC_list = []
-        for data in self.meassurements:
+        for data in self.measurements:
             HV_list.append(data.metadict["Dy10 [V]"])
             DC_list.append(data.metadict["dark rate [Hz]"])
 
@@ -559,7 +559,7 @@ class DataHandler:
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -573,7 +573,7 @@ class DataHandler:
         
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -587,7 +587,7 @@ class DataHandler:
         
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -600,7 +600,7 @@ class DataHandler:
         
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -614,7 +614,7 @@ class DataHandler:
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:
@@ -629,7 +629,7 @@ class DataHandler:
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
-            for data in self.meassurements:
+            for data in self.measurements:
 
                 clear = False
                 if not data.waveforms:

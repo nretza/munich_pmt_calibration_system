@@ -153,7 +153,7 @@ def gaussian(x, a, mu, sigma):
 
 #-----------------------------------------------------
 
-def meassure_occ(threshold_signal=-4, iterations=10000):
+def measure_occ(threshold_signal=-4, iterations=10000):
     
     # laser on
     if not Laser.Instance().get_ld() == 1:
@@ -176,7 +176,7 @@ def meassure_occ(threshold_signal=-4, iterations=10000):
 
     return occ
 
-def meassure_gain(threshold_signal=-4, iterations=10000):
+def measure_gain(threshold_signal=-4, iterations=10000):
 
     # laser on
     if not Laser.Instance().get_ld() == 1: 

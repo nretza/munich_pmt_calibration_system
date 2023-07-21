@@ -67,7 +67,7 @@ def photocathode_scan(DATA_PATH):
             dataset.setHDF5_key(f"theta {theta}/phi {phi}")
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
-            dataset.meassure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
+            dataset.measure_metadict(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
             if config.PCS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.PCS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.PCS_SIGNAL_THRESHOLD)
@@ -138,7 +138,7 @@ def frontal_HV_scan(DATA_PATH):
             dataset.setHDF5_key(f"HV {HV}")
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
-            dataset.meassure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
+            dataset.measure_metadict(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
             if config.FHVS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.FHVS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.FHVS_SIGNAL_THRESHOLD)
@@ -209,7 +209,7 @@ def charge_linearity_scan(DATA_PATH):
             dataset.setHDF5_key(f"laser tune {laser_tune}")
 
             logging.getLogger("OMCU").info(f"determining dataset metadata")
-            dataset.meassure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
+            dataset.measure_metadict(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
             if config.CLS_FILTER_DATASET:
                 logging.getLogger("OMCU").info(f"filtering dataset by threshold of {config.CLS_SIGNAL_THRESHOLD} mV")
                 dataset.filter_by_threshold(signal_threshold=config.CLS_SIGNAL_THRESHOLD)
@@ -264,7 +264,7 @@ def dark_count_scan(DATA_PATH):
                 dataset.setHDF5_key(f"HV {HV}/iteration {i}")
 
                 logging.getLogger("OMCU").info(f"determining dataset metadata")
-                dataset.meassure_metadict(signal_threshold=config.DCS_SIGNAL_THRESHOLD)
+                dataset.measure_metadict(signal_threshold=config.DCS_SIGNAL_THRESHOLD)
 
                 logging.getLogger("OMCU").info(f"writing dataset to harddrive")
                 dataset.write_to_file(hdf5_connection=h5_connection)
