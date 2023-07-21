@@ -63,10 +63,14 @@ class Waveform:
     @property
     def baseline(self):
         return np.mean(self.signal[self.mask == 0])
+
+    @property
+    def baseline_std(self):
+        return np.std(self.signal[self.mask == 0])
     
     @property
     def peak_to_valley_ratio(self):
-        return self.min_value / self.baseline
+        return abs(self.min_value) / (abs(self.baseline) + self.baseline_std / 2)
 
     @property
     def mask(self):
