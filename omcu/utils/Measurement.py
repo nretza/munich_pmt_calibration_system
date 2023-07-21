@@ -243,16 +243,24 @@ class Measurement:
         # return np.mean(rise_times), np.std(rise_times)
 
 
-    def calculate_transit_time(self, signal_threshold):
+    def calculate_transit_time(self, signal_threshold, nr_bins = 5000):
+
         if not self.waveforms: self.logger.warning("calculating transit time without having Waveforms stored!")
         transit_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: transit_times = np.append(transit_times, wf.transit_time)
         if len(transit_times) == 0: return 0,0
-        finite_transit_times = np.extract(np.isfinite(transit_times), transit_times)
-        mean, FWHM = norm.fit(finite_transit_times)
-        return mean, FWHM
-        # return np.mean(transit_times), np.std(transit_times)
+
+        hist, bins = np.histogram(transit_times, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
 
     def get_average_wf(self):
@@ -467,7 +475,7 @@ class Measurement:
         figname = f"{self.filename[:-5]}-waveform_peaks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "waveform-peaks")
         os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(os.path.join(save_dir, figname))
+        fig.savefig(os.path.join(save_dir, figname), dpi = 300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
@@ -500,7 +508,7 @@ class Measurement:
         figname = f"{self.filename[:-5]}-waveform_masks_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
         save_dir = os.path.join(self.filepath, self.filename[:-5], "waveform-masks")
         os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(os.path.join(save_dir, figname))
+        fig.savefig(os.path.join(save_dir, figname), dpi = 300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
@@ -531,7 +539,7 @@ class Measurement:
         figname = f"{self.filename[:-5]}-average_waveform_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
         save_dir = os.path.join(self.filepath, self.filename[:-5], "average-waveform")
         os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(os.path.join(save_dir, figname))
+        fig.savefig(os.path.join(save_dir, figname), dpi = 300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
@@ -557,7 +565,7 @@ class Measurement:
         figname = f"{self.filename[:-5]}-ampl_to_gain.png"
         save_dir = os.path.join(self.filepath, self.filename[:-5], "correlations")
         os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(os.path.join(save_dir, figname))
+        fig.savefig(os.path.join(save_dir, figname), dpi = 300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
@@ -605,7 +613,7 @@ class Measurement:
         mask = mask & (counts[:] != 0)
 
         x_fit = bins[:-1][mask] + np.diff(bins)[0]/2
-        x_all = bins[:-1] + np.diff(bins)[0]/2
+        x_all = np.linspace(np.min(bins), np.max(bins), 10000)
         y_fit = counts[mask]
 
         try:
@@ -638,7 +646,7 @@ class Measurement:
         plt.clf()
 
 
-    def plot_transit_times(self, nr_bins=None):
+    def plot_transit_times(self, nr_bins=None, x_min = 110, x_max = 155):
 
         if not self.waveforms:
             print(f"plotting transit times without having Waveforms stored!")
@@ -651,17 +659,33 @@ class Measurement:
 
         fig, ax = plt.subplots()
 
-        ax.hist(transit_times, histtype='step', bins=nr_bins, linewidth=2.0)
+        hist, bins, _ = ax.hist(transit_times, histtype='step', bins=nr_bins, linewidth=2.0)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        x_all = np.linspace(np.min(bins), np.max(bins), 10000)
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        fwhm = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        ax.plot(x_all, gaussian(x_all, *popt), 'r-', label='Gaussian fit')
+        ax.plot((popt[1] - (fwhm / 2), popt[1] + (fwhm / 2)), (popt[0] / 2, popt[0] / 2), color='black', label=f"FWHM ({fwhm:.2f} mV)")
+        ax.axvline(x=popt[1] - (fwhm / 2), color="tab:orange", ls="--")
+        ax.axvline(x=popt[1] + (fwhm / 2), color="tab:orange", ls="--")
+
+        ax.set_xlim(x_min, x_max)
 
         ax.set_xlabel('Transit time [ns]')
         ax.set_ylabel('Counts')
+        ax.legend()
 
         ax.set_title(f"TTS for Dy10={self.metadict['Dy10 [V]']}V, laser_tune={self.metadict['Laser tune [%]']}, phi={self.metadict['phi [°]']}, theta={self.metadict['theta [°]']}")
-        
+
         figname = f"{self.filename[:-5]}-TTS_Dy10={self.metadict['Dy10 [V]']}_lasertune={self.metadict['Laser tune [%]']}_phi={self.metadict['phi [°]']}_theta={self.metadict['theta [°]']}.png"
         save_dir = os.path.join(self.filepath, self.filename[:-5],  "transit-times")
         os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(os.path.join(save_dir, figname))
+        fig.savefig(os.path.join(save_dir, figname), dpi = 300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
