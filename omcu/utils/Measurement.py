@@ -165,82 +165,131 @@ class Measurement:
         return float(i)/float(len(self.waveforms))
     
     
-    def calculate_avg_amplitude(self, signal_threshold):
+    def calculate_avg_amplitude(self, signal_threshold, nr_bins=500):
         if not self.waveforms: self.logger.warning("calculating occupancy without having Waveforms stored!")
         amplitudes = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
                 amplitudes = np.append(amplitudes, wf.min_value)
         if len(amplitudes) == 0: return 0,0
-        finite_amplitudes = np.extract(np.isfinite(amplitudes), amplitudes)
-        mean, FWHM = norm.fit(finite_amplitudes)
-        return mean, FWHM
-        # return np.mean(amplitudes), np.std(amplitudes)
+        amplitudes = np.extract(np.isfinite(amplitudes), amplitudes)
+
+        hist, bins = np.histogram(amplitudes, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
 
-    def calculate_gain(self, signal_threshold):
+    def calculate_gain(self, signal_threshold, nr_bins = 500):
         if not self.waveforms: self.logger.warning("calculating gain without having Waveforms stored!")
         gains = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
                 gains = np.append(gains, wf.calculate_gain())
         if len(gains) == 0: return 0,0
-        mean, FWHM = norm.fit(gains)
-        return mean, FWHM
-        # return np.mean(gains), np.std(gains)
+        gains = np.extract(np.isfinite(gains), gains)
+
+        hist, bins = np.histogram(gains, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
     def validate_gain(self, delta=10):
         return (self.metadict["gain"] - self.calculate_gain(self.metadict["sgnl_threshold"])[0]) < delta
 
 
-    def calculate_charge(self, signal_threshold):
+    def calculate_charge(self, signal_threshold, nr_bins=500):
         if not self.waveforms: self.logger.warning("calculating charge without having Waveforms stored!")
         charges = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: charges = np.append(charges, wf.calculate_charge())
         if len(charges) == 0: return 0,0
-        finite_charges = np.extract(np.isfinite(charges), charges)
-        mean, FWHM = norm.fit(finite_charges)
-        return mean, FWHM
-        # return np.mean(charges), np.std(charges)
+        charges = np.extract(np.isfinite(charges), charges)
+
+        hist, bins = np.histogram(charges, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
     
 
-    def calculate_ptv(self, signal_threshold):
+    def calculate_ptv(self, signal_threshold, nr_bins=500):
         if not self.waveforms: self.logger.warning("calculating peak to valley ratio without having Waveforms stored!")
         ptv = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
                 ptv = np.append(ptv, wf.peak_to_valley_ratio)
         if len(ptv) == 0: return 0,0
-        finite_ptv = np.extract(np.isfinite(ptv), ptv)
-        mean, FWHM = norm.fit(finite_ptv)
-        return mean, FWHM
-        # return np.mean(ptv), np.std(ptv)
+        ptv = np.extract(np.isfinite(ptv), ptv)
+
+        hist, bins = np.histogram(ptv, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
 
-    def calculate_baseline(self, signal_threshold):
+    def calculate_baseline(self, signal_threshold, nr_bins=500):
         if not self.waveforms: self.logger.warning("calculating baseline without having Waveforms stored!")
         baseline = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold:
                 baseline = np.append(baseline, wf.baseline)
         if len(baseline) == 0: return 0,0
-        finite_baseline = np.extract(np.isfinite(baseline), baseline)
-        mean, FWHM = norm.fit(finite_baseline)
-        return mean, FWHM
-        # return np.mean(baseline), np.std(baseline)
+        baseline = np.extract(np.isfinite(baseline), baseline)
+
+        hist, bins = np.histogram(baseline, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
 
-    def calculate_rise_time(self, signal_threshold):
+    def calculate_rise_time(self, signal_threshold, nr_bins=500):
         if not self.waveforms: self.logger.warning("calculating rise time without having Waveforms stored!")
         rise_times = np.array([])
         for wf in self.waveforms:
             if wf.min_value < signal_threshold: rise_times = np.append(rise_times, wf.rise_time)
         if len(rise_times) == 0: return 0,0
-        finite_rise_times = np.extract(np.isfinite(rise_times), rise_times)
-        mean, FWHM = norm.fit(finite_rise_times)
-        return mean, FWHM
-        # return np.mean(rise_times), np.std(rise_times)
+        rise_times = np.extract(np.isfinite(rise_times), rise_times)
+
+        hist, bins = np.histogram(rise_times, bins=nr_bins)
+
+        mask = np.ones(nr_bins, dtype=bool) & (hist[:] != 0)
+        x_fit = bins[:-1][mask] + np.diff(bins)[0] / 2
+        y_fit = hist[mask]
+
+        popt, _ = optimize.curve_fit(gaussian, x_fit, y_fit, p0=[np.max(y_fit), np.mean(x_fit), np.std(x_fit)])
+        FWHM = abs(2 * np.sqrt(2 * np.log(2)) * popt[2])
+
+        return popt[1], FWHM
 
 
     def calculate_transit_time(self, signal_threshold, nr_bins = 5000):
