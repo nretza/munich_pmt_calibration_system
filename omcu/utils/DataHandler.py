@@ -291,10 +291,23 @@ class DataHandler:
 
         plt.figure()
 
-        plt.scatter(np.array(HV_list), np.array(gain_list))
+        plt.scatter(np.array(HV_list), np.array(gain_list), label="data")
+
+        # fit
+        coefs = np.polyfit(np.array(HV_list), np.array(gain_list), 5)
+        p = np.poly1d(coefs)
+        xp = np.linspace(min(HV_list), max(HV_list), 100)
+        plt.plot(xp, p(xp), label="polynomial fit", c="tab:red")
+
+        plt.axhline(5e6, linestyle='--', c="tab:gray")
+        plt.axvline(xp[np.argmax(p(xp) > 5e6)], linestyle='--', c="tab:gray")
+
+        plt.yticks(np.arange(0, max(gain_list), 5e6))
+        plt.xticks(np.arange(round(min(HV_list)), max(HV_list), 5))
 
         plt.xlabel('Dy10 [V]')
         plt.ylabel('gain')
+        plt.legend()
 
         plt.title(f"average gain from Dy10={min(HV_list)} V to Dy10={max(HV_list)} V")
         figname = f"{self.filename[:-5]}-HV_to_gain.png"
