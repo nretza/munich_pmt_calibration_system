@@ -29,7 +29,7 @@ class DataHandler:
 
         self.measurements = []
 
-        MeasurementType = Measurement if not "DCS" in self.filename else DCS_Measurement
+        MeasurementType = Measurement if not "dark_count" in self.filename else DCS_Measurement
 
         with h5py.File(os.path.join(self.filepath, self.filename), "r") as h5:
 
