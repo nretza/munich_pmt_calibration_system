@@ -284,26 +284,31 @@ class DataHandler:
         self.load_metadicts()
 
         gain_list = []
+        gain_err_list = []
         HV_list = []
         for data in self.measurements:
             gain_list.append(data.metadict["gain"])
+            gain_err_list.append(data.metadict["gain spread"])
             HV_list.append(data.metadict["Dy10 [V]"])
 
         plt.figure()
 
-        plt.scatter(np.array(HV_list), np.array(gain_list), label="data")
+        plt.errorbar(np.array(HV_list), np.array(gain_list), yerr=gain_err_list, fmt='o', capsize=5, label="data", zorder=1)
 
         # fit
         coefs = np.polyfit(np.array(HV_list), np.array(gain_list), 5)
         p = np.poly1d(coefs)
         xp = np.linspace(min(HV_list), max(HV_list), 100)
-        plt.plot(xp, p(xp), label="polynomial fit", c="tab:red")
+        plt.plot(xp, p(xp), label="polynomial fit", c="tab:red", zorder=2)
 
         plt.axhline(5e6, linestyle='--', c="tab:gray")
         plt.axvline(xp[np.argmax(p(xp) > 5e6)], linestyle='--', c="tab:gray")
 
-        plt.yticks(np.arange(0, max(gain_list), 5e6))
-        plt.xticks(np.arange(round(min(HV_list)), max(HV_list), 5))
+        plt.ylim(bottom=0, top=3e7)
+        plt.xlim(left=74.5, right=100.5)
+
+        # plt.yticks(np.arange(0, max(gain_list), 5e6))
+        # plt.xticks(np.arange(round(min(HV_list)), max(HV_list), 5))
 
         plt.xlabel('Dy10 [V]')
         plt.ylabel('gain')

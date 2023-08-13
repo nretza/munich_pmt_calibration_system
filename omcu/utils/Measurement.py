@@ -644,7 +644,7 @@ class Measurement:
         counts, bins, _ = ax.hist(data, bins=nr_bins, histtype='step', log=False, linewidth=2.0)
 
         if mode == "amplitude": ax.set_xlabel('Amplitude [mV]')
-        if mode == "gain":      ax.set_xlabel('Gain')
+        if mode == "gain":      ax.set_xlabel('gain')
         if mode == "charge":    ax.set_xlabel('Charge [pC]')
         if mode == "amplitude_all": ax.set_xlabel('Amplitude [mV]')
         ax.set_ylabel('Counts')
@@ -695,7 +695,7 @@ class Measurement:
         plt.clf()
 
 
-    def plot_transit_times(self, nr_bins=None, x_min = 110, x_max = 155):
+    def plot_transit_times(self, nr_bins=None, x_min = 110, x_max = 155, log=False):
 
         if not self.waveforms:
             print(f"plotting transit times without having Waveforms stored!")
@@ -724,6 +724,12 @@ class Measurement:
         ax.axvline(x=popt[1] + (fwhm / 2), color="tab:orange", ls="--")
 
         ax.set_xlim(x_min, x_max)
+
+        if log:
+            ax.set_yscale('log')
+            ax.set_ylim(bottom=0.9, top= max(hist) * 2)
+            ax.annotate('post-pulsing', xy=(145, 20), xytext=(130, 70), arrowprops=dict(facecolor='black', shrink=0.05), fontsize=15)
+            ax.annotate('transit time', xy=(125, 110), xytext=(130, 400), arrowprops=dict(facecolor='black', shrink=0.05), fontsize=15)
 
         ax.set_xlabel('Transit time [ns]')
         ax.set_ylabel('Counts')

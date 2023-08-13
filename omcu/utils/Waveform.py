@@ -70,12 +70,12 @@ class Waveform:
     
     @property
     def peak_to_valley_ratio(self):
-        return abs(self.min_value) / (abs(self.baseline) + self.baseline_std / 2)
+        return abs(self.min_value - self.baseline) / (self.baseline_std / 2)
 
     @property
     def mask(self):
 
-        # expected transit time
+        # expected transit time in samples
         expected_tt_max = 220
         expected_tt_min = 190
         expected_waveform_length = 20
@@ -139,8 +139,13 @@ class Waveform:
         plt.xlabel('time [ns]')
         plt.ylabel('Voltage [mV]')
         plt.title(f"single Waveform")
-        plt.vlines([self.trigger_time], label="trigger time", colors=["tab:red"], linestyles="dasheed")
-        plt.savefig(out_file)
+        plt.axvline(self.trigger_time, label="trigger time", color="tab:gray", linestyle=":")
+        plt.axhline(self.min_value, label="peak", color="tab:orange", linestyle="--")
+        plt.axhline(self.baseline, label="baseline", color="tab:green", linestyle="--")
+        plt.axhline((self.baseline + self.baseline_std), color="tab:purple", label="baseline spread", linestyle=":")
+        plt.axhline((self.baseline - self.baseline_std), color="tab:purple", linestyle=":")
+        plt.legend()
+        plt.savefig(out_file, dpi=300)
         if config.ANALYSIS_SHOW_PLOTS:
             plt.show()
         plt.clf()
