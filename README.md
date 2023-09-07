@@ -1,3 +1,7 @@
+# Disclaimer
+
+This is a copy of the [P-ONE OMCU repository](https://github.com/pone-software/munich_pmt_calibration_system/) up to commit 32bfad6e2567b9f87f8abfd742b11f64f68118b0. This repository exists purely for personal archival purposes.
+
 # munich_pmt_calibration_system
 Control Software for the Optical Module Calibration Unit.
 
